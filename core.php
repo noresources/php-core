@@ -9,7 +9,7 @@
  */
 namespace NoreSources;
 
-if (!defined(NS_PHP_PATH))
+if (!defined("NS_PHP_PATH"))
 {
 	define("NS_PHP_PATH", realpath(dirname(__FILE__) . "/.."));
 }
