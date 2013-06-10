@@ -45,6 +45,41 @@ function is_array(&$table)
 }
 
 /**
+ * Indicates if the given array is an associative array
+ * @param array $values
+ * @return boolean @true if at least one of @param $values keys is not a integer or if the array keys are not consecutive values
+ */
+function is_associative_array(&$values)
+{
+	if (!is_array($values))
+	{
+		return false;
+	}
+
+	$itemCount = count($values);
+	$index = 0;
+
+	foreach ($values as $key => $value)
+	{
+		if (is_numeric($key))
+		{
+			if ($index != intval($key))
+			{
+				return true;
+			}
+		}
+		else
+		{
+			return true;
+		}
+
+		$index++;
+	}
+
+	return false;
+}
+
+/**
  * count accepts both @c array and @c Countable implementation
  *
  * @param mixed $table array or Countable implementation object
