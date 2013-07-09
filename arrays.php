@@ -1,18 +1,24 @@
 <?php
+
 /**
  * Copyright © 2012 by Renaud Guillard (dev@nore.fr)
  * Distributed under the terms of the MIT License, see LICENSE
  */
 
 /**
- * @package NoreSources
+ *
+ * @package Core
  */
 namespace NoreSources;
 
+/// Remove a key from an array
 /**
- * @param string $key
- * @param array $table
- * @return array
+ * @param string $key        	
+ * @param array $table        	
+ * 
+ * Key association is preserved in the result array
+ * 
+ * @return A new array that does not contains @param $key
  */
 function array_key_remove($key, &$table)
 {
@@ -20,16 +26,16 @@ function array_key_remove($key, &$table)
 	{
 		return $table;
 	}
-
-	$newArray = array();
+	
+	$newArray = array ();
 	foreach ($table as $k => $v)
 	{
 		if ($k != $key)
 		{
-			$newArray[$k] = $v;
+			$newArray [$k] = $v;
 		}
 	}
-
+	
 	return $newArray;
 }
 
@@ -37,16 +43,17 @@ function array_key_remove($key, &$table)
  * Indicates if the parameter is an array or an object which
  * implements ArrayAccess interface (PHP 5)
  *
- * @param mixed $table
+ * @param mixed $table        	
  */
-function is_array(&$table)
+function is_array($table)
 {
 	return (\is_array($table) || (\is_object($table) && ($table instanceof \ArrayAccess)));
 }
 
 /**
  * Indicates if the given array is an associative array
- * @param array $values
+ * 
+ * @param array $values        	
  * @return boolean @true if at least one of @param $values keys is not a integer or if the array keys are not consecutive values
  */
 function is_associative_array(&$values)
@@ -55,10 +62,10 @@ function is_associative_array(&$values)
 	{
 		return false;
 	}
-
+	
 	$itemCount = count($values);
 	$index = 0;
-
+	
 	foreach ($values as $key => $value)
 	{
 		if (is_numeric($key))
@@ -72,41 +79,42 @@ function is_associative_array(&$values)
 		{
 			return true;
 		}
-
+		
 		$index++;
 	}
-
+	
 	return false;
 }
 
 /**
  * count accepts both @c array and @c Countable implementation
  *
- * @param mixed $table array or Countable implementation object
+ * @param mixed $table array or Countable object
  * @return int
  * @todo rename into array_count
  */
-function count(&$table)
+function count($table)
 {
 	if (\is_array($table))
 	{
-		return \count($table);
+		return\count($table);
 	}
-
+	
 	return (\is_object($table) && ($table instanceof \Countable)) ? $table->count() : false;
 }
 
 /**
  * Reset array pointer to initial value
  * or rewind an Iterator
- * @param $table
- * @return unknown_type
+ * 
+ * @param $table array to reset
+ * @return boolean
  */
 function array_reset(&$table)
 {
 	if (\is_array($table))
 	{
-		\reset($table);
+		reset($table);
 	}
 	elseif (\is_object($table) && ($table instanceof \ArrayAccess))
 	{
@@ -114,7 +122,7 @@ function array_reset(&$table)
 	}
 	else
 	{
-		throw new \InvalidArgumentException();
+		return false;
 	}
 	
 	return true;
@@ -127,7 +135,7 @@ function array_reset(&$table)
  * @param mixed $table array or ArrayAccess implementation
  * @return boolean
  */
-function array_key_exists($key, &$table)
+function array_key_exists($key, $table)
 {
 	if (!(\is_string($key) || \is_numeric($key)))
 	{
@@ -161,6 +169,60 @@ function array_keyvalue(&$table, $key, $a_defaultValue)
 	}
 
 	return (\array_key_exists($key, $table)) ? $table[$key] : $a_defaultValue;
+}
+
+/// Implode a array 
+/**
+ * @param array $table Array to implode
+ * @param string $glue Glue
+ * @param unknown $callback 
+ * @param string $callbackArguments
+ */
+function array_implode_cb($table, $glue, $callback, $callbackArguments = null)
+{
+	if (is_array($glue) && is_string($table))
+	{
+		$a = $glue;
+		$glue = $table;
+		$table = $a;
+	}
+	
+	if (!is_array($table) || count($table) == 0)
+	{
+		return "";
+	}
+	
+	// php 5.1 does not support "class::method" syntax
+	$regs = array();
+	if (is_string($callback) && preg_match("/([^:]+)::(.+)/", $callback, $regs))
+	{
+		$callback = array($regs[1], $regs[2]);
+	}
+	
+	$result = "";
+	
+	if (!is_array($callbackArguments))
+	{
+		$callbackArguments = array($callbackArguments);
+	}
+
+	foreach ($table as $k => $v)
+	{
+		$r = call_user_func_array($callback, array_merge(array($k, $v), $callbackArguments));
+		if (strlen($r) == 0)
+		{
+			continue;
+		}
+		
+		if (strlen($result) > 0)
+		{
+			$result .= $glue;
+		}
+		
+		$result .= $r; 
+	}
+	
+	return $result;
 }
 
 ?>
