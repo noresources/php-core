@@ -55,7 +55,7 @@ class PODExpression implements IExpression
 }
 
 /**
- * A function to use with array_keyvalue_ex()
+ * A function to use with array_keyvalue()
  *
  * @param $k key
  *        	(unused)
@@ -72,8 +72,6 @@ function expressions_glue_expressionString($k, $v, $options)
 
 /**
  * A simple string that implements IExpression
- *
- * @author renaud
  */
 class TextExpression implements IExpression
 {
@@ -99,9 +97,6 @@ class TextExpression implements IExpression
 /**
  * A list of IExpression
  * Used to display a list of comma-separated values
- *
- * @author renaud
- *        
  */
 class ParameterListExpression implements IExpression
 {
@@ -119,7 +114,6 @@ class ParameterListExpression implements IExpression
 	public function expressionString($a_options = null)
 	{
 		return array_implode_cb($this->m_parameters, ", ", __NAMESPACE__ . "\\expressions_glue_string", $a_options);
-		//return array_implode_ex(", ", $this->m_parameters, "expressions_glue_string", $a_options);
 	}
 
 	public function add(IExpression $a_expression)
