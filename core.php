@@ -6,6 +6,7 @@
  */
 
 /**
+ *
  * @package Core
  */
 namespace NoreSources;

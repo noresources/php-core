@@ -23,7 +23,7 @@ class SurroundingElementExpression implements IExpression
 		$this->m_expression = $a_expression;
 		$this->m_start = $a_cSurroundingStart;
 	}
-	
+
 	public function __toString()
 	{
 		return $this->expressionString();
@@ -31,10 +31,9 @@ class SurroundingElementExpression implements IExpression
 
 	public function __clone()
 	{
-
-		$this->m_expression = clone $this->m_expression; 
+		$this->m_expression = clone $this->m_expression;
 	}
-	
+
 	function expressionString($a_options = null)
 	{
 		return $this->m_start . (($this->m_expression) ? $this->m_expression->expressionString($a_options) : "") . $this->m_end;
@@ -72,7 +71,7 @@ abstract class IOperatorExpression implements IExpression
 		$this->m_strOperator = $a_strOperator;
 		$this->protect(true);
 	}
-	
+
 	public function __toString()
 	{
 		return $this->expressionString();
