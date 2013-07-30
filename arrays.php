@@ -175,6 +175,61 @@ function array_keyvalue(&$table, $key, $a_defaultValue)
 	return (\array_key_exists($key, $table)) ? $table [$key] : $a_defaultValue;
 }
 
+
+function array_implode_values($table, $glue)
+{
+	if (is_array($glue) && is_string($table))
+	{
+		$a = $glue;
+		$glue = $table;
+		$table = $a;
+	}
+	
+	if (!is_array($table) || count($table) == 0)
+	{
+		return "";
+	}
+	
+	return \implode($glue, $table);
+}
+
+/// Implode array keys
+function array_implode_keys($table, $glue)
+{
+	if (is_array($glue) && is_string($table))
+	{
+		$a = $glue;
+		$glue = $table;
+		$table = $a;
+	}
+
+	if (!is_array($table) || count($table) == 0)
+	{
+		return "";
+	}
+
+	// php 5.1 does not support "class::method" syntax
+	$result = "";
+	
+	foreach ($table as $k => $v)
+	{
+		$r = $k;
+		if (strlen($r) == 0)
+		{
+			continue;
+		}
+
+		if (strlen($result) > 0)
+		{
+			$result .= $glue;
+		}
+
+		$result .= $r;
+	}
+
+	return $result;
+}
+
 // / Implode a array
 /**
  *
