@@ -12,7 +12,7 @@
  */
 namespace NoreSources;
 
-require_once (NS_PHP_PATH . "/core/arrays.php");
+require_once 'arrays.php';
 
 /**
  * Interface for an object which can be considered

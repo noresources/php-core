@@ -11,8 +11,8 @@
  */
 namespace NoreSources;
 
-require_once (NS_PHP_PATH . "/core/Expressions.php");
-require_once (NS_PHP_PATH . "/core/MessageManager.php");
+require_once ("Expressions.php");
+require_once ("MessageManager.php");
 
 class SurroundingElementExpression implements IExpression
 {
