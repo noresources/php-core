@@ -11,8 +11,8 @@
  */
 namespace NoreSources;
 
-// / Remove a key from an array
 /**
+ * Remove a key from an array
  *
  * @param string $key        	
  * @param array $table
@@ -98,7 +98,7 @@ function count($table)
 {
 	if (\is_array($table))
 	{
-		return \count($table);
+		return (\count($table));
 	}
 	
 	return (\is_object($table) && ($table instanceof \Countable)) ? $table->count() : false;
@@ -141,14 +141,14 @@ function array_reset(&$table)
  */
 function array_key_exists($key, $table)
 {
-	if (!(\is_string($key) ||\is_numeric($key)))
+	if (!(\is_string($key) || (\is_numeric($key))))
 	{
-		$key =\var_export($key, true);
+		$key = (\var_export($key, true));
 	}
 	
 	if (\is_array($table))
 	{
-		return\array_key_exists($key, $table);
+		return (\array_key_exists($key, $table));
 	}
 	elseif (\is_object($table) && ($table instanceof \ArrayAccess))
 	{
@@ -175,7 +175,6 @@ function array_keyvalue(&$table, $key, $a_defaultValue)
 	return (\array_key_exists($key, $table)) ? $table [$key] : $a_defaultValue;
 }
 
-
 function array_implode_values($table, $glue)
 {
 	if (is_array($glue) && is_string($table))
@@ -190,10 +189,21 @@ function array_implode_values($table, $glue)
 		return "";
 	}
 	
-	return \implode($glue, $table);
+	return (\implode($glue, $table));
 }
 
-/// Implode array keys
+/**
+ * Implode array keys
+ * 
+ * @param unknown $table
+ *        	Table
+ * @param unknown $glue
+ *        	Element glue
+ *        	
+ *        	@note This function accepts parameter inversion
+ *        	
+ * @return string
+ */
 function array_implode_keys($table, $glue)
 {
 	if (is_array($glue) && is_string($table))
@@ -202,12 +212,12 @@ function array_implode_keys($table, $glue)
 		$glue = $table;
 		$table = $a;
 	}
-
+	
 	if (!is_array($table) || count($table) == 0)
 	{
 		return "";
 	}
-
+	
 	// php 5.1 does not support "class::method" syntax
 	$result = "";
 	
@@ -218,21 +228,21 @@ function array_implode_keys($table, $glue)
 		{
 			continue;
 		}
-
+		
 		if (strlen($result) > 0)
 		{
 			$result .= $glue;
 		}
-
+		
 		$result .= $r;
 	}
-
+	
 	return $result;
 }
 
-// / Implode a array
 /**
- *
+ * Implode a array
+ * 
  * @param array $table
  *        	Array to implode
  * @param string $glue
