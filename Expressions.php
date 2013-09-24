@@ -50,7 +50,7 @@ class PODExpression implements IExpression
 
 	public function expressionString($a_options = null)
 	{
-		return "" . $this->value . "";
+		return '' . $this->value . '';
 	}
 }
 
@@ -113,7 +113,7 @@ class ParameterListExpression implements IExpression
 
 	public function expressionString($a_options = null)
 	{
-		return array_implode_cb($this->m_parameters, ", ", __NAMESPACE__ . "\\expressions_glue_string", $a_options);
+		return array_implode_cb($this->m_parameters, ', ', __NAMESPACE__ . '\\expressions_glue_string', $a_options);
 	}
 
 	public function add(IExpression $a_expression)

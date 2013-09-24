@@ -186,7 +186,7 @@ function array_implode_values($table, $glue)
 	
 	if (!is_array($table) || count($table) == 0)
 	{
-		return "";
+		return '';
 	}
 	
 	return (\implode($glue, $table));
@@ -215,11 +215,11 @@ function array_implode_keys($table, $glue)
 	
 	if (!is_array($table) || count($table) == 0)
 	{
-		return "";
+		return '';
 	}
 	
 	// php 5.1 does not support "class::method" syntax
-	$result = "";
+	$result = '';
 	
 	foreach ($table as $k => $v)
 	{
@@ -261,12 +261,12 @@ function array_implode_cb($table, $glue, $callback, $callbackArguments = null)
 	
 	if (!is_array($table) || count($table) == 0)
 	{
-		return "";
+		return '';
 	}
 	
 	// php 5.1 does not support "class::method" syntax
 	$regs = array ();
-	if (is_string($callback) && preg_match("/([^:]+)::(.+)/", $callback, $regs))
+	if (is_string($callback) && preg_match('/([^:]+)::(.+)/', $callback, $regs))
 	{
 		$callback = array (
 				$regs [1],
@@ -274,7 +274,7 @@ function array_implode_cb($table, $glue, $callback, $callbackArguments = null)
 		);
 	}
 	
-	$result = "";
+	$result = '';
 	
 	if (!is_array($callbackArguments))
 	{

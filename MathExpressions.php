@@ -11,13 +11,13 @@
  */
 namespace NoreSources;
 
-require_once ("Expressions.php");
-require_once ("MessageManager.php");
+require_once ('Expressions.php');
+require_once ('MessageManager.php');
 
 class SurroundingElementExpression implements IExpression
 {
 
-	public function __construct(&$a_expression, $a_cSurroundingStart = "(", $a_cSurroundingEnd = ")")
+	public function __construct(&$a_expression, $a_cSurroundingStart = '(', $a_cSurroundingEnd = ')')
 	{
 		$this->m_end = $a_cSurroundingEnd;
 		$this->m_expression = $a_expression;
@@ -36,7 +36,9 @@ class SurroundingElementExpression implements IExpression
 
 	function expressionString($a_options = null)
 	{
-		return $this->m_start . (($this->m_expression) ? $this->m_expression->expressionString($a_options) : "") . $this->m_end;
+		return $this->m_start 
+			. (($this->m_expression) ? $this->m_expression->expressionString($a_options) : '') 
+			. $this->m_end;
 	}
 
 	function expression(IExpression &$a_expression = null)
@@ -134,7 +136,7 @@ class UnaryOperatorExpression extends IOperatorExpression
 	{
 		$this->m_expression = clone $this->m_expression;
 	}
-	
+
 	public function __toString()
 	{
 		return $this->expressionString();
@@ -144,15 +146,21 @@ class UnaryOperatorExpression extends IOperatorExpression
 	{
 		if ($this->m_expression === null)
 		{
-			MessageManager::fatalError($this, __METHOD__ . "(): invalid expression given");
+			MessageManager::fatalError($this, __METHOD__ . '(): invalid expression given');
 		}
 		
 		if ($this->m_bPostFixed)
 		{
-			return ($this->protect() ? " (" : " ") . $this->m_expression->expressionString($a_options) . ($this->protect() ? ")" : "") . $this->m_strOperator;
+			return ($this->protect() ? ' (' : ' ') 
+					. $this->m_expression->expressionString($a_options) 
+					. ($this->protect() ? ')' : '') 
+					. $this->m_strOperator;
 		}
 		
-		return $this->m_strOperator . ($this->protect() ? " (" : " ") . $this->m_expression->expressionString($a_options) . ($this->protect() ? ")" : "");
+		return $this->m_strOperator 
+				. ($this->protect() ? ' (' : ' ') 
+				. $this->m_expression->expressionString($a_options) 
+				. ($this->protect() ? ')' : '');
 	}
 
 	function expression(IExpression &$a_expression = null)
@@ -181,13 +189,13 @@ class BinaryOperatorExpression extends IOperatorExpression
 		$this->m_leftExpression = $a_leftExpression;
 		$this->m_rightExpression = $a_rightExpression;
 	}
-	
+
 	public function __clone()
 	{
 		$this->m_leftExpression = clone $this->m_leftExpression;
-		$this->m_rightExpression = clone $this->m_rightExpression; 
+		$this->m_rightExpression = clone $this->m_rightExpression;
 	}
-	
+
 	public function __toString()
 	{
 		return $this->expressionString();
@@ -230,10 +238,16 @@ class BinaryOperatorExpression extends IOperatorExpression
 	{
 		if ($this->m_leftExpression === null || $this->m_rightExpression === null)
 		{
-			MessageManager::fatalError($this, __METHOD__ . "(): invalid expression given");
+			MessageManager::fatalError($this, __METHOD__ . '(): invalid expression given');
 		}
 		
-		return ($this->protect() ? "(" : "") . $this->m_leftExpression->expressionString($a_options) . ($this->protect() ? ") " : " ") . $this->m_strOperator . ($this->protect() ? " (" : " ") . $this->m_rightExpression->expressionString($a_options) . ($this->protect() ? ")" : "");
+		return ($this->protect() ? '(' : '') 
+				. $this->m_leftExpression->expressionString($a_options) 
+				. ($this->protect() ? ') ' : ' ') 
+				. $this->m_strOperator 
+				. ($this->protect() ? ' (' : ' ') 
+				. $this->m_rightExpression->expressionString($a_options) 
+				. ($this->protect() ? ')' : '');
 	}
 
 	protected $m_leftExpression;
@@ -246,7 +260,7 @@ class EqualExpression extends BinaryOperatorExpression
 
 	public function __construct(IExpression &$a_left, IExpression &$a_right)
 	{
-		parent::__construct("=", $a_left, $a_right);
+		parent::__construct('=', $a_left, $a_right);
 	}
 	
 	public function __toString()
