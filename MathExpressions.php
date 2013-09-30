@@ -12,7 +12,7 @@
 namespace NoreSources;
 
 require_once ('Expressions.php');
-require_once ('MessageManager.php');
+require_once ('Reporter.php');
 
 class SurroundingElementExpression implements IExpression
 {
@@ -146,7 +146,7 @@ class UnaryOperatorExpression extends IOperatorExpression
 	{
 		if ($this->m_expression === null)
 		{
-			MessageManager::fatalError($this, __METHOD__ . '(): invalid expression given');
+			Reporter::fatalError($this, __METHOD__ . '(): invalid expression given');
 		}
 		
 		if ($this->m_bPostFixed)
@@ -238,7 +238,7 @@ class BinaryOperatorExpression extends IOperatorExpression
 	{
 		if ($this->m_leftExpression === null || $this->m_rightExpression === null)
 		{
-			MessageManager::fatalError($this, __METHOD__ . '(): invalid expression given');
+			Reporter::fatalError($this, __METHOD__ . '(): invalid expression given');
 		}
 		
 		return ($this->protect() ? '(' : '') 
