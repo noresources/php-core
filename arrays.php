@@ -87,7 +87,7 @@ function is_associative_array(&$values)
 }
 
 /**
- * count accepts both @c array and @c Countable implementation
+ * count accepts both <code>array</code> and <code>Countable</code> implementation
  *
  * @param mixed $table
  *        	array or Countable object

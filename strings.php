@@ -63,13 +63,13 @@ const kLiteralListBooleanFalse = 0x02;
  * @param integer $flags
  *        	Option flags.
  *        	If @c kLiteralListBooleanFalse is not set (the default), @param $literalList will be considered as the list
- *        	of strings that represents @c true. The function will return @c true if @param $string is found in @param
+ *        	of strings that represents <code>true</code>. The function will return <code>true</code> if @param $string is found in @param
  *        	$literalList.
  *        	If @c kLiteralListBooleanFalse is set, @param $literalList will be considered as the list
- *        	of strings that represents @c false. The function will return @c false if @param $string is found in @param
+ *        	of strings that represents <code>false</code>. The function will return <code>false</code> if @param $string is found in @param
  *        	$literalList.
  * @param array $literalList
- *        	a list of string representing @c true or @c false values
+ *        	a list of string representing <code>true</code> or <code>false</code> values
  * @return boolean
  */
 function literalboolval($string, $flags = 0, $literalList = array ("yes", "true", "1"))

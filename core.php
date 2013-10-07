@@ -51,17 +51,17 @@ function version_number()
  *        	and relative to the path defined by NS_PHP_PATH
  *        	
  * @param boolean $silent
- *        	If @c true, no exception will be raised if the resource can't be found
+ *        	If <code>true</code>, no exception will be raised if the resource can't be found
  *        	
  *        	If the resourceName was loaded and a file named
  *        	NS_PHP_PATH . '/' . @param $resourceName . '.inc.php' exists, then
- *        	this file will be included (@c include_once)
+ *        	this file will be included (<code>include_once</code>)
  *        	
  * @example load('core/strings') will call require_once (<path to ns-php root>/core/strings.php)
  *         
- * @return @c true if the file can be loaded.
- *         @c false If the file can't be loaded and @param $silent is set to @c true.
- *         If @param $silent is @c false and the file can't be loaded, a InvalidArgumentException exception is raised.
+ * @return <code>true</code> if the file can be loaded.
+ *         <code>false</code> If the file can't be loaded and @param $silent is set to <code>true</code>.
+ *         If @param $silent is <code>false</code> and the file can't be loaded, a InvalidArgumentException exception is raised.
  */
 function load($resourceName, $silent = false)
 {
