@@ -62,30 +62,49 @@ class SettingTable implements \ArrayAccess, \Serializable
 		$this->m_flags = 0;
 	}
 
+	/**
+	 * Equivalent of offsetGet
+	 * @param unknown $key Key
+	 */
 	public function __get($key)
 	{
 		return $this->offsetGet($key);
 	}
 
+	/**
+	 * Equivalent of offsetSet
+	 * @param unknown $key Key
+	 * @param unknown $value Value
+	 */
 	public function __set($key, $value)
 	{
 		$this->offsetSet($key, $value);
 	}
 
+	/**
+	 * Indicates if a setting key exists
+	 * @param unknown $key
+	 */
 	public function offsetExists($key)
 	{
 		return array_key_exists($key, $this->m_elements);
 	}
 
+	/**
+	 * Get a value associated to a key
+	 * @param mixed $key Key
+	 * @return The setting value or <code>NULL</code> if the key does not exists 
+	 */
 	public function offsetGet($key)
 	{
 		return array_key_exists($key, $this->m_elements) ? $this->m_elements [$key] : null;
 	}
 
 	/**
-	 *
-	 * @param integer $key        	
-	 * @param integer $value        	
+	 * Set a setting value
+	 * @param integer $key Setting key        	
+	 * @param integer $value Setting value
+	 * 
 	 * @throws \Exception
 	 */
 	public function offsetSet($key, $value)
@@ -113,6 +132,10 @@ class SettingTable implements \ArrayAccess, \Serializable
 		$this->m_elements [$key] = $value;
 	}
 
+	/**
+	 * Unset a setting Key/Value pair
+	 * @param mixed $key Setting key
+	 */
 	public function offsetUnset($key)
 	{
 		if (array_key_exists($key, $this->m_elements))
@@ -121,21 +144,35 @@ class SettingTable implements \ArrayAccess, \Serializable
 		}
 	}
 
+	/**
+	 * Serialize table to JSON
+	 */
 	public function serialize()
 	{
 		return json_encode($this->m_elements);
 	}
 
+	/**
+	 * Load setting table from JSON
+	 * @param string $serialized A JSON string
+	 */
 	public function unserialize($serialized)
 	{
 		$this->m_elements = json_decode($serialized, true);
 	}
 
+	/**
+	 * Set setting table flags
+	 * @param integer $flags
+	 */
 	public function setFlags($flags)
 	{
 		$this->m_flags = $flags;
 	}
 	
+	/**
+	 * Get setting table flags
+	 */
 	public function getFlags()
 	{
 		return $this->m_flags;
@@ -186,8 +223,16 @@ class SettingTable implements \ArrayAccess, \Serializable
 		}
 	}
 
+	/**
+	 * Option flags
+	 * @var integer
+	 */
 	private $m_flags;
 
+	/**
+	 * Setting map 
+	 * @var array
+	 */
 	private $m_elements;
 }
 

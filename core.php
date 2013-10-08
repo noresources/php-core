@@ -15,12 +15,12 @@ use \InvalidArgumentException;
 
 if (!defined('NS_PHP_PATH'))
 {
-	define('NS_PHP_PATH', realpath(dirname(__FILE__) . '/..'));
+	define('NS_PHP_PATH', realpath(__DIR__ . '/..'));
 }
 
 if (!defined('NS_PHP_CORE_PATH'))
 {
-	define('NS_PHP_CORE_PATH', realpath(dirname(__FILE__)));
+	define('NS_PHP_CORE_PATH', realpath(__DIR__));
 }
 const VERSION_MAJOR = 0;
 const VERSION_MINOR = 1;
