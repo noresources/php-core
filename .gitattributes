@@ -1,4 +1,4 @@
 * text=auto
 * text eol=crlf
 *.sh text eol=lf
-*.php text eol.crlf
+*.php text eol=crlf
