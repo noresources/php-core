@@ -11,7 +11,7 @@
  */
 namespace NoreSources;
 
-interface ReporterImplementation
+interface ReporterInterface
 {
 
 	function addMessage($level, $object, $message, $file, $line);
@@ -28,7 +28,7 @@ class Reporter
 	const FATAL_ERROR = 0xA;
 	const ALL_MESSAGES = 0xFF;
 
-	public static function setImplementation(ReporterImplementation &$impl)
+	public static function setImplementation(ReporterInterface &$impl)
 	{
 		self::$m_implementation = $impl;
 	}
@@ -70,12 +70,12 @@ class Reporter
 
 	/**
 	 *
-	 * @var ReporterImplementation
+	 * @var ReporterInterface
 	 */
 	private static $m_implementation;
 }
 
-class DummyReporterImplementation implements ReporterImplementation
+class DummyReporterInterface implements ReporterInterface
 {
 
 	function addMessage($level, $object, $message, $file, $line)
@@ -87,6 +87,6 @@ class DummyReporterImplementation implements ReporterImplementation
 	}
 }
 
-Reporter::setImplementation(new DummyReporterImplementation());
+Reporter::setImplementation(new DummyReporterInterface());
 
 ?>
