@@ -14,12 +14,9 @@ namespace NoreSources;
 /**
  * Print a line of text
  *
- * @param unknown $text
- *        	Text to print
- * @param string $mode
- *        	End of line mode (null -> auto, 'html' -> <br>, 'xhtml' -> <br />, 'cli' -> LF)
- * @param string $returnText
- *        	If @code true, return the text rather than displaying it
+ * @param unknown $text Text to print
+ * @param string $mode End of line mode (null -> auto, 'html' -> <br>, 'xhtml' -> <br />, 'cli' -> LF)
+ * @param string $returnText If @code true, return the text rather than displaying it
  * @return string if @param $returnText is @code true
  */
 function echo_line($text, $mode = "auto", $returnText = false)
@@ -57,22 +54,19 @@ const kLiteralListBooleanFalse = 0x02;
 
 /**
  * Convert a literal to a boolean value
- * 
- * @param mixed $string
- *        	String to convert
- * @param integer $flags
- *        	Option flags.
- *        	If @c kLiteralListBooleanFalse is not set (the default), @param $literalList will be considered as the list
- *        	of strings that represents <code>true</code>. The function will return <code>true</code> if @param $string is found in @param
- *        	$literalList.
- *        	If @c kLiteralListBooleanFalse is set, @param $literalList will be considered as the list
- *        	of strings that represents <code>false</code>. The function will return <code>false</code> if @param $string is found in @param
- *        	$literalList.
- * @param array $literalList
- *        	a list of string representing <code>true</code> or <code>false</code> values
+ *
+ * @param mixed $string String to convert
+ * @param integer $flags Option flags.
+ *        If @c kLiteralListBooleanFalse is not set (the default), @param $literalList will be considered as the list
+ *        of strings that represents <code>true</code>. The function will return <code>true</code> if @param $string is found in
+ * @param $literalList. If @c kLiteralListBooleanFalse is set, @param $literalList will be considered as the list
+ *        of strings that represents <code>false</code>. The function will return <code>false</code> if @param $string is found
+ *        in @param
+ *        $literalList.
+ * @param array $literalList a list of string representing <code>true</code> or <code>false</code> values
  * @return boolean
  */
-function literalboolval($string, $flags = 0, $literalList = array ("yes", "true", "1"))
+function string_literal_to_boolean($string, $flags = 0, $literalList = array ("yes", "true", "1"))
 {
 	if (is_bool($string))
 	{
@@ -99,7 +93,7 @@ function literalboolval($string, $flags = 0, $literalList = array ("yes", "true"
 		{
 			$res = false;
 		}
-
+		
 		foreach ($literalList as $l)
 		{
 			if (strcasecmp($string, $l) == 0)
@@ -113,6 +107,7 @@ function literalboolval($string, $flags = 0, $literalList = array ("yes", "true"
 	
 	// case sensitive 
 	
+
 	if ($flags & kLiteralListBooleanFalse)
 	{
 		return !\in_array($string, $literalList);
