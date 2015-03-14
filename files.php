@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Copyright © 2012 by Renaud Guillard (dev@nore.fr)
+ * Copyright © 2012-2015 by Renaud Guillard (dev@nore.fr)
  * Distributed under the terms of the MIT License, see LICENSE
  */
 
@@ -12,9 +12,6 @@
 namespace NoreSources;
 
 /**
- *
- *
- *
  * http://stackoverflow.com/questions/2637945/getting-relative-path-from-absolute-path-in-php
  *
  * @param string $from

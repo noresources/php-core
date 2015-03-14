@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Copyright © 2012 by Renaud Guillard (dev@nore.fr)
+ * Copyright © 2012-2015 by Renaud Guillard (dev@nore.fr)
  * Distributed under the terms of the MIT License, see LICENSE
  */
 
@@ -190,7 +190,7 @@ class SettingTable implements \ArrayAccess, \Serializable
 	 *        	File to load
 	 * @param string $filetype
 	 *        	One of kSettingTableFile*. If @c kSettingTableFileAuto, the file type is
-	 *        	automatically detected using the file extenstion
+	 *        	automatically detected using the file extension
 	 */
 	public function load($filename, $filetype = kSettingTableFileAuto)
 	{
