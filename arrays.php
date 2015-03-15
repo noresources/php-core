@@ -301,5 +301,3 @@ function array_implode_cb($table, $glue, $callback, $callbackArguments = null)
 	
 	return $result;
 }
-
-?>

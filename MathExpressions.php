@@ -268,5 +268,3 @@ class EqualExpression extends BinaryOperatorExpression
 		return $this->expressionString();
 	}
 }
-
-?>

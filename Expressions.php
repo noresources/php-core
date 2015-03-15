@@ -139,5 +139,3 @@ function expressions_glue_string($k, $v, $options)
 {
 	return $v->expressionString($options);
 }
-
-?>

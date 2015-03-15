@@ -86,4 +86,4 @@ function load($resourceName, $silent = false)
 	return $exists;
 }
 
-?>
+include_once (NS_PHP_CORE_PATH . '/core.autoload.inc.php');

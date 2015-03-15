@@ -88,5 +88,3 @@ class DummyReporterInterface implements ReporterInterface
 }
 
 Reporter::setImplementation(new DummyReporterInterface());
-
-?>

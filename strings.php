@@ -115,5 +115,3 @@ function string_literal_to_boolean($string, $flags = 0, $literalList = array ("y
 	
 	return \in_array($string, $literalList);
 }
-
-?>

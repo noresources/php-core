@@ -235,5 +235,3 @@ class SettingTable implements \ArrayAccess, \Serializable
 	 */
 	private $m_elements;
 }
-
-?>

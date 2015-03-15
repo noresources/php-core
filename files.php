@@ -61,5 +61,3 @@ function file_travelpath($from, $to)
 	
 	return implode('/', $relPath);
 }
-
-?>
