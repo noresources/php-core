@@ -35,27 +35,27 @@ class Reporter
 
 	public static function debug($object, $message, $file = null, $line = null)
 	{
-		self::addMessage(self::DEBUGMSG, $object, $message);
+		self::addMessage(self::DEBUGMSG, $object, $message, $file, $line);
 	}
 
 	public static function notice($object, $message, $file = null, $line = null)
 	{
-		self::addMessage(self::NOTICE, $object, $message);
+		self::addMessage(self::NOTICE, $object, $message, $file, $line);
 	}
 
 	public static function warning($object, $message, $file = null, $line = null)
 	{
-		self::addMessage(self::WARNING, $object, $message);
+		self::addMessage(self::WARNING, $object, $message, $file, $line);
 	}
 
 	public static function error($object, $message, $file = null, $line = null)
 	{
-		self::addMessage(self::ERROR, $object, $message);
+		self::addMessage(self::ERROR, $object, $message, $file, $line);
 	}
 
 	public static function fatalError($object, $message, $file = null, $line = null)
 	{
-		self::addMessage(self::FATAL_ERROR, $object, $message);
+		self::addMessage(self::FATAL_ERROR, $object, $message, $file, $line);
 		self::$m_implementation->handleFatalError();
 		die();
 	}
