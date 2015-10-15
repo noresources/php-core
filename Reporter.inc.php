@@ -14,48 +14,103 @@ namespace NoreSources;
 interface ReporterInterface
 {
 
+	/**
+	 * Add message to reporter
+	 * @param unknown $level Message level
+	 * @param unknown $object Object that call the reporter
+	 * @param unknown $message Message
+	 * @param unknown $file File
+	 * @param unknown $line Line number in @param $file
+	 */
 	function addMessage($level, $object, $message, $file, $line);
 
+	/**
+	 * Task to do after a fatal error message
+	 */
 	function handleFatalError();
 }
 
 class Reporter
 {
-	const DEBUGMSG = 0x1;
-	const NOTICE = 0x2;
-	const WARNING = 0x4;
-	const ERROR = 0x8;
-	const FATAL_ERROR = 0xA;
-	const ALL_MESSAGES = 0xFF;
+	const kMessageDebug = 0x1;
+	const kMessageNotice = 0x2;
+	const kMessageWarning = 0x4;
+	const kMessageError = 0x8;
+	const kMessageFatalError = 0xA;
+	const kMessageAll = 0xFF;
 
+	/**
+	 * Set Reporter interface implementation
+	 * @param ReporterInterface $impl
+	 */
 	public static function setImplementation(ReporterInterface &$impl)
 	{
 		self::$m_implementation = $impl;
 	}
 
+	public static function getImplementation()
+	{
+		return self::$m_implementation;
+	}
+
+	/**
+	 * Add debug message
+	 * @param unknown $object Object that call the reporter
+	 * @param unknown $message Message
+	 * @param unknown $file File
+	 * @param unknown $line Line number in @param $file
+	 */
 	public static function debug($object, $message, $file = null, $line = null)
 	{
-		self::addMessage(self::DEBUGMSG, $object, $message, $file, $line);
+		self::addMessage(self::kMessageDebug, $object, $message, $file, $line);
 	}
 
+	/**
+	 * Add notice
+	 * @param unknown $object Object that call the reporter
+	 * @param unknown $message Message
+	 * @param unknown $file File
+	 * @param unknown $line Line number in @param $file
+	 */
 	public static function notice($object, $message, $file = null, $line = null)
 	{
-		self::addMessage(self::NOTICE, $object, $message, $file, $line);
+		self::addMessage(self::kMessageNotice, $object, $message, $file, $line);
 	}
 
+	/**
+	 * Add warning
+	 * @param unknown $object Object that call the reporter
+	 * @param unknown $message Message
+	 * @param unknown $file File
+	 * @param unknown $line Line number in @param $file
+	 */
 	public static function warning($object, $message, $file = null, $line = null)
 	{
-		self::addMessage(self::WARNING, $object, $message, $file, $line);
+		self::addMessage(self::kMessageWarning, $object, $message, $file, $line);
 	}
 
+	/**
+	 * Add error
+	 * @param unknown $object Object that call the reporter
+	 * @param unknown $message Message
+	 * @param unknown $file File
+	 * @param unknown $line Line number in @param $file
+	 */
 	public static function error($object, $message, $file = null, $line = null)
 	{
-		self::addMessage(self::ERROR, $object, $message, $file, $line);
+		self::addMessage(self::kMessageError, $object, $message, $file, $line);
 	}
 
+	/**
+	 * Raise a fatal error
+	 * @param unknown $object Object that call the reporter
+	 * @param unknown $message Message
+	 * @param unknown $file File
+	 * @param unknown $line Line number in @param $file
+	 */
 	public static function fatalError($object, $message, $file = null, $line = null)
 	{
-		self::addMessage(self::FATAL_ERROR, $object, $message, $file, $line);
+		self::addMessage(self::kMessageFatalError, $object, $message, $file, $line);
 		self::$m_implementation->handleFatalError();
 		die();
 	}
@@ -75,16 +130,21 @@ class Reporter
 	private static $m_implementation;
 }
 
+/**
+ * A default implementation of ReporterInterface which does nothing
+ */
 class DummyReporterInterface implements ReporterInterface
 {
 
 	function addMessage($level, $object, $message, $file, $line)
-	{
-	}
+	{}
 
 	function handleFatalError()
-	{
-	}
+	{}
 }
 
-Reporter::setImplementation(new DummyReporterInterface());
+// Set a default reporter
+if (!Reporter::getImplementation())
+{
+	Reporter::setImplementation(new DummyReporterInterface());
+}
