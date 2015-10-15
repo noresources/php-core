@@ -11,9 +11,6 @@
  */
 namespace NoreSources;
 
-require_once ('Expressions.php');
-require_once ('Reporter.php');
-
 class SurroundingElementExpression implements IExpression
 {
 

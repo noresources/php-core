@@ -1,15 +1,7 @@
 <?php
-function autoload_NTUwNWIwZjhmMmZlYw($className)
+function autoload_NTYxZmY0Yjc3ZjMxYQ($className)
 {
-	if ($className == 'NoreSources\Reporter')
-	{
-		require_once(__DIR__ . '/Reporter.php');
-	}
- 	elseif ($className == 'NoreSources\DummyReporterInterface')
-	{
-		require_once(__DIR__ . '/Reporter.php');
-	}
- 	elseif ($className == 'NoreSources\SettingTable')
+	if ($className == 'NoreSources\SettingTable')
 	{
 		require_once(__DIR__ . '/SettingTable.php');
 	}
@@ -33,6 +25,10 @@ function autoload_NTUwNWIwZjhmMmZlYw($className)
 	{
 		require_once(__DIR__ . '/MathExpressions.php');
 	}
+ 	elseif ($className == 'NoreSources\IExpression')
+	{
+		require_once(__DIR__ . '/Expressions.php');
+	}
  	elseif ($className == 'NoreSources\PODExpression')
 	{
 		require_once(__DIR__ . '/Expressions.php');
@@ -45,6 +41,17 @@ function autoload_NTUwNWIwZjhmMmZlYw($className)
 	{
 		require_once(__DIR__ . '/Expressions.php');
 	}
+ 	elseif ($className == 'NoreSources\ReporterInterface')
+	{
+		include_once(__DIR__ . '/Reporter.inc.php');
+	}
+ 	elseif ($className == 'NoreSources\Reporter')
+	{
+		include_once(__DIR__ . '/Reporter.inc.php');
+	}
+ 	elseif ($className == 'NoreSources\DummyReporterInterface')
+	{
+		include_once(__DIR__ . '/Reporter.inc.php');
+	}
  }
-spl_autoload_register('autoload_NTUwNWIwZjhmMmZlYw');
-?>
+spl_autoload_register('autoload_NTYxZmY0Yjc3ZjMxYQ');
