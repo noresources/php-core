@@ -72,7 +72,7 @@ function string_literal_to_boolean($string, $flags = 0, $literalList = array ("y
 	{
 		return $string;
 	}
-	elseif ($string === null)
+	elseif (is_null($string))
 	{
 		return false;
 	}

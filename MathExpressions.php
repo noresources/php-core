@@ -33,14 +33,12 @@ class SurroundingElementExpression implements IExpression
 
 	function expressionString($a_options = null)
 	{
-		return $this->m_start 
-			. (($this->m_expression) ? $this->m_expression->expressionString($a_options) : '') 
-			. $this->m_end;
+		return $this->m_start . (($this->m_expression) ? $this->m_expression->expressionString($a_options) : '') . $this->m_end;
 	}
 
 	function expression(IExpression &$a_expression = null)
 	{
-		if ($a_expression !== null)
+		if (!is_null($a_expression))
 		{
 			$this->m_expression = $a_expression;
 		}
@@ -62,8 +60,7 @@ abstract class IOperatorExpression implements IExpression
 
 	/**
 	 *
-	 * @param string $a_strOperator
-	 *        	Operator string
+	 * @param string $a_strOperator Operator string
 	 */
 	public function __construct($a_strOperator)
 	{
@@ -79,12 +76,12 @@ abstract class IOperatorExpression implements IExpression
 	/**
 	 * Indicates if the expression must be protected between parenthesis
 	 *
-	 * @param boolean|null $a_protect        	
+	 * @param boolean|null $a_protect
 	 * @return boolean
 	 */
 	function protect($a_protect = null)
 	{
-		if ($a_protect !== null)
+		if (!is_null($a_protect))
 		{
 			$this->m_bProtect = $a_protect;
 		}
@@ -118,9 +115,9 @@ class UnaryOperatorExpression extends IOperatorExpression
 
 	/**
 	 *
-	 * @param string $a_strOperator        	
-	 * @param IExpression $a_expression        	
-	 * @param boolean $a_postFixed        	
+	 * @param string $a_strOperator
+	 * @param IExpression $a_expression
+	 * @param boolean $a_postFixed
 	 */
 	public function __construct($a_strOperator, IExpression &$a_expression = null, $a_postFixed = false)
 	{
@@ -141,7 +138,7 @@ class UnaryOperatorExpression extends IOperatorExpression
 
 	function expressionString($a_options = null)
 	{
-		if ($this->m_expression === null)
+		if (is_null($this->m_expression))
 		{
 			Reporter::fatalError($this, __METHOD__ . '(): invalid expression given');
 		}
@@ -162,7 +159,7 @@ class UnaryOperatorExpression extends IOperatorExpression
 
 	function expression(IExpression &$a_expression = null)
 	{
-		if ($a_expression !== null)
+		if (!is_null($a_expression))
 		{
 			$this->m_expression = $a_expression;
 		}
@@ -205,7 +202,7 @@ class BinaryOperatorExpression extends IOperatorExpression
 	 */
 	function leftExpression(IExpression &$a_expression = null)
 	{
-		if ($a_expression !== null)
+		if (!is_null($a_expression))
 		{
 			$this->m_leftExpression = $a_expression;
 		}
@@ -219,7 +216,7 @@ class BinaryOperatorExpression extends IOperatorExpression
 	 */
 	function rightExpression(IExpression &$a_expression = null)
 	{
-		if ($a_expression !== null)
+		if (!is_null($a_expression))
 		{
 			$this->m_rightExpression = $a_expression;
 		}
@@ -233,7 +230,7 @@ class BinaryOperatorExpression extends IOperatorExpression
 	 */
 	function expressionString($a_options = null)
 	{
-		if ($this->m_leftExpression === null || $this->m_rightExpression === null)
+		if (is_null($this->m_leftExpression) || is_null($this->m_rightExpression))
 		{
 			Reporter::fatalError($this, __METHOD__ . '(): invalid expression given');
 		}
