@@ -27,7 +27,7 @@ const kSettingTableReadOnly = 0x3;
 
 /**
  * Do not raise exception on set/get error
- * 
+ *
  * @var integer
  */
 const kSettingTableSilent = 0x4;
@@ -40,21 +40,21 @@ const kSettingTableFileJSON = 2;
 
 /**
  * Remove all existing entries, then load all elements of the file
- * 
+ *
  * @var integer
  */
 const kSettingTableLoadReplace = 1;
 
 /**
  * Don't override existing entries
- * 
+ *
  * @var integer
  */
 const kSettingTableLoadAppend = 2;
 
 /**
  * Merge existing entries with the one in the file
- * 
+ *
  * @var integer
  */
 const kSettingTableLoadMerge = 2;
@@ -70,7 +70,7 @@ class SettingTable implements \ArrayAccess, \Serializable
 
 	/**
 	 * Equivalent of offsetGet
-	 * 
+	 *
 	 * @param unknown $key
 	 *        	Key
 	 */
@@ -81,7 +81,7 @@ class SettingTable implements \ArrayAccess, \Serializable
 
 	/**
 	 * Equivalent of offsetSet
-	 * 
+	 *
 	 * @param unknown $key
 	 *        	Key
 	 * @param unknown $value
@@ -94,7 +94,7 @@ class SettingTable implements \ArrayAccess, \Serializable
 
 	/**
 	 * Indicates if a setting key exists
-	 * 
+	 *
 	 * @param unknown $key        	
 	 */
 	public function offsetExists ($key)
@@ -104,7 +104,7 @@ class SettingTable implements \ArrayAccess, \Serializable
 
 	/**
 	 * Get a value associated to a key
-	 * 
+	 *
 	 * @param mixed $key
 	 *        	Key
 	 * @return The setting value or <code>NULL</code> if the key does not exists
@@ -116,7 +116,7 @@ class SettingTable implements \ArrayAccess, \Serializable
 
 	/**
 	 * Set a setting value
-	 * 
+	 *
 	 * @param integer $key
 	 *        	Setting key
 	 * @param integer $value
@@ -164,7 +164,7 @@ class SettingTable implements \ArrayAccess, \Serializable
 
 	/**
 	 * Unset a setting Key/Value pair
-	 * 
+	 *
 	 * @param mixed $key
 	 *        	Setting key
 	 */
@@ -181,12 +181,23 @@ class SettingTable implements \ArrayAccess, \Serializable
 	 */
 	public function serialize ()
 	{
-		return json_encode($this->m_elements);
+		return json_encode($this->toArray());
+	}
+
+	public function toArray ()
+	{
+		$a = array();
+		foreach ($this->m_elements as $key => $value)
+		{
+			$a[$key] = (is_object($value) && ($value instanceof SettingTable)) ? $value->toArray (): $value;
+		}
+		
+		return $a;
 	}
 
 	/**
 	 * Load setting table from JSON
-	 * 
+	 *
 	 * @param string $serialized
 	 *        	A JSON string
 	 */
@@ -197,7 +208,7 @@ class SettingTable implements \ArrayAccess, \Serializable
 
 	/**
 	 * Set setting table flags
-	 * 
+	 *
 	 * @param integer $flags        	
 	 */
 	public function setFlags ($flags)
@@ -263,14 +274,14 @@ class SettingTable implements \ArrayAccess, \Serializable
 
 	/**
 	 * Option flags
-	 * 
+	 *
 	 * @var integer
 	 */
 	private $m_flags;
 
 	/**
 	 * Setting map
-	 * 
+	 *
 	 * @var array
 	 */
 	private $m_elements;
