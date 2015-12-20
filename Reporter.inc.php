@@ -63,6 +63,7 @@ class Reporter
 	public static function debug($object, $message, $file = null, $line = null)
 	{
 		self::addMessage(self::kMessageDebug, $object, $message, $file, $line);
+		return true;
 	}
 
 	/**
@@ -75,6 +76,7 @@ class Reporter
 	public static function notice($object, $message, $file = null, $line = null)
 	{
 		self::addMessage(self::kMessageNotice, $object, $message, $file, $line);
+		return true;
 	}
 
 	/**
@@ -87,6 +89,7 @@ class Reporter
 	public static function warning($object, $message, $file = null, $line = null)
 	{
 		self::addMessage(self::kMessageWarning, $object, $message, $file, $line);
+		return true;
 	}
 
 	/**
@@ -99,6 +102,7 @@ class Reporter
 	public static function error($object, $message, $file = null, $line = null)
 	{
 		self::addMessage(self::kMessageError, $object, $message, $file, $line);
+		return false;
 	}
 
 	/**
@@ -112,7 +116,7 @@ class Reporter
 	{
 		self::addMessage(self::kMessageFatalError, $object, $message, $file, $line);
 		self::$m_implementation->handleFatalError();
-		die();
+		die('');
 	}
 
 	private static function addMessage($level, $object, $message, $file = null, $line = null)
