@@ -72,6 +72,11 @@ function url_get_root ()
  */
 function url_get_current ()
 {
+	if (!\array_key_exists('REQUEST_URI', $_SERVER))
+	{
+		return 'file://' . realpath($_SERVER['SCRIPT_FILENAME']);
+	}
+	
 	$scheme = url_get_http_scheme();
 	$host = url_get_host();
 
@@ -89,6 +94,11 @@ function url_get_current ()
  */
 function url_get_current_directory()
 {
+	if (!\array_key_exists('REQUEST_URI', $_SERVER))
+	{
+		return 'file://' . dirname (realpath($_SERVER['SCRIPT_FILENAME']));
+	}
+	
 	$url = url_get_root() . preg_replace(chr(1) . '(.*)/.*' . chr(1), '$1', $_SERVER['REQUEST_URI']);
 	$len = strlen($url);
 	if ($url[$len - 1] == '/')
