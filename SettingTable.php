@@ -31,11 +31,8 @@ const kSettingTableReadOnly = 0x3;
  * @var integer
  */
 const kSettingTableSilent = 0x4;
-
 const kSettingTableFileAuto = 0;
-
 const kSettingTableFilePHP = 1;
-
 const kSettingTableFileJSON = 2;
 
 /**
@@ -59,22 +56,26 @@ const kSettingTableLoadAppend = 2;
  */
 const kSettingTableLoadMerge = 2;
 
-class SettingTable implements \ArrayAccess, \Serializable
+class SettingTable implements \ArrayAccess, \Serializable, \IteratorAggregate, \Countable
 {
 
-	public function __construct ()
+	public function __construct()
 	{
-		$this->m_elements = array();
+		$this->m_elements = new \ArrayObject(array ());
 		$this->m_flags = 0;
 	}
 
+	public function __toString()
+	{
+		return $this->serialize();
+	}
+	
 	/**
 	 * Equivalent of offsetGet
 	 *
-	 * @param unknown $key
-	 *        	Key
+	 * @param unknown $key Key
 	 */
-	public function __get ($key)
+	public function __get($key)
 	{
 		return $this->offsetGet($key);
 	}
@@ -82,12 +83,10 @@ class SettingTable implements \ArrayAccess, \Serializable
 	/**
 	 * Equivalent of offsetSet
 	 *
-	 * @param unknown $key
-	 *        	Key
-	 * @param unknown $value
-	 *        	Value
+	 * @param unknown $key Key
+	 * @param unknown $value Value
 	 */
-	public function __set ($key, $value)
+	public function __set($key, $value)
 	{
 		$this->offsetSet($key, $value);
 	}
@@ -95,36 +94,38 @@ class SettingTable implements \ArrayAccess, \Serializable
 	/**
 	 * Indicates if a setting key exists
 	 *
-	 * @param unknown $key        	
+	 * @param unknown $key
 	 */
-	public function offsetExists ($key)
+	public function offsetExists($key)
 	{
-		return \array_key_exists($key, $this->m_elements);
+		return $this->m_elements->offsetExists($key);
 	}
 
 	/**
 	 * Get a value associated to a key
 	 *
-	 * @param mixed $key
-	 *        	Key
+	 * @param mixed $key Key
 	 * @return The setting value or <code>NULL</code> if the key does not exists
 	 */
-	public function offsetGet ($key)
+	public function offsetGet($key)
 	{
-		return \array_key_exists($key, $this->m_elements) ? $this->m_elements[$key] : null;
+		if ($this->m_elements->offsetExists($key))
+		{
+			return $this->m_elements->offsetGet($key);
+		}
+		
+		return null;
 	}
 
 	/**
 	 * Set a setting value
 	 *
-	 * @param integer $key
-	 *        	Setting key
-	 * @param integer $value
-	 *        	Setting value
-	 *        	
+	 * @param integer $key Setting key
+	 * @param integer $value Setting value
+	 *       
 	 * @throws \Exception
 	 */
-	public function offsetSet ($key, $value)
+	public function offsetSet($key, $value)
 	{
 		if ($this->m_flags & kSettingTableReadOnly)
 		{
@@ -136,7 +137,7 @@ class SettingTable implements \ArrayAccess, \Serializable
 			throw new \Exception('Read only setting table');
 		}
 		
-		if (($this->m_flags & kSettingTableRestrictKeys) && !array_key_exists($key, $this->m_elements))
+		if (($this->m_flags & kSettingTableRestrictKeys) && !$this->m_elements->offsetExists($key))
 		{
 			if ($this->m_flags & kSettingTableSilent)
 			{
@@ -146,7 +147,7 @@ class SettingTable implements \ArrayAccess, \Serializable
 			throw new \Exception('New key are not accepted');
 		}
 		
-		if (\is_array($value))
+		if (\is_array($value) || (is_object($value) && ($value instanceof \ArrayIterator)))
 		{
 			$st = new SettingTable();
 			foreach ($value as $k => $v)
@@ -154,42 +155,50 @@ class SettingTable implements \ArrayAccess, \Serializable
 				$st->offsetSet($k, $v);
 			}
 			
-			$this->m_elements[$key] = $st;
+			$this->m_elements->offsetSet($key, $st);
 		}
 		else
 		{
-			$this->m_elements[$key] = $value;
+			$this->m_elements->offsetSet($key, $value);
 		}
 	}
 
 	/**
 	 * Unset a setting Key/Value pair
 	 *
-	 * @param mixed $key
-	 *        	Setting key
+	 * @param mixed $key Setting key
 	 */
-	public function offsetUnset ($key)
+	public function offsetUnset($key)
 	{
-		if (array_key_exists($key, $this->m_elements))
-		{
-			unset($this->m_elements[$key]);
-		}
+		$this->m_elements->offsetUnset($key);
 	}
 
 	/**
 	 * Serialize table to JSON
 	 */
-	public function serialize ()
+	public function serialize()
 	{
 		return json_encode($this->toArray());
 	}
-
-	public function toArray ()
+	
+	// TiteratorAggregate
+	public function getIterator()
 	{
-		$a = array();
+		return $this->m_elements->getIterator();
+	}
+	
+	// Contable
+	public function count ()
+	{
+		return $this->m_elements->count ();
+	}
+
+	public function toArray()
+	{
+		$a = array ();
 		foreach ($this->m_elements as $key => $value)
 		{
-			$a[$key] = (is_object($value) && ($value instanceof SettingTable)) ? $value->toArray (): $value;
+			$a [$key] = (is_object($value) && ($value instanceof SettingTable)) ? $value->toArray() : $value;
 		}
 		
 		return $a;
@@ -198,20 +207,19 @@ class SettingTable implements \ArrayAccess, \Serializable
 	/**
 	 * Load setting table from JSON
 	 *
-	 * @param string $serialized
-	 *        	A JSON string
+	 * @param string $serialized A JSON string
 	 */
-	public function unserialize ($serialized)
+	public function unserialize($serialized)
 	{
-		$this->m_elements = json_decode($serialized, true);
+		$this->m_elements = new \ArrayObject(json_decode($serialized, true));
 	}
 
 	/**
 	 * Set setting table flags
 	 *
-	 * @param integer $flags        	
+	 * @param integer $flags
 	 */
-	public function setFlags ($flags)
+	public function setFlags($flags)
 	{
 		$this->m_flags = $flags;
 	}
@@ -219,7 +227,7 @@ class SettingTable implements \ArrayAccess, \Serializable
 	/**
 	 * Get setting table flags
 	 */
-	public function getFlags ()
+	public function getFlags()
 	{
 		return $this->m_flags;
 	}
@@ -234,14 +242,12 @@ class SettingTable implements \ArrayAccess, \Serializable
 	 *
 	 * @attention Never use this method with untrusted PHP files
 	 *
-	 * @param string $filename
-	 *        	File to load
-	 * @param string $filetype
-	 *        	One of kSettingTableFile*. If @c kSettingTableFileAuto, the
-	 *        	file type is
-	 *        	automatically detected using the file extension
+	 * @param string $filename File to load
+	 * @param string $filetype One of kSettingTableFile*. If @c kSettingTableFileAuto, the
+	 *        file type is
+	 *        automatically detected using the file extension
 	 */
-	public function load ($filename, $filetype = kSettingTableFileAuto)
+	public function load($filename, $filetype = kSettingTableFileAuto)
 	{
 		if ($filetype == kSettingTableFileAuto)
 		{
@@ -258,11 +264,11 @@ class SettingTable implements \ArrayAccess, \Serializable
 		if ($filetype == kSettingTableFileJSON)
 		{
 			$elements = json_decode(file_get_contents($filename), true);
-			if (is_array($elements))
+			if (\is_array($elements))
 			{
 				foreach ($elements as $k => $v)
 				{
-					$this->m_elements[$k] = $v;
+					$this->offsetSet($k, $v);
 				}
 			}
 		}
@@ -282,7 +288,7 @@ class SettingTable implements \ArrayAccess, \Serializable
 	/**
 	 * Setting map
 	 *
-	 * @var array
+	 * @var \ArrayObject
 	 */
 	private $m_elements;
 }
