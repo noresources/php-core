@@ -1,29 +1,9 @@
 <?php
-function autoload_NTY3N2ZiNTk0NjA4NQ($className)
+function autoload_NTY5ZWQ4MWRhOGQ5ZQ($className)
 {
-	if ($className == 'NoreSources\AccessTokenManagerInterface')
+	if ($className == 'NoreSources\SettingTable')
 	{
-		require_once(__DIR__ . '/AccessToken.php');
-	}
- 	elseif ($className == 'NoreSources\FileAccessTokenManager')
-	{
-		require_once(__DIR__ . '/AccessToken.php');
-	}
- 	elseif ($className == 'NoreSources\IExpression')
-	{
-		require_once(__DIR__ . '/Expressions.php');
-	}
- 	elseif ($className == 'NoreSources\PODExpression')
-	{
-		require_once(__DIR__ . '/Expressions.php');
-	}
- 	elseif ($className == 'NoreSources\TextExpression')
-	{
-		require_once(__DIR__ . '/Expressions.php');
-	}
- 	elseif ($className == 'NoreSources\ParameterListExpression')
-	{
-		require_once(__DIR__ . '/Expressions.php');
+		require_once(__DIR__ . '/SettingTable.php');
 	}
  	elseif ($className == 'NoreSources\SurroundingElementExpression')
 	{
@@ -45,6 +25,22 @@ function autoload_NTY3N2ZiNTk0NjA4NQ($className)
 	{
 		require_once(__DIR__ . '/MathExpressions.php');
 	}
+ 	elseif ($className == 'NoreSources\IExpression')
+	{
+		require_once(__DIR__ . '/Expressions.php');
+	}
+ 	elseif ($className == 'NoreSources\PODExpression')
+	{
+		require_once(__DIR__ . '/Expressions.php');
+	}
+ 	elseif ($className == 'NoreSources\TextExpression')
+	{
+		require_once(__DIR__ . '/Expressions.php');
+	}
+ 	elseif ($className == 'NoreSources\ParameterListExpression')
+	{
+		require_once(__DIR__ . '/Expressions.php');
+	}
  	elseif ($className == 'NoreSources\ReporterInterface')
 	{
 		include_once(__DIR__ . '/Reporter.inc.php');
@@ -57,10 +53,6 @@ function autoload_NTY3N2ZiNTk0NjA4NQ($className)
 	{
 		include_once(__DIR__ . '/Reporter.inc.php');
 	}
- 	elseif ($className == 'NoreSources\SettingTable')
-	{
-		require_once(__DIR__ . '/SettingTable.php');
-	}
  	elseif ($className == 'NoreSources\TokenVisitor')
 	{
 		require_once(__DIR__ . '/tokens.php');
@@ -70,4 +62,4 @@ function autoload_NTY3N2ZiNTk0NjA4NQ($className)
 		require_once(__DIR__ . '/tokens.php');
 	}
  }
-spl_autoload_register('autoload_NTY3N2ZiNTk0NjA4NQ');
+spl_autoload_register('autoload_NTY5ZWQ4MWRhOGQ5ZQ');
