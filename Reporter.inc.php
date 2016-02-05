@@ -36,7 +36,7 @@ class Reporter
 	const kMessageNotice = 0x2;
 	const kMessageWarning = 0x4;
 	const kMessageError = 0x8;
-	const kMessageFatalError = 0xA;
+	const kMessageFatalError = 0x10;
 	const kMessageAll = 0xFF;
 
 	/**
