@@ -69,7 +69,7 @@ class SettingTable implements \ArrayAccess, \Serializable, \IteratorAggregate, \
 	{
 		return $this->serialize();
 	}
-	
+
 	/**
 	 * Equivalent of offsetGet
 	 *
@@ -90,6 +90,9 @@ class SettingTable implements \ArrayAccess, \Serializable, \IteratorAggregate, \
 	{
 		$this->offsetSet($key, $value);
 	}
+	
+	// ArrayAccess ////////////////////
+	
 
 	/**
 	 * Indicates if a setting key exists
@@ -172,6 +175,27 @@ class SettingTable implements \ArrayAccess, \Serializable, \IteratorAggregate, \
 	{
 		$this->m_elements->offsetUnset($key);
 	}
+	
+	// IteratorAggregate ////////////////////
+	
+
+	// TiteratorAggregate
+	public function getIterator()
+	{
+		return $this->m_elements->getIterator();
+	}
+	
+	// Countable ////////////////////
+	
+
+	// Contable
+	public function count()
+	{
+		return $this->m_elements->count();
+	}
+	
+	// Serializable ////////////////////
+	
 
 	/**
 	 * Serialize table to JSON
@@ -179,29 +203,6 @@ class SettingTable implements \ArrayAccess, \Serializable, \IteratorAggregate, \
 	public function serialize()
 	{
 		return json_encode($this->toArray());
-	}
-	
-	// TiteratorAggregate
-	public function getIterator()
-	{
-		return $this->m_elements->getIterator();
-	}
-	
-	// Contable
-	public function count ()
-	{
-		return $this->m_elements->count ();
-	}
-
-	public function toArray()
-	{
-		$a = array ();
-		foreach ($this->m_elements as $key => $value)
-		{
-			$a [$key] = (is_object($value) && ($value instanceof SettingTable)) ? $value->toArray() : $value;
-		}
-		
-		return $a;
 	}
 
 	/**
@@ -212,6 +213,61 @@ class SettingTable implements \ArrayAccess, \Serializable, \IteratorAggregate, \
 	public function unserialize($serialized)
 	{
 		$this->m_elements = new \ArrayObject(json_decode($serialized, true));
+	}
+
+	/**
+	 * Convert the SettingTable to a regular PHP array
+	 * @return array
+	 */
+	public function toArray()
+	{
+		$a = array ();
+		foreach ($this->m_elements as $key => $value)
+		{
+			$a[$key] = (is_object($value) && ($value instanceof SettingTable)) ? $value->toArray() : $value;
+		}
+		
+		return $a;
+	}
+
+	/**
+	 * Return the setting value or the given default value if the setting is not present
+	 * @param string $key
+	 * @param mixed $defaultValue
+	 * @return mixed
+	 */
+	public function getSetting($key, $defaultValue = null)
+	{
+		if (array_key_exists($key, $this->m_elements))
+		{
+			return $this->m_elements[$key];
+		}
+		
+		return $defaultValue;
+	}
+
+	/**
+	 * Insert an indexed value at the end of the setting table
+	 * @param mixed $value
+	 * @return New number of settings
+	 */
+	public function append($value)
+	{
+		$this->m_elements->append($value);
+		return $this->m_elements->count();
+	}
+
+	/**
+	 * Insert an indexed value at the beginning of the setting table
+	 * @param mixed $value
+	 * @return New number of settings
+	 */
+	public function prepend($value)
+	{
+		$a = $this->m_elements->getArrayCopy();
+		$c = array_unshift($a, $value);
+		$this->m_elements->exchangeArray($a);
+		return $c;
 	}
 
 	/**
