@@ -213,6 +213,13 @@ class SettingTable implements \ArrayAccess, \Serializable, \IteratorAggregate, \
 	public function unserialize($serialized)
 	{
 		$this->m_elements = new \ArrayObject(json_decode($serialized, true));
+		foreach ($this->m_elements as $key => &$value) 
+		{
+			if (\is_array($value))
+			{
+				$this->offsetSet($key, $value);
+			}
+		}
 	}
 
 	/**
@@ -232,12 +239,41 @@ class SettingTable implements \ArrayAccess, \Serializable, \IteratorAggregate, \
 
 	/**
 	 * Return the setting value or the given default value if the setting is not present
-	 * @param string $key
+	 * @param mixed $key String key or array of string key representing the setting subpath
 	 * @param mixed $defaultValue
 	 * @return mixed
 	 */
 	public function getSetting($key, $defaultValue = null)
 	{
+		if (\is_array($key))
+		{
+			$i = 0;
+			$c = count($key);
+			$t = $this;
+			
+			while ($i < $c)
+			{
+				if (!($t instanceof SettingTable))
+				{
+					break;
+				}
+								
+				$k = $key[$i];
+				if ($t->offsetExists($k))
+				{
+					$t = $t->offsetGet($k);
+				}
+				else
+				{
+					break;
+				}
+				
+				$i++;
+			}
+
+			return ($i == $c) ? $t : $defaultValue;
+		}
+		
 		if (array_key_exists($key, $this->m_elements))
 		{
 			return $this->m_elements[$key];
