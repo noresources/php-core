@@ -59,9 +59,9 @@ const kSettingTableLoadMerge = 2;
 class SettingTable implements \ArrayAccess, \Serializable, \IteratorAggregate, \Countable
 {
 
-	public function __construct()
+	public function __construct($data = array())
 	{
-		$this->m_elements = new \ArrayObject(array ());
+		$this->m_elements = new \ArrayObject(\is_array ($data) ? $data: array ());
 		$this->m_flags = 0;
 	}
 
