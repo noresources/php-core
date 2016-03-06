@@ -70,3 +70,25 @@ function version_number()
 }
 
 include_once (NS_PHP_CORE_PATH . '/core.autoload.inc.php');
+
+/**
+ * Indicates if the current script is run through command line mode or not
+ * @return @c true if the current script is run through command line mode
+ */
+function is_cli()
+{
+	if (PHP_SAPI == 'cli')
+	{
+		return true;
+	}
+	
+	if (preg_match('/apache/i', PHP_SAPI) || array_key_exists('SERVER_ADDR', $_SERVER))
+	{
+		return false;
+	}
+	
+	if (array_key_exists('PWD', $_SERVER) || array_key_exists('TERM', $_SERVER))
+	{
+		return true;
+	}
+}
