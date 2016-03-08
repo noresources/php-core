@@ -61,7 +61,14 @@ class SettingTable implements \ArrayAccess, \Serializable, \IteratorAggregate, \
 
 	public function __construct($data = array())
 	{
-		$this->m_elements = new \ArrayObject(\is_array ($data) ? $data: array ());
+		$this->m_elements = new \ArrayObject();
+		if (is_array($data) || ($data instanceof \Traversable))
+		{
+			foreach ($data as $k => $v)
+			{
+				$this->offsetSet($k, $v);
+			}
+		}
 		$this->m_flags = 0;
 	}
 
@@ -117,7 +124,7 @@ class SettingTable implements \ArrayAccess, \Serializable, \IteratorAggregate, \
 			return $this->m_elements->offsetGet($key);
 		}
 		
-		return null;
+		return (is_callable($this->m_defaultValueHandler) ? (call_user_func($this->m_defaultValueHandler, $key, $this)) : null);
 	}
 
 	/**
@@ -150,14 +157,16 @@ class SettingTable implements \ArrayAccess, \Serializable, \IteratorAggregate, \
 			throw new \Exception('New key are not accepted');
 		}
 		
-		if (\is_array($value) || (is_object($value) && ($value instanceof \ArrayIterator)))
+		if (\is_array($value) || (is_object($value) && ($value instanceof \Traversable)))
 		{
 			$st = new SettingTable();
+			$st->->m_defaultValueHandler = $this->m_defaultValueHandler;
+			$st->m_flags = $this->m_flags;
 			foreach ($value as $k => $v)
 			{
 				$st->offsetSet($k, $v);
 			}
-			
+						
 			$this->m_elements->offsetSet($key, $st);
 		}
 		else
@@ -213,7 +222,7 @@ class SettingTable implements \ArrayAccess, \Serializable, \IteratorAggregate, \
 	public function unserialize($serialized)
 	{
 		$this->m_elements = new \ArrayObject(json_decode($serialized, true));
-		foreach ($this->m_elements as $key => &$value) 
+		foreach ($this->m_elements as $key => &$value)
 		{
 			if (\is_array($value))
 			{
@@ -257,7 +266,7 @@ class SettingTable implements \ArrayAccess, \Serializable, \IteratorAggregate, \
 				{
 					break;
 				}
-								
+				
 				$k = $key[$i];
 				if ($t->offsetExists($k))
 				{
@@ -270,7 +279,7 @@ class SettingTable implements \ArrayAccess, \Serializable, \IteratorAggregate, \
 				
 				$i++;
 			}
-
+			
 			return ($i == $c) ? $t : $defaultValue;
 		}
 		
@@ -371,6 +380,23 @@ class SettingTable implements \ArrayAccess, \Serializable, \IteratorAggregate, \
 	}
 
 	/**
+	 *
+	 * @param callable $callable A function to call when a key does not exists. The function will receive
+	 *        the key and the SettingTable in argument and must return a value
+	 */
+	public function setDefaultValueHandler($callable)
+	{
+		$this->m_defaultValueHandler = $callable;
+		foreach ($this->m_elements as $k => &$v)
+		{
+			if ($v instanceof SettingTable)
+			{
+				$v->setDefaultValueHandler($callable);
+			}
+		}
+	}
+
+	/**
 	 * Option flags
 	 *
 	 * @var integer
@@ -383,4 +409,6 @@ class SettingTable implements \ArrayAccess, \Serializable, \IteratorAggregate, \
 	 * @var \ArrayObject
 	 */
 	private $m_elements;
+
+	private $m_defaultValueHandler;
 }
