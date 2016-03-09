@@ -160,7 +160,7 @@ class SettingTable implements \ArrayAccess, \Serializable, \IteratorAggregate, \
 		if (\is_array($value) || (is_object($value) && ($value instanceof \Traversable)))
 		{
 			$st = new SettingTable();
-			$st->->m_defaultValueHandler = $this->m_defaultValueHandler;
+			$st->m_defaultValueHandler = $this->m_defaultValueHandler;
 			$st->m_flags = $this->m_flags;
 			foreach ($value as $k => $v)
 			{
