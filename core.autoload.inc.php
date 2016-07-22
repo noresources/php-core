@@ -1,9 +1,9 @@
 <?php
 function autoload_NTY5ZWQ4MWRhOGQ5ZQ($className)
 {
-	if ($className == 'NoreSources\SettingTable')
+	if ($className == 'NoreSources\DataTree')
 	{
-		require_once(__DIR__ . '/SettingTable.php');
+		require_once(__DIR__ . '/DataTree.php');
 	}
  	elseif ($className == 'NoreSources\SurroundingElementExpression')
 	{

@@ -16,47 +16,47 @@ namespace NoreSources;
  *
  * @var integer
  */
-const kSettingTableRestrictKeys = 0x1;
+const kDataTreeRestrictKeys = 0x1;
 
 /**
  * Do not allow to change any value
  *
  * @var integer
  */
-const kSettingTableReadOnly = 0x3;
+const kDataTreeReadOnly = 0x3;
 
 /**
  * Do not raise exception on set/get error
  *
  * @var integer
  */
-const kSettingTableSilent = 0x4;
-const kSettingTableFileAuto = 0;
-const kSettingTableFilePHP = 1;
-const kSettingTableFileJSON = 2;
+const kDataTreeSilent = 0x4;
+const kDataTreeFileAuto = 0;
+const kDataTreeFilePHP = 1;
+const kDataTreeFileJSON = 2;
 
 /**
  * Remove all existing entries, then load all elements of the file
  *
  * @var integer
  */
-const kSettingTableLoadReplace = 1;
+const kDataTreeLoadReplace = 1;
 
 /**
  * Don't override existing entries
  *
  * @var integer
  */
-const kSettingTableLoadAppend = 2;
+const kDataTreeLoadAppend = 2;
 
 /**
  * Merge existing entries with the one in the file
  *
  * @var integer
  */
-const kSettingTableLoadMerge = 2;
+const kDataTreeLoadMerge = 2;
 
-class SettingTable implements \ArrayAccess, \Serializable, \IteratorAggregate, \Countable
+class DataTree implements \ArrayAccess, \Serializable, \IteratorAggregate, \Countable
 {
 
 	public function __construct($data = array())
@@ -137,9 +137,9 @@ class SettingTable implements \ArrayAccess, \Serializable, \IteratorAggregate, \
 	 */
 	public function offsetSet($key, $value)
 	{
-		if ($this->m_flags & kSettingTableReadOnly)
+		if ($this->m_flags & kDataTreeReadOnly)
 		{
-			if ($this->m_flags & kSettingTableSilent)
+			if ($this->m_flags & kDataTreeSilent)
 			{
 				return;
 			}
@@ -147,9 +147,9 @@ class SettingTable implements \ArrayAccess, \Serializable, \IteratorAggregate, \
 			throw new \Exception('Read only setting table');
 		}
 		
-		if (($this->m_flags & kSettingTableRestrictKeys) && !$this->m_elements->offsetExists($key))
+		if (($this->m_flags & kDataTreeRestrictKeys) && !$this->m_elements->offsetExists($key))
 		{
-			if ($this->m_flags & kSettingTableSilent)
+			if ($this->m_flags & kDataTreeSilent)
 			{
 				return;
 			}
@@ -159,7 +159,7 @@ class SettingTable implements \ArrayAccess, \Serializable, \IteratorAggregate, \
 		
 		if (\is_array($value) || (is_object($value) && ($value instanceof \Traversable)))
 		{
-			$st = new SettingTable();
+			$st = new DataTree();
 			$st->m_defaultValueHandler = $this->m_defaultValueHandler;
 			$st->m_flags = $this->m_flags;
 			foreach ($value as $k => $v)
@@ -232,7 +232,7 @@ class SettingTable implements \ArrayAccess, \Serializable, \IteratorAggregate, \
 	}
 
 	/**
-	 * Convert the SettingTable to a regular PHP array
+	 * Convert the DataTree to a regular PHP array
 	 * @return array
 	 */
 	public function toArray()
@@ -240,7 +240,7 @@ class SettingTable implements \ArrayAccess, \Serializable, \IteratorAggregate, \
 		$a = array ();
 		foreach ($this->m_elements as $key => $value)
 		{
-			$a[$key] = (is_object($value) && ($value instanceof SettingTable)) ? $value->toArray() : $value;
+			$a[$key] = (is_object($value) && ($value instanceof DataTree)) ? $value->toArray() : $value;
 		}
 		
 		return $a;
@@ -262,7 +262,7 @@ class SettingTable implements \ArrayAccess, \Serializable, \IteratorAggregate, \
 			
 			while ($i < $c)
 			{
-				if (!($t instanceof SettingTable))
+				if (!($t instanceof DataTree))
 				{
 					break;
 				}
@@ -344,25 +344,25 @@ class SettingTable implements \ArrayAccess, \Serializable, \IteratorAggregate, \
 	 * @attention Never use this method with untrusted PHP files
 	 *
 	 * @param string $filename File to load
-	 * @param string $filetype One of kSettingTableFile*. If @c kSettingTableFileAuto, the
+	 * @param string $filetype One of kDataTreeFile*. If @c kDataTreeFileAuto, the
 	 *        file type is
 	 *        automatically detected using the file extension
 	 */
-	public function load($filename, $filetype = kSettingTableFileAuto)
+	public function load($filename, $filetype = kDataTreeFileAuto)
 	{
-		if ($filetype == kSettingTableFileAuto)
+		if ($filetype == kDataTreeFileAuto)
 		{
 			if (preg_match(chr(1) . '.*\.json' . chr(1) . 'i', $filename))
 			{
-				$filetype = kSettingTableFileJSON;
+				$filetype = kDataTreeFileJSON;
 			}
 			if (preg_match(chr(1) . '.*\.php[0-9]*' . chr(1) . 'i', $filename))
 			{
-				$filetype = kSettingTableFilePHP;
+				$filetype = kDataTreeFilePHP;
 			}
 		}
 		
-		if ($filetype == kSettingTableFileJSON)
+		if ($filetype == kDataTreeFileJSON)
 		{
 			$elements = json_decode(file_get_contents($filename), true);
 			if (\is_array($elements))
@@ -373,7 +373,7 @@ class SettingTable implements \ArrayAccess, \Serializable, \IteratorAggregate, \
 				}
 			}
 		}
-		elseif ($filetype == kSettingTableFilePHP)
+		elseif ($filetype == kDataTreeFilePHP)
 		{
 			include ($filename);
 		}
@@ -382,14 +382,14 @@ class SettingTable implements \ArrayAccess, \Serializable, \IteratorAggregate, \
 	/**
 	 *
 	 * @param callable $callable A function to call when a key does not exists. The function will receive
-	 *        the key and the SettingTable in argument and must return a value
+	 *        the key and the DataTree in argument and must return a value
 	 */
 	public function setDefaultValueHandler($callable)
 	{
 		$this->m_defaultValueHandler = $callable;
 		foreach ($this->m_elements as $k => &$v)
 		{
-			if ($v instanceof SettingTable)
+			if ($v instanceof DataTree)
 			{
 				$v->setDefaultValueHandler($callable);
 			}

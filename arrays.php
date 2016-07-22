@@ -64,7 +64,7 @@ function to_array($anything, $singleElementKey = 0)
 	}
 	elseif (is_object($anything))
 	{
-		if ($anything instanceof SettingTable)
+		if ($anything instanceof DataTree)
 		{
 			return $anything->toArray();
 		}
