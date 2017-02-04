@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Copyright © 2012-2016 by Renaud Guillard (dev@nore.fr)
+ * Copyright © 2012-2017 by Renaud Guillard (dev@nore.fr)
  * Distributed under the terms of the MIT License, see LICENSE
  */
 
