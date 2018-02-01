@@ -252,7 +252,7 @@ class DataTree implements \ArrayAccess, \Serializable, \IteratorAggregate, \Coun
 	 * @param mixed $defaultValue
 	 * @return mixed
 	 */
-	public function getSetting($key, $defaultValue = null)
+	public function getElement($key, $defaultValue = null)
 	{
 		if (\is_array($key))
 		{
@@ -289,6 +289,17 @@ class DataTree implements \ArrayAccess, \Serializable, \IteratorAggregate, \Coun
 		}
 		
 		return $defaultValue;
+	}
+	
+	/**
+	 * Backward compatible name
+	 * @param string $key
+	 * @param mixed $defaultValue
+	 * @return mixed|ArrayObject|\NoreSources\DataTree|\NoreSources\The
+	 */
+	public function getSetting($key, $defaultValue = null)
+	{
+		return $this->getElement($key, $defaultValue);
 	}
 
 	/**
