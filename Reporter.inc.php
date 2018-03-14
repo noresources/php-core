@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Copyright © 2012-2017 by Renaud Guillard (dev@nore.fr)
+ * Copyright © 2012-2018 by Renaud Guillard (dev@nore.fr)
  * Distributed under the terms of the MIT License, see LICENSE
  */
 
@@ -150,5 +150,6 @@ class DummyReporterInterface implements ReporterInterface
 // Set a default reporter
 if (!Reporter::getImplementation())
 {
-	Reporter::setImplementation(new DummyReporterInterface());
+	$d = new DummyReporterInterface();
+	Reporter::setImplementation($d);
 }
