@@ -88,6 +88,20 @@ abstract class IOperatorExpression implements IExpression
 		else 
 			throw new \InvalidArgumentException('Invalid member ' . $member);
 	}
+	
+	public function __set ($member, $value)
+	{
+		if ($member == 'protect') $this->m_bProtect = $value;
+		elseif ($member == 'operator') $this->m_strOperator = $value;
+		else throw new \InvalidArgumentException($member);
+	}
+	
+	public function __get ($member)
+	{
+		if ($member == 'protect') return $this->m_bProtect;
+		elseif ($member == 'operator') return $this->m_strOperator;
+		else throw new \InvalidArgumentException($member);
+	}
 
 	public function __toString()
 	{
