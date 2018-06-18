@@ -66,7 +66,27 @@ abstract class IOperatorExpression implements IExpression
 	public function __construct($a_strOperator)
 	{
 		$this->m_strOperator = $a_strOperator;
-		$this->protect(true);
+		$this->protect = true;
+	}
+
+	public function __get($member)
+	{
+		if ($member == 'operator')
+			return $this->m_strOperator;
+		if ($member == 'protect')
+			return $this->m_bProtect;
+		
+		throw new \InvalidArgumentException('Invalid member ' . $member);
+	}
+
+	public function __set($member, $value)
+	{
+		if ($member == 'operator')
+			$this->m_strOperator = $value;
+		if ($member == 'protect')
+			$this->m_bProtect = $value;
+		else 
+			throw new \InvalidArgumentException('Invalid member ' . $member);
 	}
 
 	public function __toString()
@@ -79,6 +99,8 @@ abstract class IOperatorExpression implements IExpression
 	 *
 	 * @param boolean|null $a_protect
 	 * @return boolean
+	 * 
+	 * @deprecated Use @c $this->protect 
 	 */
 	function protect($a_protect = null)
 	{
@@ -147,10 +169,10 @@ class UnaryOperatorExpression extends IOperatorExpression
 		
 		if ($this->m_bPostFixed)
 		{
-			return ($this->protect() ? ' (' : ' ') . $this->m_expression->expressionString($a_options) . ($this->protect() ? ')' : '') . $this->m_strOperator;
+			return ($this->protect ? ' (' : ' ') . $this->m_expression->expressionString($a_options) . ($this->protect ? ')' : '') . $this->m_strOperator;
 		}
 		
-		return $this->m_strOperator . ($this->protect() ? ' (' : ' ') . $this->m_expression->expressionString($a_options) . ($this->protect() ? ')' : '');
+		return $this->m_strOperator . ($this->protect ? ' (' : ' ') . $this->m_expression->expressionString($a_options) . ($this->protect ? ')' : '');
 	}
 
 	function expression(IExpression &$a_expression = null)
@@ -233,7 +255,7 @@ class BinaryOperatorExpression extends IOperatorExpression
 			Reporter::fatalError($this, __METHOD__ . '(): invalid expression given');
 		}
 		
-		return ($this->protect() ? '(' : '') . $this->m_leftExpression->expressionString($a_options) . ($this->protect() ? ') ' : ' ') . $this->m_strOperator . ($this->protect() ? ' (' : ' ') . $this->m_rightExpression->expressionString($a_options) . ($this->protect() ? ')' : '');
+		return ($this->protect ? '(' : '') . $this->m_leftExpression->expressionString($a_options) . ($this->protect ? ') ' : ' ') . $this->m_strOperator . ($this->protect ? ' (' : ' ') . $this->m_rightExpression->expressionString($a_options) . ($this->protect ? ')' : '');
 	}
 
 	protected $m_leftExpression;
