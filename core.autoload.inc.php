@@ -1,7 +1,11 @@
 <?php
-function autoload_NWIzMmEwMTQzMjQ4NA($className)
+function autoload_NWIzMmE0MDc0ZGU1Mw($className)
 {
-	if ($className == 'NoreSources\DataTree')
+	if ($className == 'NoreSources\ArrayUtil')
+	{
+		require_once(__DIR__ . '/ArrayUtil.php');
+	}
+ 	elseif ($className == 'NoreSources\DataTree')
 	{
 		require_once(__DIR__ . '/DataTree.php');
 	}
@@ -24,10 +28,6 @@ function autoload_NWIzMmEwMTQzMjQ4NA($className)
  	elseif ($className == 'NoreSources\EqualExpression')
 	{
 		require_once(__DIR__ . '/MathExpressions.php');
-	}
- 	elseif ($className == 'NoreSources\ArrayUtil')
-	{
-		require_once(__DIR__ . '/arrays.php');
 	}
  	elseif ($className == 'NoreSources\IExpression')
 	{
@@ -66,4 +66,4 @@ function autoload_NWIzMmEwMTQzMjQ4NA($className)
 		require_once(__DIR__ . '/tokens.php');
 	}
  }
-spl_autoload_register('autoload_NWIzMmEwMTQzMjQ4NA');
+spl_autoload_register('autoload_NWIzMmE0MDc0ZGU1Mw');

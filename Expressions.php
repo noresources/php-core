@@ -12,8 +12,6 @@
  */
 namespace NoreSources;
 
-require_once 'arrays.php';
-
 /**
  * Interface for an object which can be considered
  * as an expression
@@ -113,7 +111,7 @@ class ParameterListExpression implements IExpression
 
 	public function expressionString($a_options = null)
 	{
-		return array_implode_cb($this->m_parameters, ', ', __NAMESPACE__ . '\\expressions_glue_string', $a_options);
+		return ArrayUtil::implode($this->m_parameters, ', ', __NAMESPACE__ . '\\expressions_glue_string', $a_options);
 	}
 
 	public function add(IExpression $a_expression)
