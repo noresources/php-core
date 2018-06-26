@@ -1,5 +1,5 @@
 <?php
-function autoload_NTY5ZWQ4MWRhOGQ5ZQ($className)
+function autoload_NWIzMmEwMTQzMjQ4NA($className)
 {
 	if ($className == 'NoreSources\DataTree')
 	{
@@ -24,6 +24,10 @@ function autoload_NTY5ZWQ4MWRhOGQ5ZQ($className)
  	elseif ($className == 'NoreSources\EqualExpression')
 	{
 		require_once(__DIR__ . '/MathExpressions.php');
+	}
+ 	elseif ($className == 'NoreSources\ArrayUtil')
+	{
+		require_once(__DIR__ . '/arrays.php');
 	}
  	elseif ($className == 'NoreSources\IExpression')
 	{
@@ -62,4 +66,4 @@ function autoload_NTY5ZWQ4MWRhOGQ5ZQ($className)
 		require_once(__DIR__ . '/tokens.php');
 	}
  }
-spl_autoload_register('autoload_NTY5ZWQ4MWRhOGQ5ZQ');
+spl_autoload_register('autoload_NWIzMmEwMTQzMjQ4NA');
