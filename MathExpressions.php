@@ -83,7 +83,7 @@ abstract class IOperatorExpression implements IExpression
 	{
 		if ($member == 'operator')
 			$this->m_strOperator = $value;
-		if ($member == 'protect')
+		elseif ($member == 'protect')
 			$this->m_bProtect = $value;
 		else 
 			throw new \InvalidArgumentException('Invalid member ' . $member);
