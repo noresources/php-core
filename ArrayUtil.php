@@ -22,7 +22,7 @@ class ArrayUtil
 	 *       
 	 * @return A new array that does not contains @param $key
 	 */
-	public static function removeKey(&$table, $key)
+	public static function removeKey($table, $key)
 	{
 		if (!array_key_exists($key, $table))
 		{
