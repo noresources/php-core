@@ -1,5 +1,5 @@
 <?php
-function autoload_NWIzMmE0MDc0ZGU1Mw($className)
+function autoload_NWM2MDUyZTNiODE3MQ($className)
 {
 	if ($className == 'NoreSources\ArrayUtil')
 	{
@@ -8,6 +8,14 @@ function autoload_NWIzMmE0MDc0ZGU1Mw($className)
  	elseif ($className == 'NoreSources\DataTree')
 	{
 		require_once(__DIR__ . '/DataTree.php');
+	}
+ 	elseif ($className == 'NoreSources\TokenVisitor')
+	{
+		require_once(__DIR__ . '/SourceFile.php');
+	}
+ 	elseif ($className == 'NoreSources\SourceFile')
+	{
+		require_once(__DIR__ . '/SourceFile.php');
 	}
  	elseif ($className == 'NoreSources\SurroundingElementExpression')
 	{
@@ -28,6 +36,14 @@ function autoload_NWIzMmE0MDc0ZGU1Mw($className)
  	elseif ($className == 'NoreSources\EqualExpression')
 	{
 		require_once(__DIR__ . '/MathExpressions.php');
+	}
+ 	elseif ($className == 'NoreSources\PathUtil')
+	{
+		require_once(__DIR__ . '/PathUtil.php');
+	}
+ 	elseif ($className == 'NoreSources\UrlUtil')
+	{
+		require_once(__DIR__ . '/UrlUtil.php');
 	}
  	elseif ($className == 'NoreSources\IExpression')
 	{
@@ -57,13 +73,5 @@ function autoload_NWIzMmE0MDc0ZGU1Mw($className)
 	{
 		include_once(__DIR__ . '/Reporter.inc.php');
 	}
- 	elseif ($className == 'NoreSources\TokenVisitor')
-	{
-		require_once(__DIR__ . '/tokens.php');
-	}
- 	elseif ($className == 'NoreSources\SourceFile')
-	{
-		require_once(__DIR__ . '/tokens.php');
-	}
  }
-spl_autoload_register('autoload_NWIzMmE0MDc0ZGU1Mw');
+spl_autoload_register('autoload_NWM2MDUyZTNiODE3MQ');

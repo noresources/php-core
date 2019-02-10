@@ -11,45 +11,67 @@
  */
 namespace NoreSources;
 
-/**
- * Get server host name
- * @return string, null Server hostname or IP address or @c null if none can be found
- */
+class UrlUtil
+{
+	/**
+	 * Get server host name
+	 * @return string, null Server hostname or IP address or @c null if none can be found
+	 */
+	public static function getHost()
+	{
+		return \array_key_exists('HTTP_HOST', $_SERVER) ? $_SERVER['HTTP_HOST'] : (\array_key_exists('SERVER_NAME', $_SERVER) ? $_SERVER['SERVER_NAME'] : (\array_key_exists('SERVER_ADDR', $_SERVER) ? $_SERVER['SERVER_ADDR'] : null));
+	}
+
+	/**
+	 * Get URL scheme from current server protocol
+	 * @return string 'http' or 'https'
+	 */
+	public static function getScheme()
+	{
+		if (\array_key_exists('SERVER_PROTOCOL', $_SERVER))
+		{
+			return strtolower(preg_replace(chr(1) . '([A-Za-z]+)/.*' . chr(1), '$1', $_SERVER['SERVER_PROTOCOL']));
+		}
+		
+		return 'file';
+	}
+
+	/**
+	 * Cleanup URL
+	 * - Remove unecessary /../ etc.
+	 * @param string $url
+	 * @return string Cleaned URL
+	 */
+	public static function cleanup ($url)
+	{
+		$url = preg_replace(chr(1) . '/[^/]+/\.\.(/|$)' . chr(1), '\1', $url);
+		$url = preg_replace(chr(1) . '/\.(/|$)' . chr(1), '\1', $url);
+		return $url;
+	}
+}
+
+
 function url_get_host()
 {
-	return \array_key_exists('HTTP_HOST', $_SERVER) ? $_SERVER['HTTP_HOST'] : (\array_key_exists('SERVER_NAME', $_SERVER) ? $_SERVER['SERVER_NAME'] : (\array_key_exists('SERVER_ADDR', $_SERVER) ? $_SERVER['SERVER_ADDR'] : null));
+	return UrlUtil::getHost();
 }
 
-/**
- * Get HTTP URL scheme
- * @return string 'http' or 'https'
- */
 function url_get_http_scheme()
 {
-	if (\array_key_exists('SERVER_PROTOCOL', $_SERVER))
-	{
-		return strtolower(preg_replace(chr(1) . '([A-Za-z]+)/.*' . chr(1), '$1', $_SERVER['SERVER_PROTOCOL']));
-	}
-	
-	return 'file';
+	return UrlUtil::getScheme();
 }
 
-/**
- * Cleanup URL
- * - Remove unecessary /../ etc.
- * @param string $url
- * @return string Cleaned URL
- */
+
 function url_cleanup($url)
 {
-	$url = preg_replace(chr(1) . '/[^/]+/\.\.(/|$)' . chr(1), '\1', $url);
-	$url = preg_replace(chr(1) . '/\.(/|$)' . chr(1), '\1', $url);
-	return $url;
+	return UrlUtil::cleanup($url); 
 }
 
 /**
  * Get server document root URL
  * @return string or @c null
+ * 
+ * @deprecated Unreliable
  */
 function url_get_root()
 {
@@ -70,6 +92,8 @@ function url_get_root()
 /**
  * Get current requested URL without query parameters
  * @return string
+ * 
+ * @deprecated Unreliable
  */
 function url_get_current()
 {
@@ -92,6 +116,8 @@ function url_get_current()
 /**
  * Get current requested directory URL
  * @return string
+ * 
+ * @deprecated Unreliable
  */
 function url_get_current_directory()
 {
@@ -117,6 +143,8 @@ function url_get_current_directory()
  * @param string $documentRoot The server document root. If not set, use PHP DOCUMENT_ROOT
  * @return string Url of @param $path relative tu url of the current script or @c false if
  * @param $path is not inside document root tree
+ * 
+ * @deprecated Use \NoreSources\PathUtil\getRelative
  */
 function url_get_relative($path, $documentRoot = null)
 {
@@ -189,6 +217,8 @@ function url_get_relative($path, $documentRoot = null)
  * @param string $path Path to an existing file of folder
  * @param string $documentRoot The server document root. If not set, use PHP DOCUMENT_ROOT
  * @return URL of the path or @c false if @param $path is not inside document root tree
+ * 
+ * @deprecated
  */
 function url_get_absolute($path, $documentRoot = null)
 {
