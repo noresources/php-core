@@ -59,274 +59,278 @@ const kTokenOutputIgnoreInlineHTML = 0x18;
  */
 const kTokenOutputIgnoreComments = 0x20;
 
-/**
- * Move to the next token kind
- * @param array $tokens A token arary given by token_get_all()
- * @param int $tokenIndex Index of the current token
- * @param mixed $nextElementType Token to search
- *       
- * @return The
- */
-function token_move_next(&$tokens, &$tokenIndex, $nextElementType)
+class SourceToken
 {
-	$c = count($tokens);
-	$tokenIndex++;
-	while ($tokenIndex < $c)
+
+	/**
+	 * Move to the next token kind
+	 * @param array $tokens A token arary given by \token_get_all()
+	 * @param int $tokenIndex Index of the current token
+	 * @param mixed $nextElementType Token to search
+	 *       
+	 * @return The
+	 */
+	public static function move_next(&$tokens, &$tokenIndex, $nextElementType)
 	{
-		$token = $tokens[$tokenIndex];
-		if (\is_array($token) && \is_int($nextElementType) && ($token[0] == $nextElementType))
-		{
-			return $token;
-		}
-		elseif (is_string($token) && is_string($nextElementType) && ($token == $nextElementType))
-		{
-			return $token;
-		}
-		
+		$c = count($tokens);
 		$tokenIndex++;
-	}
-	
-	return null;
-}
-
-/**
- * Get token type
- * @param mixed $token a element of the token array given by token_get_all()
- * @return integer One of kTokenType* constants
- */
-function token_type($token)
-{
-	if (is_array($token) && (count($token) == 3))
-	{
-		return kTokenTypeElement;
-	}
-	elseif (is_string($token))
-	{
-		return kTokenTypeString;
-	}
-	
-	return kTokenTypeUnknown;
-}
-
-/**
- * Get the list of namespace declarations
- * @param array $tokens A token arary given by token_get_all()
- * @return multitype:
- */
-function token_get_namespaces(&$tokens)
-{
-	$namespaces = array ();
-	$visitor = token_get_visitor($tokens);
-	
-	// Search for namespaces
-	$ns = null;
-	while (($ns = $visitor->moveToToken(T_NAMESPACE)))
-	{
-		$search = $visitor->queryNextTokens(array (
-				T_STRING,
-				'{',
-				';' 
-		), true);
-		ksort($search);
-		list ( $index, $entry ) = each($search);
-		$token = $entry['token'];
-		$name = '';
-		if ((token_type($token) == kTokenTypeElement) && ($token[0] == T_STRING))
+		while ($tokenIndex < $c)
 		{
-			$name = $token[1];
-		}
-		
-		$item = array (
-				'index' => $visitor->key(),
-				'name' => $name 
-		);
-		
-		$namespaces[] = $item;
-	}
-	
-	return $namespaces;
-}
-
-/**
- *
- * @param mixed $token An element of the token array given by token_get_all()
- */
-function token_value($token)
-{
-	if (is_array($token))
-	{
-		return $token[1];
-	}
-	elseif (is_string($token))
-	{
-		return $token;
-	}
-	return null;
-}
-
-/**
- *
- * @param array $tokens A token array given by token_get_all()
- */
-function token_get_visitor(&$tokens)
-{
-	return (new TokenVisitor($tokens));
-}
-
-function token_output(&$tokens, $flags = 0, $namespaces = null)
-{
-	$output = '';
-	$condensedWhitespace = '';
-	$echoTag = false;
-	
-	if (!is_array($namespaces))
-	{
-		$namespaces = token_get_namespaces($tokens);
-	}
-	
-	$visitor = token_get_visitor($tokens);
-	if ($flags & kTokenOutputIgnorePhpTags)
-	{
-		$openTag = $visitor->moveToToken(T_OPEN_TAG);
-	}
-	
-	while ($visitor->valid())
-	{
-		$token = $visitor->current();
-		$type = token_type($token);
-		$value = token_value($token);
-		
-		if ($type == kTokenTypeString)
-		{
-			$output .= $value;
-		}
-		elseif ($type == kTokenTypeElement)
-		{
-			switch ($token[0])
+			$token = $tokens[$tokenIndex];
+			if (\is_array($token) && \is_int($nextElementType) && ($token[0] == $nextElementType))
 			{
-				case T_OPEN_TAG_WITH_ECHO:
-					{
-						if ($flags & kTokenOutputIgnorePhpTags)
+				return $token;
+			}
+			elseif (is_string($token) && is_string($nextElementType) && ($token == $nextElementType))
+			{
+				return $token;
+			}
+			
+			$tokenIndex++;
+		}
+		
+		return null;
+	}
+
+	/**
+	 * Get token type
+	 * @param mixed $token a element of the token array given by \token_get_all()
+	 * @return integer One of kTokenType* constants
+	 */
+	public static function type($token)
+	{
+		if (is_array($token) && (count($token) == 3))
+		{
+			return kTokenTypeElement;
+		}
+		elseif (is_string($token))
+		{
+			return kTokenTypeString;
+		}
+		
+		return kTokenTypeUnknown;
+	}
+
+	/**
+	 * Get the list of namespace declarations
+	 * @param array $tokens A token arary given by \token_get_all()
+	 * @return multitype:
+	 */
+	public static function get_namespaces(&$tokens)
+	{
+		$namespaces = array ();
+		$visitor = SourceToken::get_visitor($tokens);
+		
+		// Search for namespaces
+		$ns = null;
+		while (($ns = $visitor->moveToToken(T_NAMESPACE)))
+		{
+			$search = $visitor->queryNextTokens(array (
+					T_STRING,
+					'{',
+					';' 
+			), true);
+			ksort($search);
+			list ( $index, $entry ) = each($search);
+			$token = $entry['token'];
+			$name = '';
+			if ((SourceToken::type($token) == kTokenTypeElement) && ($token[0] == T_STRING))
+			{
+				$name = $token[1];
+			}
+			
+			$item = array (
+					'index' => $visitor->key(),
+					'name' => $name 
+			);
+			
+			$namespaces[] = $item;
+		}
+		
+		return $namespaces;
+	}
+
+	/**
+	 *
+	 * @param mixed $token An element of the token array given by \token_get_all()
+	 */
+	public static function value($token)
+	{
+		if (is_array($token))
+		{
+			return $token[1];
+		}
+		elseif (is_string($token))
+		{
+			return $token;
+		}
+		return null;
+	}
+
+	/**
+	 *
+	 * @param array $tokens A token array given by \token_get_all()
+	 */
+	public static function get_visitor(&$tokens)
+	{
+		return (new TokenVisitor($tokens));
+	}
+
+	public static function output(&$tokens, $flags = 0, $namespaces = null)
+	{
+		$output = '';
+		$condensedWhitespace = '';
+		$echoTag = false;
+		
+		if (!is_array($namespaces))
+		{
+			$namespaces = SourceToken::get_namespaces($tokens);
+		}
+		
+		$visitor = SourceToken::get_visitor($tokens);
+		if ($flags & kTokenOutputIgnorePhpTags)
+		{
+			$openTag = $visitor->moveToToken(T_OPEN_TAG);
+		}
+		
+		while ($visitor->valid())
+		{
+			$token = $visitor->current();
+			$type = SourceToken::type($token);
+			$value = SourceToken::value($token);
+			
+			if ($type == kTokenTypeString)
+			{
+				$output .= $value;
+			}
+			elseif ($type == kTokenTypeElement)
+			{
+				switch ($token[0])
+				{
+					case T_OPEN_TAG_WITH_ECHO:
 						{
-							$output .= 'echo (';
-							$echoTag = true;
-						}
-						else
-						{
-							$output .= $value;
-						}
-					}
-					break;
-				case T_OPEN_TAG:
-					{
-						if (!($flags & kTokenOutputIgnorePhpTags))
-						{
-							$output .= $value;
-						}
-						
-						if (($flags & kTokenOutputForceNamespace) && (count($namespaces) == 0))
-						{
-							$output .= 'namespace';
-							$s = ($flags & kTokenOutputCondensedWhitespaces) ? $condensedWhitespace : PHP_EOL;
-							$output .= $s . '{' . $s;
-						}
-					}
-					break;
-				case T_CLOSE_TAG:
-					{
-						if ($echoTag)
-						{
-							echo ');';
-						}
-						else
-						{
-							if (($flags & kTokenOutputForceNamespace) && (count($namespaces) == 0))
+							if ($flags & kTokenOutputIgnorePhpTags)
 							{
-								$s = ($flags & kTokenOutputCondensedWhitespaces) ? $condensedWhitespace : PHP_EOL;
-								$output .= $s . '}';
+								$output .= 'echo (';
+								$echoTag = true;
 							}
-							
-							if (!($flags & kTokenOutputIgnorePhpTags))
+							else
 							{
 								$output .= $value;
 							}
 						}
-						$echoTag = false;
-					}
-				case T_INLINE_HTML:
-					{
-						if (!($flags & kTokenOutputIgnoreInlineHTML))
+						break;
+					case T_OPEN_TAG:
 						{
-							$output .= $value;
+							if (!($flags & kTokenOutputIgnorePhpTags))
+							{
+								$output .= $value;
+							}
+							
+							if (($flags & kTokenOutputForceNamespace) && (count($namespaces) == 0))
+							{
+								$output .= 'namespace';
+								$s = ($flags & kTokenOutputCondensedWhitespaces) ? $condensedWhitespace : PHP_EOL;
+								$output .= $s . '{' . $s;
+							}
 						}
-					}
-					break;
-				case T_WHITESPACE:
-					{
-						$output .= (($flags & kTokenOutputCondensedWhitespaces) ? $condensedWhitespace : $value);
-					}
-					break;
-				case T_COMMENT:
-				case T_DOC_COMMENT:
-					{
-						if (!($flags & kTokenOutputIgnoreComments))
+						break;
+					case T_CLOSE_TAG:
 						{
-							$output .= $value;
+							if ($echoTag)
+							{
+								echo ');';
+							}
+							else
+							{
+								if (($flags & kTokenOutputForceNamespace) && (count($namespaces) == 0))
+								{
+									$s = ($flags & kTokenOutputCondensedWhitespaces) ? $condensedWhitespace : PHP_EOL;
+									$output .= $s . '}';
+								}
+								
+								if (!($flags & kTokenOutputIgnorePhpTags))
+								{
+									$output .= $value;
+								}
+							}
+							$echoTag = false;
 						}
-					}
-					break;
-				default:
-					$output .= $value;
+					case T_INLINE_HTML:
+						{
+							if (!($flags & kTokenOutputIgnoreInlineHTML))
+							{
+								$output .= $value;
+							}
+						}
+						break;
+					case T_WHITESPACE:
+						{
+							$output .= (($flags & kTokenOutputCondensedWhitespaces) ? $condensedWhitespace : $value);
+						}
+						break;
+					case T_COMMENT:
+					case T_DOC_COMMENT:
+						{
+							if (!($flags & kTokenOutputIgnoreComments))
+							{
+								$output .= $value;
+							}
+						}
+						break;
+					default:
+						$output .= $value;
+				}
+			}
+			
+			$visitor->next();
+			if (strlen($output))
+			{
+				$condensedWhitespace = ' ';
 			}
 		}
 		
-		$visitor->next();
-		if (strlen($output))
-		{
-			$condensedWhitespace = ' ';
-		}
+		return $output;
 	}
-	
-	return $output;
-}
 
-/**
- * Dump token table to a condensed format
- * @param unknown $tokens Token array given by token_get_all ()
- * @param string $eol A string to add after each entry output
- * @param number $flags Display options
- */
-function token_dump($tokens, $eol = PHP_EOL, $flags = 0)
-{
-	$i = 0;
-	$result = '';
-	foreach ($tokens as $t)
+	/**
+	 * Dump token table to a condensed format
+	 * @param unknown $tokens Token array given by \token_get_all ()
+	 * @param string $eol A string to add after each entry output
+	 * @param number $flags Display options
+	 */
+	public static function dump($tokens, $eol = PHP_EOL, $flags = 0)
 	{
-		$type = token_type($t);
-		$name = ($type == kTokenTypeElement) ? token_name($t[0]) : 'string';
-		$value = token_value($t);
-		
-		if (($flags & kTokenDumpCondensedWhitespaces) && ($type == kTokenTypeElement) && ($t[1] == T_WHITESPACE))
+		$i = 0;
+		$result = '';
+		foreach ($tokens as $t)
 		{
-			$value = '';
+			$type = SourceToken::type($t);
+			$name = ($type == kTokenTypeElement) ? SourceToken::name($t[0]) : 'string';
+			$value = SourceToken::value($t);
+			
+			if (($flags & kTokenDumpCondensedWhitespaces) && ($type == kTokenTypeElement) && ($t[1] == T_WHITESPACE))
+			{
+				$value = '';
+			}
+			
+			if ($flags & kTokenDumpSingleLine)
+			{
+				$value = str_replace("\r", '<CR>', str_replace("\n", '<LF>', $value));
+			}
+			
+			if ($i > 0)
+			{
+				$result .= $eol;
+			}
+			
+			$result .= '[' . $i . ', ' . $name . '] <' . $value . '>';
+			
+			$i++;
 		}
 		
-		if ($flags & kTokenDumpSingleLine)
-		{
-			$value = str_replace("\r", '<CR>', str_replace("\n", '<LF>', $value));
-		}
-		
-		if ($i > 0)
-		{
-			$result .= $eol;
-		}
-		
-		$result .= '[' . $i . ', ' . $name . '] <' . $value . '>';
-		
-		$i++;
+		return $result;
 	}
-	
-	return $result;
 }
 
 /**
@@ -337,7 +341,7 @@ class TokenVisitor implements \iterator, \ArrayAccess, \Countable
 
 	/**
 	 *
-	 * @param array $tokens A token array given by token_get_all()
+	 * @param array $tokens A token array given by \token_get_all()
 	 */
 	public function __construct(&$tokens)
 	{
@@ -374,7 +378,7 @@ class TokenVisitor implements \iterator, \ArrayAccess, \Countable
 	 */
 	public function moveToToken($nextElementType)
 	{
-		return (token_move_next($this->tokenArray, $this->tokenIndex, $nextElementType));
+		return (SourceToken::move_next($this->tokenArray, $this->tokenIndex, $nextElementType));
 	}
 
 	/**
@@ -449,7 +453,7 @@ class TokenVisitor implements \iterator, \ArrayAccess, \Countable
 	 */
 	public function currentType()
 	{
-		return token_type($this->current());
+		return SourceToken::type($this->current());
 	}
 
 	// Iterator
@@ -553,7 +557,7 @@ class SourceFile
 	 */
 	public function __construct($fileName)
 	{
-		$this->tokens = token_get_all(file_get_contents($fileName));
+		$this->tokens = \token_get_all(file_get_contents($fileName));
 		$this->namespaces = array ();
 		$this->parse();
 	}
@@ -569,7 +573,7 @@ class SourceFile
 	 */
 	public function getTokenVisitor()
 	{
-		return token_get_visitor($this->tokens);
+		return SourceToken::get_visitor($this->tokens);
 	}
 
 	/**
@@ -579,7 +583,7 @@ class SourceFile
 	 */
 	public function asString($flags = 0)
 	{
-		return token_output($this->tokens, $flags, $this->namespaces);
+		return SourceToken::output($this->tokens, $flags, $this->namespaces);
 	}
 
 	/**
@@ -590,7 +594,7 @@ class SourceFile
 	 */
 	public function dumpTokens($eol = PHP_EOL, $flags = 0)
 	{
-		return token_dump($this->tokens, $eol, $flags);
+		return SourceToken::dump($this->tokens, $eol, $flags);
 	}
 
 	/**
@@ -604,7 +608,7 @@ class SourceFile
 
 	private function parse()
 	{
-		$this->namespaces = token_get_namespaces($this->tokens);
+		$this->namespaces = SourceToken::get_namespaces($this->tokens);
 	}
 
 	/**

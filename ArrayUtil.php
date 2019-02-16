@@ -189,6 +189,14 @@ class ArrayUtil
 		{
 			return $table->offsetExists($key);
 		}
+		elseif (\is_array($key))
+		{
+			return (\array_key_exists($table, $key));
+		}
+		elseif (\is_object($key) && ($key instanceof \ArrayAccess))
+		{
+			return $key->offsetExists($table);
+		}
 		
 		return false;
 	}

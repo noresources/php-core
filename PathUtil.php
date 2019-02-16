@@ -35,8 +35,8 @@ class PathUtil
 	 */
 	public static function getRelative($from, $to)
 	{
-		$from = trim(path_cleanup($from), '/');
-		$to = trim(path_cleanup($to), '/');
+		$from = trim(self::cleanup($from), '/');
+		$to = trim(self::cleanup($to), '/');
 		
 		$from = explode('/', $from);
 		$to = explode('/', $to);
