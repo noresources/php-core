@@ -31,8 +31,11 @@ const kDataTreeReadOnly = 0x3;
  * @var integer
  */
 const kDataTreeSilent = 0x4;
+
 const kDataTreeFileAuto = 0;
+
 const kDataTreeFilePHP = 1;
+
 const kDataTreeFileJSON = 2;
 
 /**
@@ -56,9 +59,16 @@ const kDataTreeLoadAppend = 2;
  */
 const kDataTreeLoadMerge = 2;
 
+/**
+ * Serializable data tree structure
+ *
+ */
 class DataTree implements \ArrayAccess, \Serializable, \IteratorAggregate, \Countable
 {
 
+	/**
+	 * @param array $data Initial data
+	 */
 	public function __construct($data = array())
 	{
 		$this->m_elements = new \ArrayObject();
@@ -72,6 +82,10 @@ class DataTree implements \ArrayAccess, \Serializable, \IteratorAggregate, \Coun
 		$this->m_flags = 0;
 	}
 
+	/**
+	 * String representation
+	 * @return string
+	 */
 	public function __toString()
 	{
 		return $this->serialize();
