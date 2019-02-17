@@ -1,5 +1,5 @@
 <?php
-function autoload_NWM2ODUzNjlhMDJkOA($className)
+function autoload_NWM2OTYzYjVjZDQwNw($className)
 {
 	if ($className == 'NoreSources\ArrayUtil')
 	{
@@ -9,6 +9,10 @@ function autoload_NWM2ODUzNjlhMDJkOA($className)
 	{
 		require_once(__DIR__ . '/DataTree.php');
 	}
+ 	elseif ($className == 'NoreSources\SourceToken')
+	{
+		require_once(__DIR__ . '/SourceFile.php');
+	}
  	elseif ($className == 'NoreSources\TokenVisitor')
 	{
 		require_once(__DIR__ . '/SourceFile.php');
@@ -16,6 +20,14 @@ function autoload_NWM2ODUzNjlhMDJkOA($className)
  	elseif ($className == 'NoreSources\SourceFile')
 	{
 		require_once(__DIR__ . '/SourceFile.php');
+	}
+ 	elseif ($className == 'SemanticPostfixedData')
+	{
+		require_once(__DIR__ . '/SemanticVersion.php');
+	}
+ 	elseif ($className == 'SemanticVersion')
+	{
+		require_once(__DIR__ . '/SemanticVersion.php');
 	}
  	elseif ($className == 'NoreSources\PathUtil')
 	{
@@ -38,4 +50,4 @@ function autoload_NWM2ODUzNjlhMDJkOA($className)
 		include_once(__DIR__ . '/Reporter.inc.php');
 	}
  }
-spl_autoload_register('autoload_NWM2ODUzNjlhMDJkOA');
+spl_autoload_register('autoload_NWM2OTYzYjVjZDQwNw');
