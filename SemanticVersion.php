@@ -2,12 +2,6 @@
 
 namespace NoreSources;
 
-const kSemanticVersionMajor = 'major';
-const kSemanticVersionMinor = 'minor';
-const kSemanticVersionPatch = 'patch';
-const kSemanticVersionPreRelease = 'prerelease';
-const kSemanticVersionMetadata = 'metadata';
-
 class SemanticPostfixedData extends \ArrayObject
 {
 
@@ -180,6 +174,11 @@ class SemanticPostfixedData extends \ArrayObject
  */
 class SemanticVersion
 {
+	const MAJOR = 'major';
+	const MINOR = 'minor';
+	const PATCH = 'patch';
+	const PRE_RELEASE = 'prerelease';
+	const METADATA = 'metadata';
 
 	/**
 	 *
@@ -238,11 +237,11 @@ class SemanticVersion
 		}
 		elseif (ArrayUtil::isArray($version))
 		{
-			$this->major = ArrayUtil::keyValue($version, kSemanticVersionMajor, 0);
-			$this->minor = ArrayUtil::keyValue($version, kSemanticVersionMinor, 0);
-			$this->patch = ArrayUtil::keyValue($version, kSemanticVersionPatch, 0);
-			$this->prerelease->set(ArrayUtil::keyValue($version, kSemanticVersionPreRelease, ''));
-			$this->metadata->set(ArrayUtil::keyValue($version, kSemanticVersionMetadata, ''));
+			$this->major = ArrayUtil::keyValue($version, self::MAJOR, 0);
+			$this->minor = ArrayUtil::keyValue($version, self::MINOR, 0);
+			$this->patch = ArrayUtil::keyValue($version, self::PATCH, 0);
+			$this->prerelease->set(ArrayUtil::keyValue($version, self::PRE_RELEASE, ''));
+			$this->metadata->set(ArrayUtil::keyValue($version, self::METADATA, ''));
 		}
 		else
 		{
@@ -266,11 +265,11 @@ class SemanticVersion
 	public function __get($member)
 	{
 		switch ($member){
-			case kSemanticVersionMajor: return $this->major;
-			case kSemanticVersionMetadata: return strval($this->metadata);
-			case kSemanticVersionMinor: return $this->minor;
-			case kSemanticVersionPatch: return $this->patch;
-			case kSemanticVersionPreRelease: return strval($this->prerelease);
+			case self::MAJOR: return $this->major;
+			case self::METADATA: return strval($this->metadata);
+			case self::MINOR: return $this->minor;
+			case self::PATCH: return $this->patch;
+			case self::PRE_RELEASE: return strval($this->prerelease);
 		}
 		
 		throw new \InvalidArgumentException($member);
@@ -279,25 +278,25 @@ class SemanticVersion
 	public function __set($member, $value)
 	{
 		switch ($member){
-			case kSemanticVersionMajor: {
+			case self::MAJOR: {
 				if (is_int($value) && $value >= 0) {
 					$this->major = $value;
 				} else throw new \InvalidArgumentException($value);
 			} break;
-			case kSemanticVersionMetadata: {
+			case self::METADATA: {
 				$this->metadata->set($value);
 			} break;
-			case kSemanticVersionMinor: {
+			case self::MINOR: {
 				if (is_int($value) && $value >= 0) {
 					$this->minor = $value;
 				} else throw new \InvalidArgumentException($value);
 			} break;
-			case kSemanticVersionPatch: {
+			case self::PATCH: {
 				if (is_int($value) && $value >= 0) {
 					$this->patch = $value;
 				} else throw new \InvalidArgumentException($value);
 			} break;
-			case kSemanticVersionPreRelease: {
+			case self::PRE_RELEASE: {
 				$this->prerelease->set ($value);
 			} break;
 		}
@@ -305,37 +304,62 @@ class SemanticVersion
 		throw new \InvalidArgumentException($member);
 	}
 	
+	public function __call($name, $arguments)
+	{
+		if ($name == 'compare') {
+			array_unshift($arguments, $this);
+			return call_user_func_array(array (get_called_class(), 'compareVersions'), $arguments);
+		}
+		
+		throw new \InvalidArgumentException($name . ' is not callable');
+	}
+	
+	public static function __callstatic($name, $arguments)
+	{
+		if ($name == 'compare') {
+			return call_user_func_array(array (get_called_class(), 'compareVersions'), $arguments);
+		}
+		
+		throw new \InvalidArgumentException($name . ' is not callable statically');
+	}
+	
 	/**
 	 * 
-	 * @param mixed $version Version to compare with instance
+	 * @param unknown $a
+	 * @param unknown $b
 	 * @return number
 	 *         <ul>
-	 *         <li>&lt; 0 if Object have lower precedence than @c $version</li>
-	 *         <li>0 if Object have the same precedence than @c $version</li>
-	 *         <li>&gt;0 0 if Object have higher precedence than @c $version</li>
+	 *         <li>&lt; 0 if @c $a have lower precedence than @c $b/li>
+	 *         <li>0 if @c $a have the same precedence than @c $b/li>
+	 *         <li>&gt;0 0 if @c $a have higher precedence than @c $b/li>
 	 *         </ul>
 	 */
-	public function compare($version)
+	public static function compareVersions($a, $b)
 	{
-		if (!($version instanceof SemanticVersion))
+		if (!($a instanceof SemanticVersion))
 		{
-			$version = new SemanticVersion($version);
+			$a = new SemanticVersion($a);
 		}
 		
-		if ($this->major != $version->major)
+		if (!($b instanceof SemanticVersion))
 		{
-			return ($this->major < $version->major) ? -1 : 1;
-		}
-		if ($this->minor != $version->minor)
-		{
-			return ($this->minor < $version->minor) ? -1 : 1;
-		}
-		if ($this->patch != $version->patch)
-		{
-			return ($this->patch < $version->patch) ? -1 : 1;
+			$b = new SemanticVersion($b);
 		}
 		
-		return $this->prerelease->compare($version->prerelease);
+		if ($a->major != $b->major)
+		{
+			return ($a->major < $b->major) ? -1 : 1;
+		}
+		if ($a->minor != $b->minor)
+		{
+			return ($a->minor < $b->minor) ? -1 : 1;
+		}
+		if ($a->patch != $b->patch)
+		{
+			return ($a->patch < $b->patch) ? -1 : 1;
+		}
+		
+		return $a->prerelease->compare($b->prerelease);
 	}
 
 	/**
