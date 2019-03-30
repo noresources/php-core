@@ -16,7 +16,7 @@ class SemanticPostfixedData extends \ArrayObject
 		return \implode('.', $this->getArrayCopy());
 	}
 
-	public function __offsetSet($offset, $value)
+	public function offsetSet($offset, $value)
 	{
 		if (!\is_numeric($offset))
 		{
@@ -27,7 +27,7 @@ class SemanticPostfixedData extends \ArrayObject
 			throw new \InvalidArgumentException($value . ' is not a valid build metadata string');
 		}
 		
-		parent::__offsetSet($offset, $value);
+		parent::offsetSet($offset, $value);
 	}
 
 	public function set($data)
