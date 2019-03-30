@@ -13,6 +13,8 @@ namespace NoreSources;
 
 class ArrayUtil
 {
+	const IMPLODE_KEYS = 0x01;
+	const IMPLODE_VALUES = 0x02;
 
 	/**
 	 * Remove a key from an array
@@ -230,21 +232,9 @@ class ArrayUtil
 	 * @param string $glue Element glue
 	 * @return string
 	 */
-	public static function implodeValues($table, $glue)
+	public static function implodeValues($table, $glue, $callable = null, $callableArguments = array ())
 	{
-		if (self::isArray($glue) && is_string($table))
-		{
-			$a = $glue;
-			$glue = $table;
-			$table = $a;
-		}
-		
-		if (!self::isArray($table) || count($table) == 0)
-		{
-			return '';
-		}
-		
-		return (\implode($glue, $table));
+		return self::implode($table, $glue, self::IMPLODE_VALUES, $callable, $callableArguments);
 	}
 
 	/**
@@ -257,51 +247,22 @@ class ArrayUtil
 	 *
 	 * @return string
 	 */
-	public static function implodeKeys($table, $glue)
+	public static function implodeKeys($table, $glue, $callable = null, $callableArguments = array ())
 	{
-		if (self::isArray($glue) && is_string($table))
-		{
-			$a = $glue;
-			$glue = $table;
-			$table = $a;
-		}
-		
-		if (!self::isArray($table) || count($table) == 0)
-		{
-			return '';
-		}
-		
-		// php 5.1 does not support "class::method" syntax
-		$result = '';
-		
-		foreach ($table as $k => $v)
-		{
-			$r = $k;
-			if (strlen($r) == 0)
-			{
-				continue;
-			}
-			
-			if (strlen($result) > 0)
-			{
-				$result .= $glue;
-			}
-			
-			$result .= $r;
-		}
-		
-		return $result;
+		return self::implode($table, $glue, self::IMPLODE_KEYS, $callable, $callableArguments);
 	}
 
 	/**
-	 * Implode a array
+	 * Implode an array
 	 *
 	 * @param array $table Array to implode
 	 * @param string $glue Glue
-	 * @param callable $callback
-	 * @param string $callbackArguments
+	 * @param callable $callable
+	 * @param string $callableArguments
+	 * 
+	 * @return string
 	 */
-	public static function implode($table, $glue, $callback, $callbackArguments = null)
+	public static function implode($table, $glue, $what, $callable = null, $callableArguments = array())
 	{
 		if (self::isArray($glue) && is_string($table))
 		{
@@ -310,36 +271,39 @@ class ArrayUtil
 			$table = $a;
 		}
 		
-		if (!self::isArray($table) || count($table) == 0)
+		if (!self::isArray($table) || self::count($table) == 0)
 		{
 			return '';
 		}
-		
-		// php 5.1 does not support "class::method" syntax
-		$regs = array ();
-		if (is_string($callback) && preg_match('/([^:]+)::(.+)/', $callback, $regs))
-		{
-			$callback = array (
-					$regs[1],
-					$regs[2] 
-			);
-		}
-		
+				
 		$result = '';
 		
-		if (!self::isArray($callbackArguments))
+		if (!self::isArray($callableArguments))
 		{
-			$callbackArguments = array (
-					$callbackArguments 
+			$callableArguments = array (
+					$callableArguments 
 			);
 		}
 		
 		foreach ($table as $k => $v)
 		{
-			$r = call_user_func_array($callback, array_merge(array (
-					$k,
-					$v 
-			), $callbackArguments));
+			$r = '';
+			if (\is_callable($callable))
+			{
+				$a = array ();
+				if ($what & self::IMPLODE_KEYS) $a[] = $k;
+				if ($what & self::IMPLODE_VALUES) $a[] = $v;
+				$r = call_user_func_array($callable, array_merge($a, $callableArguments));
+			}
+			else if ($what & self::IMPLODE_VALUES)
+			{
+				$r = $v;
+			}
+			else if ($what & self::IMPLODE_KEYS)
+			{
+				$r = $k;
+			}
+			
 			if (strlen($r) == 0)
 			{
 				continue;
