@@ -101,7 +101,7 @@ class ArrayUtil
 	 * @return boolean @true if at least one of @param $values keys is not a integer
 	 *         or if the array keys are not consecutive values
 	 */
-	public static function isAssociative(&$values)
+	public static function isAssociative($values)
 	{
 		if (!self::isArray($values))
 		{
@@ -210,7 +210,7 @@ class ArrayUtil
 	 * @param mixed $key
 	 * @param mixed $a_defaultValue
 	 */
-	public static function keyValue(&$table, $key, $a_defaultValue)
+	public static function keyValue($table, $key, $a_defaultValue)
 	{
 		if (\is_array($table))
 		{
