@@ -71,6 +71,12 @@ class DataTree implements \ArrayAccess, \Serializable, \IteratorAggregate, \Coun
 		}
 		$this->m_flags = 0;
 	}
+	
+	public function __clone()
+	{
+		if ($this->m_defaultValueHandler) $this->m_defaultValueHandler = clone $this->m_defaultValueHandler;
+		if ($this->m_elements) $this->m_elements = clone $this->m_elements;
+	}
 
 	public function __toString()
 	{

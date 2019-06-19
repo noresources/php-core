@@ -148,7 +148,7 @@ class UnaryOperatorExpression extends IOperatorExpression
 		$this->m_expression = $a_expression;
 		$this->m_bPostFixed = $a_postFixed;
 	}
-
+	
 	public function __clone()
 	{
 		if ($this->m_expression)
