@@ -146,7 +146,7 @@ class ArrayUtil
 			return (\count($table));
 		}
 		
-		return (\is_object($table) && ($table instanceof \Countable)) ? $table->count() : false;
+		return (($table instanceof \Countableb) ? $table->count() : false)	;
 	}
 
 	/**
