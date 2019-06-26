@@ -1,0 +1,19 @@
+{
+	"name": "ns-php-xslt",
+	"description": "Utility class library for PHP",
+	"type": "library",
+	"version": "2.0.0",
+	"license": "MIT",
+	"authors": [
+		{
+			"name": "Renaud Guillard",
+			"email": "dev@nore.fr",
+			"role": "lead"
+		}
+	],
+	"prefer-stable": false,
+	"minimum-stability": "dev",
+	"support": {
+		"issues": "https://github.com/noresources/ns-php-core/issues"
+	}
+}
