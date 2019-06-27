@@ -14,5 +14,10 @@
 	"minimum-stability": "dev",
 	"support": {
 		"issues": "https://github.com/noresources/ns-php-core/issues"
+	},
+	"autoload": {
+		"psr-4": {
+			"NoreSources\\": "./"
+		}
 	}
 }
