@@ -1,8 +1,7 @@
 {
-	"name": "ns-php-xslt",
+	"name": "noresources/ns-php-core",
 	"description": "Utility class library for PHP",
 	"type": "library",
-	"version": "2.0.0",
 	"license": "MIT",
 	"authors": [
 		{
