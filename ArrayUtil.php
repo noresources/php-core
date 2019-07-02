@@ -6,41 +6,78 @@
  */
 
 /**
- *
  * @package Core
  */
 namespace NoreSources;
 
-class ArrayUtil
+class InvalidContainerException extends \InvalidArgumentException
 {
+
+	public function __construct($element, $forMethod = null)
+	{
+		parent::__construct(TypeDescription::getName($element) . ' is not a valid container' . (\is_string($forMethod) ? ' for method ' . $forMethod : ''));
+	}
+}
+
+class ContainerUtil
+{
+	const REMOVE_INPLACE = 1;
+	const REMOVE_COPY = 2;
 	const IMPLODE_KEYS = 0x01;
 	const IMPLODE_VALUES = 0x02;
 
-	/**
-	 * Remove a key from an array
-	 *
-	 * @param string $key
-	 * @param array $table Key association is preserved in the result array
-	 *       
-	 * @return A new array that does not contains @param $key
-	 */
-	public static function removeKey($table, $key)
+	public static function removeKey(&$table, $key, $mode = self::REMOVE_COPY)
 	{
-		if (!array_key_exists($key, $table))
+		if ($mode == self::REMOVE_INPLACE)
 		{
-			return $table;
-		}
-		
-		$newArray = array ();
-		foreach ($table as $k => $v)
-		{
-			if ($k != $key)
+			if ($table instanceof \ArrayAccess)
 			{
-				$newArray[$k] = $v;
+				if ($table->offsetExists($key))
+				{
+					$table->offsetUnset($key);
+				}
+
+				return $table;
 			}
+			elseif (\is_array($table))
+			{
+				if (\array_key_exists($key, $table))
+				{
+					unset($table[$key]);
+					return true;
+				}
+
+				return $table;
+			}
+
+			throw new InvalidContainerException($table, __METHOD__);
 		}
-		
-		return $newArray;
+		elseif ($mode == self::REMOVE_COPY)
+		{
+			if ($table instanceof \ArrayAccess)
+			{
+				$t = clone $table;
+				if ($t->offsetExists($key))
+				{
+					$t->offsetUnset($key);
+				}
+				return $t;
+			}
+			elseif (\is_array($table))
+			{
+				$t = array ();
+				foreach ($table as $k => $v)
+				{
+					if ($k !== $key)
+						$t[$k] = $v;
+				}
+				return $t;
+			}
+
+			throw new InvalidContainerException($table, __METHOD__);
+		}
+		else
+			throw new \InvalidArgumentException('mode');
 	}
 
 	/**
@@ -51,13 +88,13 @@ class ArrayUtil
 	 */
 	public static function isArray($table)
 	{
-		return (\is_array($table) || (\is_object($table) && ($table instanceof \ArrayAccess)));
+		return (\is_array($table) || ($table instanceof \ArrayAccess));
 	}
 
 	/**
 	 * Transform any type to a plain PHP array
 	 * @param mixed $anything
-	 * @param number $singleElementKey Key used to create a single element array when @param is not something that could be
+	 * @param number $singleElementKey Key used to create a single element array when is not something that could be
 	 *        converted to an array
 	 * @return array
 	 */
@@ -84,33 +121,34 @@ class ArrayUtil
 				{
 					$a[$k] = $v;
 				}
-				
+
 				return $a;
 			}
 		}
-		
+
 		return array (
-				$singleElementKey => $anything 
+				$singleElementKey => $anything
 		);
 	}
 
 	/**
 	 * Indicates if the given array is an associative array
 	 *
-	 * @param array $values
-	 * @return boolean @true if at least one of @param $values keys is not a integer
+	 * @param array|\ArrayAccess|\Traversable $values
+	 * @throws InvalidContainerException
+	 * @return boolean @true if at least one of $values keys is not a integer
 	 *         or if the array keys are not consecutive values
 	 */
 	public static function isAssociative($values)
 	{
-		if (!self::isArray($values))
+		if (!(self::isArray($values) || ($values instanceof \Traversable)))
 		{
-			return false;
+			throw new InvalidContainerException($values);
 		}
-		
-		$itemCount = count($values);
+
+		$itemCount = self::count($values);
 		$index = 0;
-		
+
 		foreach ($values as $key => $value)
 		{
 			if (is_numeric($key))
@@ -124,29 +162,35 @@ class ArrayUtil
 			{
 				return true;
 			}
-			
+
 			$index++;
 		}
-		
+
 		return false;
 	}
 
 	/**
-	 * count accepts both <code>array</code> and <code>Countable</code>
-	 * implementation
-	 *
-	 * @param mixed $table array or Countable object
-	 * @return int
-	 * @todo rename into array_count
+	 * Get the number of element of the given array
+	 * @param mixed $table Array, \Countable or \Traversable object
+	 * @throws InvalidContainerException
+	 * @return number Number of elements in $table
+	 *        
 	 */
 	public static function count($table)
 	{
 		if (\is_array($table))
+			return \count($table);
+		elseif ($table instanceof \Countable)
+			return $table->count();
+		elseif ($table instanceof \Traversable)
 		{
-			return (\count($table));
+			$c = 0;
+			foreach ($table as $k => $v)
+				$c++;
+			return $c;
 		}
-		
-		return (($table instanceof \Countableb) ? $table->count() : false)	;
+
+		throw new InvalidContainerException($table, __METHOD__);
 	}
 
 	/**
@@ -162,7 +206,7 @@ class ArrayUtil
 		{
 			reset($table);
 		}
-		elseif (\is_object($table) && ($table instanceof \ArrayAccess))
+		elseif ($table instanceof \ArrayAccess)
 		{
 			$table->rewind();
 		}
@@ -170,7 +214,7 @@ class ArrayUtil
 		{
 			return false;
 		}
-		
+
 		return true;
 	}
 
@@ -178,7 +222,8 @@ class ArrayUtil
 	 * Indicates if a key exists in an array or a ArrayAccess implementation
 	 *
 	 * @param mixed $key key
-	 * @param mixed $table array or ArrayAccess implementation
+	 * @param array|\ArrayAccess|\Traversable $table
+	 * @param $table array to reset
 	 * @return boolean
 	 */
 	public static function keyExists($table, $key)
@@ -187,20 +232,22 @@ class ArrayUtil
 		{
 			return (\array_key_exists($key, $table));
 		}
-		elseif (\is_object($table) && ($table instanceof \ArrayAccess))
+		elseif ($table instanceof \ArrayAccess)
 		{
 			return $table->offsetExists($key);
 		}
-		elseif (\is_array($key))
+		elseif ($table instanceof \Traversable)
 		{
-			return (\array_key_exists($table, $key));
+			foreach ($table as $k => $_)
+			{
+				if ($key === $k)
+					return true;
+			}
+
+			return false;
 		}
-		elseif (\is_object($key) && ($key instanceof \ArrayAccess))
-		{
-			return $key->offsetExists($table);
-		}
-		
-		return false;
+
+		throw new InvalidContainerException($table, __METHOD__);
 	}
 
 	/**
@@ -216,13 +263,23 @@ class ArrayUtil
 		{
 			return (\array_key_exists($key, $table)) ? $table[$key] : $a_defaultValue;
 		}
-		
-		if (is_object($table) && ($table instanceof \ArrayAccess))
+
+		if ($table instanceof \ArrayAccess)
 		{
 			return ($table->offsetExists($key) ? $table->offsetGet($key) : $a_defaultValue);
 		}
-		
-		return $a_defaultValue;
+		elseif ($table instanceof \Traversable)
+		{
+			foreach ($table as $k => $value)
+			{
+				if ($key === $k)
+					return $value;
+			}
+
+			return $a_defaultValue;
+		}
+
+		throw new InvalidContainerException($element);
 	}
 
 	/**
@@ -259,7 +316,7 @@ class ArrayUtil
 	 * @param string $glue Glue
 	 * @param callable $callable
 	 * @param string $callableArguments
-	 * 
+	 *
 	 * @return string
 	 */
 	public static function implode($table, $glue, $what, $callable = null, $callableArguments = array())
@@ -270,29 +327,31 @@ class ArrayUtil
 			$glue = $table;
 			$table = $a;
 		}
-		
+
 		if (!self::isArray($table) || self::count($table) == 0)
 		{
 			return '';
 		}
-				
+
 		$result = '';
-		
+
 		if (!self::isArray($callableArguments))
 		{
 			$callableArguments = array (
-					$callableArguments 
+					$callableArguments
 			);
 		}
-		
+
 		foreach ($table as $k => $v)
 		{
 			$r = '';
 			if (\is_callable($callable))
 			{
 				$a = array ();
-				if ($what & self::IMPLODE_KEYS) $a[] = $k;
-				if ($what & self::IMPLODE_VALUES) $a[] = $v;
+				if ($what & self::IMPLODE_KEYS)
+					$a[] = $k;
+				if ($what & self::IMPLODE_VALUES)
+					$a[] = $v;
 				$r = call_user_func_array($callable, array_merge($a, $callableArguments));
 			}
 			else if ($what & self::IMPLODE_VALUES)
@@ -303,20 +362,23 @@ class ArrayUtil
 			{
 				$r = $k;
 			}
-			
+
 			if (strlen($r) == 0)
 			{
 				continue;
 			}
-			
+
 			if (strlen($result) > 0)
 			{
 				$result .= $glue;
 			}
-			
+
 			$result .= $r;
 		}
-		
+
 		return $result;
 	}
 }
+
+class ArrayUtil extends ContainerUtil
+{}
