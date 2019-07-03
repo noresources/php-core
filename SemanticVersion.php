@@ -41,7 +41,7 @@ class SemanticPostfixedData extends \ArrayObject
 			$data = explode('.', $data);
 		}
 		
-		if (ArrayUtil::isArray($data))
+		if (ContainerUtil::isArray($data))
 		{
 			foreach ($data as $value)
 			{
@@ -216,11 +216,11 @@ class SemanticVersion
 			if (preg_match(chr(1) . '^([0-9.]+)(-(.+?))?(\+(.+?))?$' . chr(1), $version, $matches))
 			{
 				$v = explode('.', $matches[1]);
-				$this->major = ArrayUtil::keyValue($v, 0, 0);
-				$this->minor = ArrayUtil::keyValue($v, 1, 0);
-				$this->patch = ArrayUtil::keyValue($v, 2, 0);
-				$this->prerelease->set(ArrayUtil::keyValue($matches, 3, ''));
-				$this->metadata->set(ArrayUtil::keyValue($matches, 5, ''));
+				$this->major = ContainerUtil::keyValue($v, 0, 0);
+				$this->minor = ContainerUtil::keyValue($v, 1, 0);
+				$this->patch = ContainerUtil::keyValue($v, 2, 0);
+				$this->prerelease->set(ContainerUtil::keyValue($matches, 3, ''));
+				$this->metadata->set(ContainerUtil::keyValue($matches, 5, ''));
 			}
 			else
 			{
@@ -235,13 +235,13 @@ class SemanticVersion
 			$this->prerelease = clone $version->prerelease;
 			$this->metadata = clone $version->metadata;
 		}
-		elseif (ArrayUtil::isArray($version))
+		elseif (ContainerUtil::isArray($version))
 		{
-			$this->major = ArrayUtil::keyValue($version, self::MAJOR, 0);
-			$this->minor = ArrayUtil::keyValue($version, self::MINOR, 0);
-			$this->patch = ArrayUtil::keyValue($version, self::PATCH, 0);
-			$this->prerelease->set(ArrayUtil::keyValue($version, self::PRE_RELEASE, ''));
-			$this->metadata->set(ArrayUtil::keyValue($version, self::METADATA, ''));
+			$this->major = ContainerUtil::keyValue($version, self::MAJOR, 0);
+			$this->minor = ContainerUtil::keyValue($version, self::MINOR, 0);
+			$this->patch = ContainerUtil::keyValue($version, self::PATCH, 0);
+			$this->prerelease->set(ContainerUtil::keyValue($version, self::PRE_RELEASE, ''));
+			$this->metadata->set(ContainerUtil::keyValue($version, self::METADATA, ''));
 		}
 		else
 		{
@@ -262,6 +262,17 @@ class SemanticVersion
 		return $s;
 	}
 
+	/**
+	 * @property-read integer $major Major
+	 * @property-read integer $minor Minor
+	 * @property-read integer $patch Patch level
+	 * @property-read string $prerelease Pre-release data
+	 * @property-read string $metadata Metadata
+	 * 
+	 * @param string $member
+	 * @throws \InvalidArgumentException
+	 * @return number|string
+	 */
 	public function __get($member)
 	{
 		switch ($member){
@@ -275,6 +286,17 @@ class SemanticVersion
 		throw new \InvalidArgumentException($member);
 	}
 	
+	/**
+	 * @property-write integer $major Major
+	 * @property-write integer $minor Minor
+	 * @property-write integer $patch Patch level
+	 * @property-write string $prerelease Pre-release data
+	 * @property-write string $metadata Metadata
+	 *  
+	 * @param string $member
+	 * @param mixed $value
+	 * @throws \InvalidArgumentException
+	 */
 	public function __set($member, $value)
 	{
 		switch ($member){
