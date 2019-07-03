@@ -3,15 +3,15 @@ function autoload_NWQxYmE2Y2ZiZjI3Nw($className)
 {
 	if ($className == 'NoreSources\InvalidContainerException')
 	{
-		require_once(__DIR__ . '/ArrayUtil.php');
+		require_once(__DIR__ . '/ContainerUtil.php');
 	}
  	elseif ($className == 'NoreSources\ContainerUtil')
 	{
-		require_once(__DIR__ . '/ArrayUtil.php');
+		require_once(__DIR__ . '/ContainerUtil.php');
 	}
- 	elseif ($className == 'NoreSources\ArrayUtil')
+ 	elseif ($className == 'NoreSources\ContainerUtil')
 	{
-		require_once(__DIR__ . '/ArrayUtil.php');
+		require_once(__DIR__ . '/ContainerUtil.php');
 	}
  	elseif ($className == 'NoreSources\DataTree')
 	{

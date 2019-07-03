@@ -64,70 +64,70 @@ class ArrayAccessImpl implements \ArrayAccess
 
 $hashReferenceImpl = new ArrayAccessImpl($hashReference);
 
-final class ArrayUtilIsArrayTest extends TestCase
+final class ContainerUtilIsArrayTest extends TestCase
 {
 
 	public function testPODArrayIsArray()
 	{
-		$this->assertEquals(true, ArrayUtil::isArray(array ()));
+		$this->assertEquals(true, ContainerUtil::isArray(array ()));
 	}
 
 	public function testArrayObjectIsArray()
 	{
 		$o = new \ArrayObject();
-		$this->assertEquals(true, ArrayUtil::isArray($o));
+		$this->assertEquals(true, ContainerUtil::isArray($o));
 	}
 
 	public function testArrayAccessIsArray()
 	{
 		$o = new ArrayAccessImpl();
-		$this->assertEquals(true, ArrayUtil::isArray($o));
+		$this->assertEquals(true, ContainerUtil::isArray($o));
 	}
 
 	public function testClassInstanceIsArray()
 	{
 		$o = new SimpleClass();
-		$this->assertEquals(false, ArrayUtil::isArray($o));
+		$this->assertEquals(false, ContainerUtil::isArray($o));
 	}
 }
 
-final class ArrayUtilCountTest extends TestCase
+final class ContainerUtilCountTest extends TestCase
 {
 
 	public function testCountArray()
 	{
 		global $indexedReference;
-		$this->assertEquals(4, ArrayUtil::count($indexedReference));
+		$this->assertEquals(4, ContainerUtil::count($indexedReference));
 	}
 
 	public function testCountAssociativeArray()
 	{
 		global $sparseIndexedReference;
-		$this->assertEquals(3, ArrayUtil::count($sparseIndexedReference));
+		$this->assertEquals(3, ContainerUtil::count($sparseIndexedReference));
 	}
 
 	public function testCountHashTable()
 	{
 		global $hashReference;
-		$this->assertEquals(3, ArrayUtil::count($hashReference));
+		$this->assertEquals(3, ContainerUtil::count($hashReference));
 	}
 
 	public function testCountArrayObject()
 	{
 		global $indexedReferenceObject;
-		$this->assertEquals(4, ArrayUtil::count($indexedReferenceObject));
+		$this->assertEquals(4, ContainerUtil::count($indexedReferenceObject));
 	}
 
 	public function testCountAssociativeArrayObject()
 	{
 		global $sparseIndexedReferenceObject;
-		$this->assertEquals(3, ArrayUtil::count($sparseIndexedReferenceObject));
+		$this->assertEquals(3, ContainerUtil::count($sparseIndexedReferenceObject));
 	}
 
 	public function testCountHashTableObject()
 	{
 		global $hashReferenceObject;
-		$this->assertEquals(3, ArrayUtil::count($hashReferenceObject));
+		$this->assertEquals(3, ContainerUtil::count($hashReferenceObject));
 	}
 
 	public function testCountHashTableArrayAccess()
@@ -139,14 +139,14 @@ final class ArrayUtilCountTest extends TestCase
 		)))
 		{
 			$this->expectException(InvalidContainerException::class);
-			ArrayUtil::count($hashReferenceImpl);
+			ContainerUtil::count($hashReferenceImpl);
 		}
 		else 
 		{
 			$result = null;
 			try
 			{
-				$result = ArrayUtil::count($hashReferenceImpl);
+				$result = ContainerUtil::count($hashReferenceImpl);
 			}
 			catch (\Exception $e)
 			{
@@ -158,7 +158,7 @@ final class ArrayUtilCountTest extends TestCase
 	}
 }
 
-final class ArrayUtilRemoveKeyTest extends TestCase
+final class ContainerUtilRemoveKeyTest extends TestCase
 {
 
 	public function testremoveKeyArrayCopy()
@@ -174,7 +174,7 @@ final class ArrayUtilRemoveKeyTest extends TestCase
 				'two' => 2,
 				'four' => 4
 		);
-		$this->assertEquals($target, ArrayUtil::removeKey($source, 'three', ArrayUtil::REMOVE_COPY));
+		$this->assertEquals($target, ContainerUtil::removeKey($source, 'three', ContainerUtil::REMOVE_COPY));
 	}
 
 	public function testremoveKeyArrayInplace()
@@ -190,7 +190,7 @@ final class ArrayUtilRemoveKeyTest extends TestCase
 				'two' => 2,
 				'four' => 4
 		);
-		ArrayUtil::removeKey($source, 'three', ArrayUtil::REMOVE_INPLACE);
+		ContainerUtil::removeKey($source, 'three', ContainerUtil::REMOVE_INPLACE);
 		$this->assertEquals($target, $source);
 	}
 
@@ -207,7 +207,7 @@ final class ArrayUtilRemoveKeyTest extends TestCase
 				1 => 'two',
 				3 => 'four'
 		);
-		ArrayUtil::removeKey($source, 2, ArrayUtil::REMOVE_INPLACE);
+		ContainerUtil::removeKey($source, 2, ContainerUtil::REMOVE_INPLACE);
 		$this->assertEquals($target, $source);
 	}
 }
