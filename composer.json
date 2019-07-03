@@ -19,7 +19,7 @@
 		}
 	},
 	"scripts": {
-		"tests": "@php  ./vendor/bin/phpunit --bootstrap core.autoload.inc.php tests"
+		"tests": "@php  ./vendor/bin/phpunit --bootstrap autoload.php tests"
 	},
 	"prefer-stable": true,
 	"require": {
