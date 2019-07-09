@@ -32,22 +32,15 @@ class PathUtil
 	 */
 	public static function isAbsolute($path)
 	{
-		$wrappers = stream_get_wrappers();
-		$wrapper = 'file';
-		foreach ($wrappers as $w)
-		{
-			if (strpos($path, $w) === 0)
-			{
-				$wrapper = $w;
-				$path = substr($path, strlen($wrapper) + 1);
-				break;
-			}
-		}
-
 		// UNIX path
 		if (strpos($path, '/') === 0)
 			return true;
 
+		// wrappers (URI)
+		
+		if (preg_match(chr(1) . '[[:alpha:]]+://' . chr(1), $path))
+			return true;
+		
 		// Windows drive
 		if (preg_match(chr(1) . '^[a-zA-Z]:((/|\\\)|$)' . chr(1), $path))
 			return true;

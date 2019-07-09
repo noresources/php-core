@@ -7,33 +7,27 @@ use PHPUnit\Framework\TestCase;
 final class PathUtilTest extends TestCase
 {
 
-	public function testIsAbsoluteUnixStyle()
+	public function testIsAbsolute()
 	{
-		$this->assertEquals(true, PathUtil::isAbsolute('/home/god/rules'));
-	}
+		$paths = array (
+				'/home/god/rules.csv' => true,
+				'/etc' => true,
+				'hello' => false,
+				'.' => false,
+				'c:\windows' => true,
+				'c:/windows-too' => true,
+				'c:not-a-drive' => false,
+				'\\\\samba-on-windows-not-supported\\file.txt' => false,
+				'http://server/path' => true,
+				'http://./invalid/url.html' => true,
+				'file://../this-is-not-a-relative/path' => true,
+				'file:///unix/path/using/file.wrapper' => true,
+				'simple-file.txt' => false
+		);
 
-	public function testIsAbsoluteWindowsDriveSlash()
-	{
-		$this->assertEquals(true, PathUtil::isAbsolute('c:/mydrive'));
-	}
-
-	public function testIsAbsoluteWindowsDriveBackslash()
-	{
-		$this->assertEquals(true, PathUtil::isAbsolute('c:\mydrive'));
-	}
-
-	public function testIsAbsoluteWrapperFilePrefix()
-	{
-		$this->assertEquals(true, PathUtil::isAbsolute('file:///home/god/rules'));
-	}
-
-	public function testIsAbsoluteWrapperHttpPrefix()
-	{
-		$this->assertEquals(true, PathUtil::isAbsolute('http://server/resource'));
-	}
-
-	public function testIsAbsoluteWrapperRelativeDot()
-	{
-		$this->assertEquals(false, PathUtil::isAbsolute('./boom.exe'));
+		foreach ($paths as $path => $expected)
+		{
+			$this->assertEquals($expected, PathUtil::isAbsolute($path), 'Path: "' . $path . '"');
+		}
 	}
 }
