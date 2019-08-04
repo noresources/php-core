@@ -1,2 +1,7 @@
 # Composer
 /vendor
+
+# Eclipse
+\.buildpath
+\.project
+\.settings
