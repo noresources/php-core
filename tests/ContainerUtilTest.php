@@ -91,6 +91,17 @@ final class ContainerUtilIsArrayTest extends TestCase
 	}
 }
 
+final class ContainerUtilValueExistsTest extends TestCase
+{
+
+	public function testCountArray()
+	{
+		global $indexedReference;
+		$this->assertEquals(true, ContainerUtil::valueExists($indexedReference, 'two'));
+		$this->assertEquals(false, ContainerUtil::valueExists($indexedReference, 'deux'));
+	}
+}
+
 final class ContainerUtilCountTest extends TestCase
 {
 

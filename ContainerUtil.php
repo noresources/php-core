@@ -201,7 +201,7 @@ class ContainerUtil
 	 */
 	public static function isAssociative($container)
 	{
-		if (!(\is_array ($container) || ($container instanceof \Traversable)))
+		if (!(\is_array($container) || ($container instanceof \Traversable)))
 		{
 			throw new InvalidContainerException($container, __METHOD__);
 		}
@@ -276,11 +276,11 @@ class ContainerUtil
 
 	/**
 	 * Indicates if a key exists in an array or a ArrayAccess implementation
-	 * 
+	 *
 	 * @param array|\ArrayAccess|\Traversable $container
 	 * @param mixed $key Key to test
 	 * @throws InvalidContainerException
-	 * 
+	 *
 	 * @return boolean
 	 */
 	public static function keyExists($container, $key)
@@ -307,15 +307,46 @@ class ContainerUtil
 		throw new InvalidContainerException($container, __METHOD__);
 	}
 
+	public static function valueExists($container, $value, $strict = false)
+	{
+		if (\is_array($container))
+		{
+			return (\in_array($value, $container, $strict));
+		}
+		elseif ($container instanceof \Traversable)
+		{
+			if ($strict)
+			{
+				foreach ($container as $k => $v)
+				{
+					if ($v === $value)
+						return true;
+				}
+			}
+			else
+			{
+				foreach ($container as $k => $v)
+				{
+					if ($v == $value)
+						return true;
+				}
+			}
+
+			return false;
+		}
+
+		throw new InvalidContainerException($container, __METHOD__);
+	}
+
 	/**
 	 * Retrieve key value or a default value if key doesn't exists
 	 *
 	 * @param array $container
 	 * @param mixed $key
 	 * @param mixed $defaultValue
-	 * 
+	 *
 	 * @throws InvalidContainerException
-	 * 
+	 *
 	 * @return mixed Value associated to $key or $defaultValue if the key does not exists
 	 */
 	public static function keyValue($container, $key, $defaultValue)
@@ -442,9 +473,8 @@ class ContainerUtil
 }
 
 /**
- * 
  * @deprecated Use ContainerUtil
- *
+ *            
  */
 class ArrayUtil extends ContainerUtil
 {}
