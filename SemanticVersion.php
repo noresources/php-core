@@ -2,7 +2,7 @@
 
 namespace NoreSources;
 
-class SemanticPostfixedData extends \ArrayObject
+final class SemanticPostfixedData extends \ArrayObject
 {
 
 	public function __construct($data)
@@ -18,38 +18,33 @@ class SemanticPostfixedData extends \ArrayObject
 
 	public function offsetSet($offset, $value)
 	{
-		if (!\is_numeric($offset))
+		if (!(\is_numeric($offset) || is_null($offset)))
 		{
-			throw new \InvalidArgumentException('Non-numeric key');
+			throw new \InvalidArgumentException('Non-numeric key "' . strval($offset) . '"');
 		}
 		if (!self::validate($value))
 		{
 			throw new \InvalidArgumentException($value . ' is not a valid build metadata string');
 		}
-		
+
 		parent::offsetSet($offset, $value);
 	}
 
 	public function set($data)
 	{
 		$this->exchangeArray(array ());
-		
+
 		if (\is_string($data))
 		{
 			if (strlen($data) == 0)
 				return;
 			$data = explode('.', $data);
 		}
-		
+
 		if (ContainerUtil::isArray($data))
 		{
 			foreach ($data as $value)
 			{
-				if (!self::validate($value))
-				{
-					throw new \InvalidArgumentException($value . ' is not a valid build metadata string');
-				}
-				
 				$this->append($value);
 			}
 		}
@@ -61,12 +56,11 @@ class SemanticPostfixedData extends \ArrayObject
 		{
 			throw new \InvalidArgumentException($value . ' is not a valid build metadata string');
 		}
-		
-		parent::append($value);
+
+		return parent::append($value);
 	}
 
 	/**
-	 *
 	 * @param SemanticPostfixedData $data
 	 * @return number An integer value
 	 *         <ul>
@@ -81,19 +75,19 @@ class SemanticPostfixedData extends \ArrayObject
 		$ib = $data->getIterator();
 		$ca = $this->count();
 		$cb = $data->count();
-		
+
 		if ($ca == 0)
 			return ($cb == 0) ? 1 : -1;
 		elseif ($cb == 0)
 			return -1;
-		
+
 		$numericRegex = chr(1) . '^[0-9]+$' . chr(1);
-		
+
 		while ($ia->valid() && $ib->valid())
 		{
 			$va = $ia->current();
 			$vb = $ib->current();
-			
+
 			if (preg_match($numericRegex, $va))
 			{
 				if (preg_match($numericRegex, $vb))
@@ -106,7 +100,7 @@ class SemanticPostfixedData extends \ArrayObject
 					elseif ($va > $vb)
 						return 1;
 				}
-				
+
 				// Numeric identifiers always have lower precedence than non-numeric identifiers
 				return -1;
 			}
@@ -122,21 +116,21 @@ class SemanticPostfixedData extends \ArrayObject
 				if ($v != 0)
 					return $v;
 			}
-			
+
 			$ia->next();
 			$ib->next();
 		}
-		
+
 		if ($ia->valid())
 		{
 			return 1;
 		}
-		
+
 		if ($ib->valid())
 		{
 			return -1;
 		}
-		
+
 		return 0;
 	}
 
@@ -144,7 +138,7 @@ class SemanticPostfixedData extends \ArrayObject
 	{
 		if (preg_match(chr(1) . '^0+[0-9]*$' . chr(1), $value))
 			return false; // Numeric identifiers MUST NOT include leading zeroes
-		
+
 		return preg_match(chr(1) . '^[A-Za-z0-9-]+$' . chr(1), $value);
 	}
 
@@ -157,13 +151,13 @@ class SemanticPostfixedData extends \ArrayObject
 		{
 			$va = ord(substr($a, $i));
 			$vb = ord(substr($b, $i));
-			
+
 			if ($va != $vb)
 			{
 				return ($va < $vb) ? -1 : 1;
 			}
 		}
-		
+
 		return (($sa < $sb) ? -1 : (($sa > $sb) ? 1 : 0));
 	}
 }
@@ -181,17 +175,15 @@ class SemanticVersion
 	const METADATA = 'metadata';
 
 	/**
-	 *
 	 * @param array|string|integer $version
 	 * @param number $numberFormDigitCount
 	 */
 	public function __construct($version, $numberFormDigitCount = 2)
 	{
-		$this->set($version);
+		$this->set($version, $numberFormDigitCount);
 	}
 
 	/**
-	 *
 	 * @param array|string|integer $version
 	 * @param number $numberFormDigitCount
 	 */
@@ -202,7 +194,7 @@ class SemanticVersion
 		$this->patch = 0;
 		$this->prerelease = new SemanticPostfixedData('');
 		$this->metadata = new SemanticPostfixedData('');
-		
+
 		if (is_int($version))
 		{
 			$p = pow(10, $numberFormDigitCount);
