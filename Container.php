@@ -19,10 +19,10 @@ class InvalidContainerException extends \InvalidArgumentException
 	}
 }
 
-class ContainerUtil
+class Container
 {
 	/**
-	 * Behavior of the ContainerUtil::removeKey method.
+	 * Behavior of the Container::removeKey method.
 	 * Replace element in-place.
 	 *
 	 * @var integer
@@ -30,7 +30,7 @@ class ContainerUtil
 	const REMOVE_INPLACE = 0x1;
 
 	/**
-	 * Behavior of the ContainerUtil::removeKey method.
+	 * Behavior of the Container::removeKey method.
 	 *
 	 * Return a clone of the input container without the removed key
 	 * or an array
@@ -40,7 +40,7 @@ class ContainerUtil
 	const REMOVE_COPY = 0x2;
 
 	/**
-	 * Behavior of the ContainerUtil::removeKey method.
+	 * Behavior of the Container::removeKey method.
 	 *
 	 * Return a clone of the input container without the removed key.
 	 *
@@ -73,14 +73,14 @@ class ContainerUtil
 	 * @param mixed $key The key of the element to remove
 	 * @param integer $mode Remove mode.
 	 *        <ul>
-	 *        <li>ContainerUtil::REMOVE_INPLACE: Remove element in-place</li>
-	 *        <li>ContainerUtil::REMOVE_COPY: Create a new container without the removed element</li>
-	 *        <li>ContainerUtil::REMOVE_COPY_STRICT_TYPE: Ensure the new container have the same type as the input
+	 *        <li>Container::REMOVE_INPLACE: Remove element in-place</li>
+	 *        <li>Container::REMOVE_COPY: Create a new container without the removed element</li>
+	 *        <li>Container::REMOVE_COPY_STRICT_TYPE: Ensure the new container have the same type as the input
 	 *        container</li>
 	 *        </ul>
 	 * @throws InvalidContainerException
 	 * @throws \InvalidArgumentException
-	 * @return \ArrayAccess|boolean|\ArrayAccess[]|\Traversable[] The input array if $mode is ContainerUtil::REMOVE_INPLACE,
+	 * @return \ArrayAccess|boolean|\ArrayAccess[]|\Traversable[] The input array if $mode is Container::REMOVE_INPLACE,
 	 *         or a new container otherwise
 	 */
 	public static function removeKey(&$container, $key, $mode = self::REMOVE_COPY)
@@ -473,8 +473,8 @@ class ContainerUtil
 }
 
 /**
- * @deprecated Use ContainerUtil
+ * @deprecated Use Container
  *            
  */
-class ArrayUtil extends ContainerUtil
+class ArrayUtil extends Container
 {}

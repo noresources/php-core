@@ -41,7 +41,7 @@ final class SemanticPostfixedData extends \ArrayObject
 			$data = explode('.', $data);
 		}
 
-		if (ContainerUtil::isArray($data))
+		if (Container::isArray($data))
 		{
 			foreach ($data as $value)
 			{
@@ -208,11 +208,11 @@ class SemanticVersion
 			if (preg_match(chr(1) . '^([0-9.]+)(-(.+?))?(\+(.+?))?$' . chr(1), $version, $matches))
 			{
 				$v = explode('.', $matches[1]);
-				$this->major = ContainerUtil::keyValue($v, 0, 0);
-				$this->minor = ContainerUtil::keyValue($v, 1, 0);
-				$this->patch = ContainerUtil::keyValue($v, 2, 0);
-				$this->prerelease->set(ContainerUtil::keyValue($matches, 3, ''));
-				$this->metadata->set(ContainerUtil::keyValue($matches, 5, ''));
+				$this->major = Container::keyValue($v, 0, 0);
+				$this->minor = Container::keyValue($v, 1, 0);
+				$this->patch = Container::keyValue($v, 2, 0);
+				$this->prerelease->set(Container::keyValue($matches, 3, ''));
+				$this->metadata->set(Container::keyValue($matches, 5, ''));
 			}
 			else
 			{
@@ -227,13 +227,13 @@ class SemanticVersion
 			$this->prerelease = clone $version->prerelease;
 			$this->metadata = clone $version->metadata;
 		}
-		elseif (ContainerUtil::isArray($version))
+		elseif (Container::isArray($version))
 		{
-			$this->major = ContainerUtil::keyValue($version, self::MAJOR, 0);
-			$this->minor = ContainerUtil::keyValue($version, self::MINOR, 0);
-			$this->patch = ContainerUtil::keyValue($version, self::PATCH, 0);
-			$this->prerelease->set(ContainerUtil::keyValue($version, self::PRE_RELEASE, ''));
-			$this->metadata->set(ContainerUtil::keyValue($version, self::METADATA, ''));
+			$this->major = Container::keyValue($version, self::MAJOR, 0);
+			$this->minor = Container::keyValue($version, self::MINOR, 0);
+			$this->patch = Container::keyValue($version, self::PATCH, 0);
+			$this->prerelease->set(Container::keyValue($version, self::PRE_RELEASE, ''));
+			$this->metadata->set(Container::keyValue($version, self::METADATA, ''));
 		}
 		else
 		{

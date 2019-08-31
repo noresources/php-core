@@ -64,81 +64,81 @@ class ArrayAccessImpl implements \ArrayAccess
 
 $hashReferenceImpl = new ArrayAccessImpl($hashReference);
 
-final class ContainerUtilIsArrayTest extends TestCase
+final class ContainerIsArrayTest extends TestCase
 {
 
 	public function testPODArrayIsArray()
 	{
-		$this->assertEquals(true, ContainerUtil::isArray(array ()));
+		$this->assertEquals(true, Container::isArray(array ()));
 	}
 
 	public function testArrayObjectIsArray()
 	{
 		$o = new \ArrayObject();
-		$this->assertEquals(true, ContainerUtil::isArray($o));
+		$this->assertEquals(true, Container::isArray($o));
 	}
 
 	public function testArrayAccessIsArray()
 	{
 		$o = new ArrayAccessImpl();
-		$this->assertEquals(true, ContainerUtil::isArray($o));
+		$this->assertEquals(true, Container::isArray($o));
 	}
 
 	public function testClassInstanceIsArray()
 	{
 		$o = new SimpleClass();
-		$this->assertEquals(false, ContainerUtil::isArray($o));
+		$this->assertEquals(false, Container::isArray($o));
 	}
 }
 
-final class ContainerUtilValueExistsTest extends TestCase
+final class ContainerValueExistsTest extends TestCase
 {
 
 	public function testCountArray()
 	{
 		global $indexedReference;
-		$this->assertEquals(true, ContainerUtil::valueExists($indexedReference, 'two'));
-		$this->assertEquals(false, ContainerUtil::valueExists($indexedReference, 'deux'));
+		$this->assertEquals(true, Container::valueExists($indexedReference, 'two'));
+		$this->assertEquals(false, Container::valueExists($indexedReference, 'deux'));
 	}
 }
 
-final class ContainerUtilCountTest extends TestCase
+final class ContainerCountTest extends TestCase
 {
 
 	public function testCountArray()
 	{
 		global $indexedReference;
-		$this->assertEquals(4, ContainerUtil::count($indexedReference));
+		$this->assertEquals(4, Container::count($indexedReference));
 	}
 
 	public function testCountAssociativeArray()
 	{
 		global $sparseIndexedReference;
-		$this->assertEquals(3, ContainerUtil::count($sparseIndexedReference));
+		$this->assertEquals(3, Container::count($sparseIndexedReference));
 	}
 
 	public function testCountHashTable()
 	{
 		global $hashReference;
-		$this->assertEquals(3, ContainerUtil::count($hashReference));
+		$this->assertEquals(3, Container::count($hashReference));
 	}
 
 	public function testCountArrayObject()
 	{
 		global $indexedReferenceObject;
-		$this->assertEquals(4, ContainerUtil::count($indexedReferenceObject));
+		$this->assertEquals(4, Container::count($indexedReferenceObject));
 	}
 
 	public function testCountAssociativeArrayObject()
 	{
 		global $sparseIndexedReferenceObject;
-		$this->assertEquals(3, ContainerUtil::count($sparseIndexedReferenceObject));
+		$this->assertEquals(3, Container::count($sparseIndexedReferenceObject));
 	}
 
 	public function testCountHashTableObject()
 	{
 		global $hashReferenceObject;
-		$this->assertEquals(3, ContainerUtil::count($hashReferenceObject));
+		$this->assertEquals(3, Container::count($hashReferenceObject));
 	}
 
 	public function testCountHashTableArrayAccess()
@@ -150,14 +150,14 @@ final class ContainerUtilCountTest extends TestCase
 		)))
 		{
 			$this->expectException(InvalidContainerException::class);
-			ContainerUtil::count($hashReferenceImpl);
+			Container::count($hashReferenceImpl);
 		}
 		else 
 		{
 			$result = null;
 			try
 			{
-				$result = ContainerUtil::count($hashReferenceImpl);
+				$result = Container::count($hashReferenceImpl);
 			}
 			catch (\Exception $e)
 			{
@@ -169,7 +169,7 @@ final class ContainerUtilCountTest extends TestCase
 	}
 }
 
-final class ContainerUtilRemoveKeyTest extends TestCase
+final class ContainerRemoveKeyTest extends TestCase
 {
 
 	public function testremoveKeyArrayCopy()
@@ -185,7 +185,7 @@ final class ContainerUtilRemoveKeyTest extends TestCase
 				'two' => 2,
 				'four' => 4
 		);
-		$this->assertEquals($target, ContainerUtil::removeKey($source, 'three', ContainerUtil::REMOVE_COPY));
+		$this->assertEquals($target, Container::removeKey($source, 'three', Container::REMOVE_COPY));
 	}
 
 	public function testremoveKeyArrayInplace()
@@ -201,7 +201,7 @@ final class ContainerUtilRemoveKeyTest extends TestCase
 				'two' => 2,
 				'four' => 4
 		);
-		ContainerUtil::removeKey($source, 'three', ContainerUtil::REMOVE_INPLACE);
+		Container::removeKey($source, 'three', Container::REMOVE_INPLACE);
 		$this->assertEquals($target, $source);
 	}
 
@@ -218,7 +218,7 @@ final class ContainerUtilRemoveKeyTest extends TestCase
 				1 => 'two',
 				3 => 'four'
 		);
-		ContainerUtil::removeKey($source, 2, ContainerUtil::REMOVE_INPLACE);
+		Container::removeKey($source, 2, Container::REMOVE_INPLACE);
 		$this->assertEquals($target, $source);
 	}
 }
