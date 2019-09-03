@@ -19,6 +19,9 @@ class InvalidContainerException extends \InvalidArgumentException
 	}
 }
 
+/**
+ * Container utility class 
+ */
 class Container
 {
 	/**
@@ -472,9 +475,3 @@ class Container
 	}
 }
 
-/**
- * @deprecated Use Container
- *            
- */
-class ArrayUtil extends Container
-{}
