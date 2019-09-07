@@ -177,7 +177,7 @@ class Container
 			{
 				return $anything->getArrayCopy();
 			}
-			elseif ($anything instanceof \Traversable)
+			else
 			{
 				$a = array ();
 				foreach ($anything as $k => $v)
