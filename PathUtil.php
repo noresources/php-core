@@ -6,6 +6,7 @@
  */
 
 /**
+ *
  * @package Core
  */
 namespace NoreSources;
@@ -14,6 +15,7 @@ class PathUtil
 {
 
 	/**
+	 *
 	 * @param string $path
 	 * @return string
 	 */
@@ -24,9 +26,10 @@ class PathUtil
 		$path = preg_replace(chr(1) . '/\.(/|$)' . chr(1), '\1', $path);
 		return $path;
 	}
-	
+
 	/**
 	 * Indicates if the given path is an absolute path
+	 *
 	 * @param string $path
 	 * @return boolean
 	 */
@@ -37,10 +40,10 @@ class PathUtil
 			return true;
 
 		// wrappers (URI)
-		
+
 		if (preg_match(chr(1) . '[[:alpha:]]+://' . chr(1), $path))
 			return true;
-		
+
 		// Windows drive
 		if (preg_match(chr(1) . '^[a-zA-Z]:((/|\\\)|$)' . chr(1), $path))
 			return true;
@@ -52,7 +55,7 @@ class PathUtil
 	 * Get the relative path from a path to another
 	 * @param string $from Absolute directory path
 	 * @param string $to Absolute directory path
-	 *        @relurn Relative path from @param $from to @param $to
+	 *		@relurn Relative path from @param $from to @param $to
 	 */
 	public static function getRelative($from, $to)
 	{

@@ -61,21 +61,20 @@ const kDataTreeLoadMerge = 2;
 
 /**
  * Serializable data tree structure
- *
  */
 class DataTree implements \ArrayAccess, \Serializable, \IteratorAggregate, \Countable
 {
 
 	/**
-	 * @param array $data Initial data
+	 *
+	 * @param array $data
+	 *			Initial data
 	 */
 	public function __construct($data = array())
 	{
 		$this->m_elements = new \ArrayObject();
-		if (is_array($data) || ($data instanceof \Traversable))
-		{
-			foreach ($data as $k => $v)
-			{
+		if (is_array($data) || ($data instanceof \Traversable)) {
+			foreach ($data as $k => $v) {
 				$this->offsetSet($k, $v);
 			}
 		}
@@ -84,6 +83,7 @@ class DataTree implements \ArrayAccess, \Serializable, \IteratorAggregate, \Coun
 
 	/**
 	 * String representation
+	 *
 	 * @return string
 	 */
 	public function __toString()
@@ -94,7 +94,8 @@ class DataTree implements \ArrayAccess, \Serializable, \IteratorAggregate, \Coun
 	/**
 	 * Equivalent of offsetGet
 	 *
-	 * @param unknown $key Key
+	 * @param unknown $key
+	 *			Key
 	 */
 	public function __get($key)
 	{
@@ -104,16 +105,17 @@ class DataTree implements \ArrayAccess, \Serializable, \IteratorAggregate, \Coun
 	/**
 	 * Equivalent of offsetSet
 	 *
-	 * @param unknown $key Key
-	 * @param unknown $value Value
+	 * @param unknown $key
+	 *			Key
+	 * @param unknown $value
+	 *			Value
 	 */
 	public function __set($key, $value)
 	{
 		$this->offsetSet($key, $value);
 	}
-	
+
 	// ArrayAccess ////////////////////
-	
 
 	/**
 	 * Indicates if a setting key exists
@@ -128,63 +130,57 @@ class DataTree implements \ArrayAccess, \Serializable, \IteratorAggregate, \Coun
 	/**
 	 * Get a value associated to a key
 	 *
-	 * @param mixed $key Key
+	 * @param mixed $key
+	 *			Key
 	 * @return The setting value or <code>NULL</code> if the key does not exists
 	 */
 	public function offsetGet($key)
 	{
-		if ($this->m_elements->offsetExists($key))
-		{
+		if ($this->m_elements->offsetExists($key)) {
 			return $this->m_elements->offsetGet($key);
 		}
-		
+
 		return (is_callable($this->m_defaultValueHandler) ? (call_user_func($this->m_defaultValueHandler, $key, $this)) : null);
 	}
 
 	/**
 	 * Set a setting value
 	 *
-	 * @param integer $key Setting key
-	 * @param integer $value Setting value
-	 *       
+	 * @param integer $key
+	 *			Setting key
+	 * @param integer $value
+	 *			Setting value
+	 *			
 	 * @throws \Exception
 	 */
 	public function offsetSet($key, $value)
 	{
-		if ($this->m_flags & kDataTreeReadOnly)
-		{
-			if ($this->m_flags & kDataTreeSilent)
-			{
+		if ($this->m_flags & kDataTreeReadOnly) {
+			if ($this->m_flags & kDataTreeSilent) {
 				return;
 			}
-			
+
 			throw new \Exception('Read only setting table');
 		}
-		
-		if (($this->m_flags & kDataTreeRestrictKeys) && !$this->m_elements->offsetExists($key))
-		{
-			if ($this->m_flags & kDataTreeSilent)
-			{
+
+		if (($this->m_flags & kDataTreeRestrictKeys) && ! $this->m_elements->offsetExists($key)) {
+			if ($this->m_flags & kDataTreeSilent) {
 				return;
 			}
-			
+
 			throw new \Exception('New key are not accepted');
 		}
-		
-		if (\is_array($value) || (is_object($value) && ($value instanceof \Traversable)))
-		{
+
+		if (\is_array($value) || (is_object($value) && ($value instanceof \Traversable))) {
 			$st = new DataTree();
 			$st->m_defaultValueHandler = $this->m_defaultValueHandler;
 			$st->m_flags = $this->m_flags;
-			foreach ($value as $k => $v)
-			{
+			foreach ($value as $k => $v) {
 				$st->offsetSet($k, $v);
 			}
-						
+
 			$this->m_elements->offsetSet($key, $st);
-		}
-		else
-		{
+		} else {
 			$this->m_elements->offsetSet($key, $value);
 		}
 	}
@@ -192,33 +188,31 @@ class DataTree implements \ArrayAccess, \Serializable, \IteratorAggregate, \Coun
 	/**
 	 * Unset a setting Key/Value pair
 	 *
-	 * @param mixed $key Setting key
+	 * @param mixed $key
+	 *			Setting key
 	 */
 	public function offsetUnset($key)
 	{
 		$this->m_elements->offsetUnset($key);
 	}
-	
+
 	// IteratorAggregate ////////////////////
-	
 
 	// TiteratorAggregate
 	public function getIterator()
 	{
 		return $this->m_elements->getIterator();
 	}
-	
+
 	// Countable ////////////////////
-	
 
 	// Contable
 	public function count()
 	{
 		return $this->m_elements->count();
 	}
-	
+
 	// Serializable ////////////////////
-	
 
 	/**
 	 * Serialize table to JSON
@@ -231,15 +225,14 @@ class DataTree implements \ArrayAccess, \Serializable, \IteratorAggregate, \Coun
 	/**
 	 * Load setting table from JSON
 	 *
-	 * @param string $serialized A JSON string
+	 * @param string $serialized
+	 *			A JSON string
 	 */
 	public function unserialize($serialized)
 	{
 		$this->m_elements = new \ArrayObject(json_decode($serialized, true));
-		foreach ($this->m_elements as $key => &$value)
-		{
-			if (\is_array($value))
-			{
+		foreach ($this->m_elements as $key => &$value) {
+			if (\is_array($value)) {
 				$this->offsetSet($key, $value);
 			}
 		}
@@ -247,66 +240,62 @@ class DataTree implements \ArrayAccess, \Serializable, \IteratorAggregate, \Coun
 
 	/**
 	 * Convert the DataTree to a regular PHP array
+	 *
 	 * @return array
 	 */
 	public function toArray()
 	{
-		$a = array ();
-		foreach ($this->m_elements as $key => $value)
-		{
+		$a = array();
+		foreach ($this->m_elements as $key => $value) {
 			$a[$key] = (is_object($value) && ($value instanceof DataTree)) ? $value->toArray() : $value;
 		}
-		
+
 		return $a;
 	}
 
 	/**
 	 * Return the setting value or the given default value if the setting is not present
-	 * @param mixed $key String key or array of string key representing the setting subpath
+	 *
+	 * @param mixed $key
+	 *			String key or array of string key representing the setting subpath
 	 * @param mixed $defaultValue
 	 * @return mixed
 	 */
 	public function getElement($key, $defaultValue = null)
 	{
-		if (\is_array($key))
-		{
+		if (\is_array($key)) {
 			$i = 0;
 			$c = count($key);
 			$t = $this;
-			
-			while ($i < $c)
-			{
-				if (!($t instanceof DataTree))
-				{
+
+			while ($i < $c) {
+				if (! ($t instanceof DataTree)) {
 					break;
 				}
-				
+
 				$k = $key[$i];
-				if ($t->offsetExists($k))
-				{
+				if ($t->offsetExists($k)) {
 					$t = $t->offsetGet($k);
-				}
-				else
-				{
+				} else {
 					break;
 				}
-				
-				$i++;
+
+				$i ++;
 			}
-			
+
 			return ($i == $c) ? $t : $defaultValue;
 		}
-		
-		if (array_key_exists($key, $this->m_elements))
-		{
+
+		if (array_key_exists($key, $this->m_elements)) {
 			return $this->m_elements[$key];
 		}
-		
+
 		return $defaultValue;
 	}
-	
+
 	/**
 	 * Backward compatible name
+	 *
 	 * @param string $key
 	 * @param mixed $defaultValue
 	 * @return mixed|ArrayObject|\NoreSources\DataTree|\NoreSources\The
@@ -318,6 +307,7 @@ class DataTree implements \ArrayAccess, \Serializable, \IteratorAggregate, \Coun
 
 	/**
 	 * Insert an indexed value at the end of the setting table
+	 *
 	 * @param mixed $value
 	 * @return New number of settings
 	 */
@@ -329,6 +319,7 @@ class DataTree implements \ArrayAccess, \Serializable, \IteratorAggregate, \Coun
 
 	/**
 	 * Insert an indexed value at the beginning of the setting table
+	 *
 	 * @param mixed $value
 	 * @return New number of settings
 	 */
@@ -368,54 +359,47 @@ class DataTree implements \ArrayAccess, \Serializable, \IteratorAggregate, \Coun
 	 *
 	 * @attention Never use this method with untrusted PHP files
 	 *
-	 * @param string $filename File to load
-	 * @param string $filetype One of kDataTreeFile*. If @c kDataTreeFileAuto, the
-	 *        file type is
-	 *        automatically detected using the file extension
+	 * @param string $filename
+	 *			File to load
+	 * @param string $filetype
+	 *			One of kDataTreeFile*. If @c kDataTreeFileAuto, the
+	 *			file type is
+	 *			automatically detected using the file extension
 	 */
 	public function load($filename, $filetype = kDataTreeFileAuto)
 	{
-		if ($filetype == kDataTreeFileAuto)
-		{
-			if (preg_match(chr(1) . '.*\.json' . chr(1) . 'i', $filename))
-			{
+		if ($filetype == kDataTreeFileAuto) {
+			if (preg_match(chr(1) . '.*\.json' . chr(1) . 'i', $filename)) {
 				$filetype = kDataTreeFileJSON;
 			}
-			if (preg_match(chr(1) . '.*\.php[0-9]*' . chr(1) . 'i', $filename))
-			{
+			if (preg_match(chr(1) . '.*\.php[0-9]*' . chr(1) . 'i', $filename)) {
 				$filetype = kDataTreeFilePHP;
 			}
 		}
-		
-		if ($filetype == kDataTreeFileJSON)
-		{
+
+		if ($filetype == kDataTreeFileJSON) {
 			$elements = json_decode(file_get_contents($filename), true);
-			if (\is_array($elements))
-			{
-				foreach ($elements as $k => $v)
-				{
+			if (\is_array($elements)) {
+				foreach ($elements as $k => $v) {
 					$this->offsetSet($k, $v);
 				}
 			}
-		}
-		elseif ($filetype == kDataTreeFilePHP)
-		{
+		} elseif ($filetype == kDataTreeFilePHP) {
 			include ($filename);
 		}
 	}
 
 	/**
 	 *
-	 * @param callable $callable A function to call when a key does not exists. The function will receive
-	 *        the key and the DataTree in argument and must return a value
+	 * @param callable $callable
+	 *			A function to call when a key does not exists. The function will receive
+	 *			the key and the DataTree in argument and must return a value
 	 */
 	public function setDefaultValueHandler($callable)
 	{
 		$this->m_defaultValueHandler = $callable;
-		foreach ($this->m_elements as $k => &$v)
-		{
-			if ($v instanceof DataTree)
-			{
+		foreach ($this->m_elements as $k => &$v) {
+			if ($v instanceof DataTree) {
 				$v->setDefaultValueHandler($callable);
 			}
 		}

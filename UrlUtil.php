@@ -13,8 +13,10 @@ namespace NoreSources;
 
 class UrlUtil
 {
+
 	/**
 	 * Get server host name
+	 *
 	 * @return string, null Server hostname or IP address or @c null if none can be found
 	 */
 	public static function getHost()
@@ -24,15 +26,15 @@ class UrlUtil
 
 	/**
 	 * Get URL scheme from current server protocol
+	 *
 	 * @return string 'http' or 'https'
 	 */
 	public static function getScheme()
 	{
-		if (\array_key_exists('SERVER_PROTOCOL', $_SERVER))
-		{
+		if (\array_key_exists('SERVER_PROTOCOL', $_SERVER)) {
 			return strtolower(preg_replace(chr(1) . '([A-Za-z]+)/.*' . chr(1), '$1', $_SERVER['SERVER_PROTOCOL']));
 		}
-		
+
 		return 'file';
 	}
 

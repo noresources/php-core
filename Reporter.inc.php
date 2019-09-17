@@ -16,11 +16,17 @@ interface ReporterInterface
 
 	/**
 	 * Add message to reporter
-	 * @param unknown $level Message level
-	 * @param unknown $object Object that call the reporter
-	 * @param unknown $message Message
-	 * @param unknown $file File
-	 * @param unknown $line Line number in @param $file
+	 *
+	 * @param unknown $level
+	 *			Message level
+	 * @param unknown $object
+	 *			Object that call the reporter
+	 * @param unknown $message
+	 *			Message
+	 * @param unknown $file
+	 *			File
+	 * @param unknown $line
+	 *			Line number in @param $file
 	 */
 	function addMessage($level, $object, $message, $file, $line);
 
@@ -32,15 +38,22 @@ interface ReporterInterface
 
 class Reporter
 {
+
 	const kMessageDebug = 0x1;
+
 	const kMessageNotice = 0x2;
+
 	const kMessageWarning = 0x4;
+
 	const kMessageError = 0x8;
+
 	const kMessageFatalError = 0x10;
+
 	const kMessageAll = 0xFF;
 
 	/**
 	 * Set Reporter interface implementation
+	 *
 	 * @param ReporterInterface $impl
 	 */
 	public static function setImplementation(ReporterInterface &$impl)
@@ -55,10 +68,15 @@ class Reporter
 
 	/**
 	 * Add debug message
-	 * @param unknown $object Object that call the reporter
-	 * @param unknown $message Message
-	 * @param unknown $file File
-	 * @param unknown $line Line number in @param $file
+	 *
+	 * @param unknown $object
+	 *			Object that call the reporter
+	 * @param unknown $message
+	 *			Message
+	 * @param unknown $file
+	 *			File
+	 * @param unknown $line
+	 *			Line number in @param $file
 	 */
 	public static function debug($object, $message, $file = null, $line = null)
 	{
@@ -68,10 +86,15 @@ class Reporter
 
 	/**
 	 * Add notice
-	 * @param unknown $object Object that call the reporter
-	 * @param unknown $message Message
-	 * @param unknown $file File
-	 * @param unknown $line Line number in @param $file
+	 *
+	 * @param unknown $object
+	 *			Object that call the reporter
+	 * @param unknown $message
+	 *			Message
+	 * @param unknown $file
+	 *			File
+	 * @param unknown $line
+	 *			Line number in @param $file
 	 */
 	public static function notice($object, $message, $file = null, $line = null)
 	{
@@ -81,10 +104,15 @@ class Reporter
 
 	/**
 	 * Add warning
-	 * @param unknown $object Object that call the reporter
-	 * @param unknown $message Message
-	 * @param unknown $file File
-	 * @param unknown $line Line number in @param $file
+	 *
+	 * @param unknown $object
+	 *			Object that call the reporter
+	 * @param unknown $message
+	 *			Message
+	 * @param unknown $file
+	 *			File
+	 * @param unknown $line
+	 *			Line number in @param $file
 	 */
 	public static function warning($object, $message, $file = null, $line = null)
 	{
@@ -94,10 +122,15 @@ class Reporter
 
 	/**
 	 * Add error
-	 * @param unknown $object Object that call the reporter
-	 * @param unknown $message Message
-	 * @param unknown $file File
-	 * @param unknown $line Line number in @param $file
+	 *
+	 * @param unknown $object
+	 *			Object that call the reporter
+	 * @param unknown $message
+	 *			Message
+	 * @param unknown $file
+	 *			File
+	 * @param unknown $line
+	 *			Line number in @param $file
 	 */
 	public static function error($object, $message, $file = null, $line = null)
 	{
@@ -107,10 +140,15 @@ class Reporter
 
 	/**
 	 * Raise a fatal error
-	 * @param unknown $object Object that call the reporter
-	 * @param unknown $message Message
-	 * @param unknown $file File
-	 * @param unknown $line Line number in @param $file
+	 *
+	 * @param unknown $object
+	 *			Object that call the reporter
+	 * @param unknown $message
+	 *			Message
+	 * @param unknown $file
+	 *			File
+	 * @param unknown $line
+	 *			Line number in @param $file
 	 */
 	public static function fatalError($object, $message, $file = null, $line = null)
 	{
@@ -121,8 +159,7 @@ class Reporter
 
 	private static function addMessage($level, $object, $message, $file = null, $line = null)
 	{
-		if (self::$m_implementation)
-		{
+		if (self::$m_implementation) {
 			self::$m_implementation->addMessage($level, $object, $message, $file, $line);
 		}
 	}
@@ -148,8 +185,7 @@ class DummyReporterInterface implements ReporterInterface
 }
 
 // Set a default reporter
-if (!Reporter::getImplementation())
-{
+if (! Reporter::getImplementation()) {
 	$d = new DummyReporterInterface();
 	Reporter::setImplementation($d);
 }

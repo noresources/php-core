@@ -6,6 +6,7 @@
  */
 
 /**
+ *
  * @package Core
  */
 namespace NoreSources;
@@ -20,10 +21,11 @@ class InvalidContainerException extends \InvalidArgumentException
 }
 
 /**
- * Container utility class 
+ * Container utility class
  */
 class Container
 {
+
 	/**
 	 * Behavior of the Container::removeKey method.
 	 * Replace element in-place.
@@ -72,15 +74,18 @@ class Container
 	/**
 	 * Remove an element of a container
 	 *
-	 * @param array|\ArrayAccess|\Traversable $container Input container
-	 * @param mixed $key The key of the element to remove
-	 * @param integer $mode Remove mode.
-	 *        <ul>
-	 *        <li>Container::REMOVE_INPLACE: Remove element in-place</li>
-	 *        <li>Container::REMOVE_COPY: Create a new container without the removed element</li>
-	 *        <li>Container::REMOVE_COPY_STRICT_TYPE: Ensure the new container have the same type as the input
-	 *        container</li>
-	 *        </ul>
+	 * @param array|\ArrayAccess|\Traversable $container
+	 *        	Input container
+	 * @param mixed $key
+	 *        	The key of the element to remove
+	 * @param integer $mode
+	 *        	Remove mode.
+	 *        	<ul>
+	 *        	<li>Container::REMOVE_INPLACE: Remove element in-place</li>
+	 *        	<li>Container::REMOVE_COPY: Create a new container without the removed element</li>
+	 *        	<li>Container::REMOVE_COPY_STRICT_TYPE: Ensure the new container have the same type as the input
+	 *        	container</li>
+	 *        	</ul>
 	 * @throws InvalidContainerException
 	 * @throws \InvalidArgumentException
 	 * @return \ArrayAccess|boolean|\ArrayAccess[]|\Traversable[] The input array if $mode is Container::REMOVE_INPLACE,
@@ -88,21 +93,15 @@ class Container
 	 */
 	public static function removeKey(&$container, $key, $mode = self::REMOVE_COPY)
 	{
-		if ($mode == self::REMOVE_INPLACE)
-		{
-			if ($container instanceof \ArrayAccess)
-			{
-				if ($container->offsetExists($key))
-				{
+		if ($mode == self::REMOVE_INPLACE) {
+			if ($container instanceof \ArrayAccess) {
+				if ($container->offsetExists($key)) {
 					$container->offsetUnset($key);
 				}
 
 				return $container;
-			}
-			elseif (\is_array($container))
-			{
-				if (\array_key_exists($key, $container))
-				{
+			} elseif (\is_array($container)) {
+				if (\array_key_exists($key, $container)) {
 					unset($container[$key]);
 					return true;
 				}
@@ -111,26 +110,19 @@ class Container
 			}
 
 			throw new InvalidContainerException($container, __METHOD__ . ' (inplace)');
-		}
-		elseif ($mode & self::REMOVE_COPY)
-		{
+		} elseif ($mode & self::REMOVE_COPY) {
 			$relax = (($mode & self::REMOVE_COPY_STRICT_TYPE) != self::REMOVE_COPY_STRICT_TYPE);
 
-			if ($container instanceof \ArrayAccess)
-			{
+			if ($container instanceof \ArrayAccess) {
 				$t = clone $container;
-				if ($t->offsetExists($key))
-				{
+				if ($t->offsetExists($key)) {
 					$t->offsetUnset($key);
 				}
 
 				return $t;
-			}
-			elseif (\is_array($container) || (($container instanceof \Traversable) && $relax))
-			{
-				$t = \is_object($container) ? new \ArrayObject() : array ();
-				foreach ($container as $k => $v)
-				{
+			} elseif (\is_array($container) || (($container instanceof \Traversable) && $relax)) {
+				$t = \is_object($container) ? new \ArrayObject() : array();
+				foreach ($container as $k => $v) {
 					if ($k !== $key)
 						$t[$k] = $v;
 				}
@@ -138,8 +130,7 @@ class Container
 			}
 
 			throw new InvalidContainerException($container, __METHOD__ . ' (copy)');
-		}
-		else
+		} else
 			throw new \InvalidArgumentException('mode');
 	}
 
@@ -156,32 +147,25 @@ class Container
 
 	/**
 	 * Transform any type to a plain PHP array
+	 *
 	 * @param mixed $anything
-	 * @param number $singleElementKey Key used to create a single element array when is not something that could be
-	 *        converted to an array
+	 * @param number $singleElementKey
+	 *        	Key used to create a single element array when is not something that could be
+	 *        	converted to an array
 	 * @return array
 	 */
 	public static function createArray($anything, $singleElementKey = 0)
 	{
-		if (\is_array($anything))
-		{
+		if (\is_array($anything)) {
 			return $anything;
-		}
-		elseif (is_object($anything))
-		{
-			if ($anything instanceof DataTree)
-			{
+		} elseif (is_object($anything)) {
+			if ($anything instanceof DataTree) {
 				return $anything->toArray();
-			}
-			elseif ($anything instanceof \ArrayObject)
-			{
+			} elseif ($anything instanceof \ArrayObject) {
 				return $anything->getArrayCopy();
-			}
-			else
-			{
-				$a = array ();
-				foreach ($anything as $k => $v)
-				{
+			} else {
+				$a = array();
+				foreach ($anything as $k => $v) {
 					$a[$k] = $v;
 				}
 
@@ -189,8 +173,8 @@ class Container
 			}
 		}
 
-		return array (
-				$singleElementKey => $anything
+		return array(
+			$singleElementKey => $anything
 		);
 	}
 
@@ -204,29 +188,23 @@ class Container
 	 */
 	public static function isAssociative($container)
 	{
-		if (!(\is_array($container) || ($container instanceof \Traversable)))
-		{
+		if (! (\is_array($container) || ($container instanceof \Traversable))) {
 			throw new InvalidContainerException($container, __METHOD__);
 		}
 
 		$itemCount = self::count($container);
 		$index = 0;
 
-		foreach ($container as $key => $value)
-		{
-			if (is_numeric($key))
-			{
-				if ($index != intval($key))
-				{
+		foreach ($container as $key => $value) {
+			if (is_numeric($key)) {
+				if ($index != intval($key)) {
 					return true;
 				}
-			}
-			else
-			{
+			} else {
 				return true;
 			}
 
-			$index++;
+			$index ++;
 		}
 
 		return false;
@@ -234,7 +212,9 @@ class Container
 
 	/**
 	 * Get the number of element of the given array
-	 * @param mixed $container Array, \Countable or \Traversable object
+	 *
+	 * @param mixed $container
+	 *        	Array, \Countable or \Traversable object
 	 * @throws InvalidContainerException
 	 * @return number Number of elements in $container
 	 *        
@@ -245,11 +225,10 @@ class Container
 			return \count($container);
 		elseif ($container instanceof \Countable)
 			return $container->count();
-		elseif ($container instanceof \Traversable)
-		{
+		elseif ($container instanceof \Traversable) {
 			$c = 0;
 			foreach ($container as $k => $v)
-				$c++;
+				$c ++;
 			return $c;
 		}
 
@@ -265,12 +244,9 @@ class Container
 	 */
 	public static function reset(&$container)
 	{
-		if (\is_array($container))
-		{
+		if (\is_array($container)) {
 			reset($container);
-		}
-		elseif ($container instanceof \Iterator)
-		{
+		} elseif ($container instanceof \Iterator) {
 			$container->rewind();
 		}
 
@@ -281,25 +257,20 @@ class Container
 	 * Indicates if a key exists in an array or a ArrayAccess implementation
 	 *
 	 * @param array|\ArrayAccess|\Traversable $container
-	 * @param mixed $key Key to test
+	 * @param mixed $key
+	 *        	Key to test
 	 * @throws InvalidContainerException
 	 *
 	 * @return boolean
 	 */
 	public static function keyExists($container, $key)
 	{
-		if (\is_array($container))
-		{
+		if (\is_array($container)) {
 			return (\array_key_exists($key, $container));
-		}
-		elseif ($container instanceof \ArrayAccess)
-		{
+		} elseif ($container instanceof \ArrayAccess) {
 			return $container->offsetExists($key);
-		}
-		elseif ($container instanceof \Traversable)
-		{
-			foreach ($container as $k => $_)
-			{
+		} elseif ($container instanceof \Traversable) {
+			foreach ($container as $k => $_) {
 				if ($key === $k)
 					return true;
 			}
@@ -312,24 +283,16 @@ class Container
 
 	public static function valueExists($container, $value, $strict = false)
 	{
-		if (\is_array($container))
-		{
+		if (\is_array($container)) {
 			return (\in_array($value, $container, $strict));
-		}
-		elseif ($container instanceof \Traversable)
-		{
-			if ($strict)
-			{
-				foreach ($container as $k => $v)
-				{
+		} elseif ($container instanceof \Traversable) {
+			if ($strict) {
+				foreach ($container as $k => $v) {
 					if ($v === $value)
 						return true;
 				}
-			}
-			else
-			{
-				foreach ($container as $k => $v)
-				{
+			} else {
+				foreach ($container as $k => $v) {
 					if ($v == $value)
 						return true;
 				}
@@ -354,19 +317,14 @@ class Container
 	 */
 	public static function keyValue($container, $key, $defaultValue)
 	{
-		if (\is_array($container))
-		{
+		if (\is_array($container)) {
 			return (\array_key_exists($key, $container)) ? $container[$key] : $defaultValue;
 		}
 
-		if ($container instanceof \ArrayAccess)
-		{
+		if ($container instanceof \ArrayAccess) {
 			return ($container->offsetExists($key) ? $container->offsetGet($key) : $defaultValue);
-		}
-		elseif ($container instanceof \Traversable)
-		{
-			foreach ($container as $k => $value)
-			{
+		} elseif ($container instanceof \Traversable) {
+			foreach ($container as $k => $value) {
 				if ($key === $k)
 					return $value;
 			}
@@ -380,8 +338,10 @@ class Container
 	/**
 	 * Implode array values
 	 *
-	 * @param array $container Input array
-	 * @param string $glue Element glue
+	 * @param array $container
+	 *        	Input array
+	 * @param string $glue
+	 *        	Element glue
 	 * @return string
 	 */
 	public static function implodeValues($container, $glue, $callable = null, $callableArguments = array ())
@@ -392,10 +352,12 @@ class Container
 	/**
 	 * Implode array keys
 	 *
-	 * @param array $container Table
-	 * @param string $glue Element glue
-	 *       
-	 *        @note This function accepts parameter inversion
+	 * @param array $container
+	 *        	Table
+	 * @param string $glue
+	 *        	Element glue
+	 *        	
+	 *		@note This function accepts parameter inversion
 	 *
 	 * @return string
 	 */
@@ -407,8 +369,10 @@ class Container
 	/**
 	 * Implode an array
 	 *
-	 * @param array $container Array to implode
-	 * @param string $glue Glue
+	 * @param array $container
+	 *        	Array to implode
+	 * @param string $glue
+	 *        	Glue
 	 * @param callable $callable
 	 * @param string $callableArguments
 	 *
@@ -416,55 +380,44 @@ class Container
 	 */
 	public static function implode($container, $glue, $what, $callable = null, $callableArguments = array())
 	{
-		if (self::isArray($glue) && is_string($container))
-		{
+		if (self::isArray($glue) && is_string($container)) {
 			$a = $glue;
 			$glue = $container;
 			$container = $a;
 		}
 
-		if (!self::isArray($container) || self::count($container) == 0)
-		{
+		if (! self::isArray($container) || self::count($container) == 0) {
 			return '';
 		}
 
 		$result = '';
 
-		if (!self::isArray($callableArguments))
-		{
-			$callableArguments = array (
-					$callableArguments
+		if (! self::isArray($callableArguments)) {
+			$callableArguments = array(
+				$callableArguments
 			);
 		}
 
-		foreach ($container as $k => $v)
-		{
+		foreach ($container as $k => $v) {
 			$r = '';
-			if (\is_callable($callable))
-			{
-				$a = array ();
+			if (\is_callable($callable)) {
+				$a = array();
 				if ($what & self::IMPLODE_KEYS)
 					$a[] = $k;
 				if ($what & self::IMPLODE_VALUES)
 					$a[] = $v;
 				$r = call_user_func_array($callable, array_merge($a, $callableArguments));
-			}
-			else if ($what & self::IMPLODE_VALUES)
-			{
+			} else if ($what & self::IMPLODE_VALUES) {
 				$r = $v;
-			}
-			else if ($what & self::IMPLODE_KEYS)
-			{
+			} else if ($what & self::IMPLODE_KEYS) {
 				$r = $k;
 			}
 
-			if (strlen($r) == 0)
-			{
+			if (strlen($r) == 0) {
 				continue;
 			}
 
-			if (strlen($result) > 0)
-			{
+			if (strlen($result) > 0) {
 				$result .= $glue;
 			}
 
