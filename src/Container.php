@@ -6,7 +6,6 @@
  */
 
 /**
- *
  * @package Core
  */
 namespace NoreSources;
@@ -16,7 +15,9 @@ class InvalidContainerException extends \InvalidArgumentException
 
 	public function __construct($element, $forMethod = null)
 	{
-		parent::__construct(TypeDescription::getName($element) . ' is not a valid container' . (\is_string($forMethod) ? ' for method ' . $forMethod : ''));
+		parent::__construct(TypeDescription::getName($element) .
+			' is not a valid container' .
+			(\is_string($forMethod) ? ' for method ' . $forMethod : ''));
 	}
 }
 

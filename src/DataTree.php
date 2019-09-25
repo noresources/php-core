@@ -6,7 +6,6 @@
  */
 
 /**
- *
  * @package Core
  */
 namespace NoreSources;
@@ -31,11 +30,8 @@ const kDataTreeReadOnly = 0x3;
  * @var integer
  */
 const kDataTreeSilent = 0x4;
-
 const kDataTreeFileAuto = 0;
-
 const kDataTreeFilePHP = 1;
-
 const kDataTreeFileJSON = 2;
 
 /**
@@ -66,15 +62,15 @@ class DataTree implements \ArrayAccess, \Serializable, \IteratorAggregate, \Coun
 {
 
 	/**
-	 *
-	 * @param array $data
-	 *			Initial data
+	 * @param array $data Initial data
 	 */
 	public function __construct($data = array())
 	{
 		$this->m_elements = new \ArrayObject();
-		if (is_array($data) || ($data instanceof \Traversable)) {
-			foreach ($data as $k => $v) {
+		if (is_array($data) || ($data instanceof \Traversable))
+		{
+			foreach ($data as $k => $v)
+			{
 				$this->offsetSet($k, $v);
 			}
 		}
@@ -94,8 +90,7 @@ class DataTree implements \ArrayAccess, \Serializable, \IteratorAggregate, \Coun
 	/**
 	 * Equivalent of offsetGet
 	 *
-	 * @param unknown $key
-	 *			Key
+	 * @param unknown $key Key
 	 */
 	public function __get($key)
 	{
@@ -105,10 +100,8 @@ class DataTree implements \ArrayAccess, \Serializable, \IteratorAggregate, \Coun
 	/**
 	 * Equivalent of offsetSet
 	 *
-	 * @param unknown $key
-	 *			Key
-	 * @param unknown $value
-	 *			Value
+	 * @param unknown $key Key
+	 * @param unknown $value Value
 	 */
 	public function __set($key, $value)
 	{
@@ -130,13 +123,13 @@ class DataTree implements \ArrayAccess, \Serializable, \IteratorAggregate, \Coun
 	/**
 	 * Get a value associated to a key
 	 *
-	 * @param mixed $key
-	 *			Key
+	 * @param mixed $key Key
 	 * @return The setting value or <code>NULL</code> if the key does not exists
 	 */
 	public function offsetGet($key)
 	{
-		if ($this->m_elements->offsetExists($key)) {
+		if ($this->m_elements->offsetExists($key))
+		{
 			return $this->m_elements->offsetGet($key);
 		}
 
@@ -146,25 +139,28 @@ class DataTree implements \ArrayAccess, \Serializable, \IteratorAggregate, \Coun
 	/**
 	 * Set a setting value
 	 *
-	 * @param integer $key
-	 *			Setting key
-	 * @param integer $value
-	 *			Setting value
-	 *			
+	 * @param integer $key Setting key
+	 * @param integer $value Setting value
+	 *       
 	 * @throws \Exception
 	 */
 	public function offsetSet($key, $value)
 	{
-		if ($this->m_flags & kDataTreeReadOnly) {
-			if ($this->m_flags & kDataTreeSilent) {
+		if ($this->m_flags & kDataTreeReadOnly)
+		{
+			if ($this->m_flags & kDataTreeSilent)
+			{
 				return;
 			}
 
 			throw new \Exception('Read only setting table');
 		}
 
-		if (($this->m_flags & kDataTreeRestrictKeys) && ! $this->m_elements->offsetExists($key)) {
-			if ($this->m_flags & kDataTreeSilent) {
+		if (($this->m_flags & kDataTreeRestrictKeys) &&
+			!$this->m_elements->offsetExists($key))
+		{
+			if ($this->m_flags & kDataTreeSilent)
+			{
 				return;
 			}
 

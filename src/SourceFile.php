@@ -6,15 +6,12 @@
  */
 
 /**
- *
  * @package Core
  */
 namespace NoreSources;
 
-const kTokenTypeUnknown = - 1;
-
+const kTokenTypeUnknown = -1;
 const kTokenTypeString = 0;
-
 const kTokenTypeElement = 1;
 
 /**
@@ -62,7 +59,6 @@ const kTokenOutputIgnorePhpTags = 0x08;
 const kTokenOutputIgnoreInlineHTML = 0x18;
 
 /**
- *
  * @var integer
  */
 const kTokenOutputIgnoreComments = 0x20;
@@ -73,28 +69,31 @@ class SourceToken
 	/**
 	 * Move to the next token kind
 	 *
-	 * @param array $tokens
-	 *			A token arary given by \token_get_all()
-	 * @param int $tokenIndex
-	 *			Index of the current token
-	 * @param mixed $nextElementType
-	 *			Token to search
-	 *			
+	 * @param array $tokens A token arary given by \token_get_all()
+	 * @param int $tokenIndex Index of the current token
+	 * @param mixed $nextElementType Token to search
+	 *       
 	 * @return The
 	 */
 	public static function move_next(&$tokens, &$tokenIndex, $nextElementType)
 	{
 		$c = count($tokens);
-		$tokenIndex ++;
-		while ($tokenIndex < $c) {
+		$tokenIndex++;
+		while ($tokenIndex < $c)
+		{
 			$token = $tokens[$tokenIndex];
-			if (\is_array($token) && \is_int($nextElementType) && ($token[0] == $nextElementType)) {
+			if (\is_array($token) && \is_int($nextElementType) &&
+				($token[0] == $nextElementType))
+			{
 				return $token;
-			} elseif (is_string($token) && is_string($nextElementType) && ($token == $nextElementType)) {
+			}
+			elseif (is_string($token) && is_string($nextElementType) &&
+				($token == $nextElementType))
+			{
 				return $token;
 			}
 
-			$tokenIndex ++;
+			$tokenIndex++;
 		}
 
 		return null;
@@ -103,15 +102,17 @@ class SourceToken
 	/**
 	 * Get token type
 	 *
-	 * @param mixed $token
-	 *			a element of the token array given by \token_get_all()
+	 * @param mixed $token a element of the token array given by \token_get_all()
 	 * @return integer One of kTokenType* constants
 	 */
 	public static function type($token)
 	{
-		if (is_array($token) && (count($token) == 3)) {
+		if (is_array($token) && (count($token) == 3))
+		{
 			return kTokenTypeElement;
-		} elseif (is_string($token)) {
+		}
+		elseif (is_string($token))
+		{
 			return kTokenTypeString;
 		}
 
@@ -121,34 +122,35 @@ class SourceToken
 	/**
 	 * Get the list of namespace declarations
 	 *
-	 * @param array $tokens
-	 *			A token arary given by \token_get_all()
+	 * @param array $tokens A token arary given by \token_get_all()
 	 * @return multitype:
 	 */
 	public static function get_namespaces(&$tokens)
 	{
-		$namespaces = array();
+		$namespaces = array ();
 		$visitor = SourceToken::get_visitor($tokens);
 
 		// Search for namespaces
 		$ns = null;
-		while (($ns = $visitor->moveToToken(T_NAMESPACE))) {
-			$search = $visitor->queryNextTokens(array(
-				T_STRING,
-				'{',
-				';'
+		while (($ns = $visitor->moveToToken(T_NAMESPACE)))
+		{
+			$search = $visitor->queryNextTokens(array (
+					T_STRING,
+					'{',
+					';'
 			), true);
 			ksort($search);
-			list ($index, $entry) = each($search);
+			list ( $index, $entry ) = each($search);
 			$token = $entry['token'];
 			$name = '';
-			if ((SourceToken::type($token) == kTokenTypeElement) && ($token[0] == T_STRING)) {
+			if ((SourceToken::type($token) == kTokenTypeElement) && ($token[0] == T_STRING))
+			{
 				$name = $token[1];
 			}
 
-			$item = array(
-				'index' => $visitor->key(),
-				'name' => $name
+			$item = array (
+					'index' => $visitor->key(),
+					'name' => $name
 			);
 
 			$namespaces[] = $item;
@@ -158,24 +160,23 @@ class SourceToken
 	}
 
 	/**
-	 *
-	 * @param mixed $token
-	 *			An element of the token array given by \token_get_all()
+	 * @param mixed $token An element of the token array given by \token_get_all()
 	 */
 	public static function value($token)
 	{
-		if (is_array($token)) {
+		if (is_array($token))
+		{
 			return $token[1];
-		} elseif (is_string($token)) {
+		}
+		elseif (is_string($token))
+		{
 			return $token;
 		}
 		return null;
 	}
 
 	/**
-	 *
-	 * @param array $tokens
-	 *			A token array given by \token_get_all()
+	 * @param array $tokens A token array given by \token_get_all()
 	 */
 	public static function get_visitor(&$tokens)
 	{
@@ -188,12 +189,14 @@ class SourceToken
 		$condensedWhitespace = '';
 		$echoTag = false;
 
-		if (! is_array($namespaces)) {
+		if (!is_array($namespaces))
+		{
 			$namespaces = SourceToken::get_namespaces($tokens);
 		}
 
 		$visitor = SourceToken::get_visitor($tokens);
-		if ($flags & kTokenOutputIgnorePhpTags) {
+		if ($flags & kTokenOutputIgnorePhpTags)
+		{
 			$openTag = $visitor->moveToToken(T_OPEN_TAG);
 		}
 

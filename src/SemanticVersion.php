@@ -1,4 +1,5 @@
 <?php
+
 namespace NoreSources;
 
 final class SemanticPostfixedData extends \ArrayObject
@@ -6,7 +7,7 @@ final class SemanticPostfixedData extends \ArrayObject
 
 	public function __construct($data)
 	{
-		parent::__construct(array());
+		parent::__construct(array ());
 		$this->set($data);
 	}
 
@@ -17,11 +18,14 @@ final class SemanticPostfixedData extends \ArrayObject
 
 	public function offsetSet($offset, $value)
 	{
-		if (! (\is_numeric($offset) || is_null($offset))) {
+		if (!(\is_numeric($offset) || is_null($offset)))
+		{
 			throw new \InvalidArgumentException('Non-numeric key "' . strval($offset) . '"');
 		}
-		if (! self::validate($value)) {
-			throw new \InvalidArgumentException($value . ' is not a valid build metadata string');
+		if (!self::validate($value))
+		{
+			throw new \InvalidArgumentException($value .
+				' is not a valid build metadata string');
 		}
 
 		parent::offsetSet($offset, $value);
@@ -29,16 +33,19 @@ final class SemanticPostfixedData extends \ArrayObject
 
 	public function set($data)
 	{
-		$this->exchangeArray(array());
+		$this->exchangeArray(array ());
 
-		if (\is_string($data)) {
+		if (\is_string($data))
+		{
 			if (strlen($data) == 0)
 				return;
 			$data = explode('.', $data);
 		}
 
-		if (Container::isArray($data)) {
-			foreach ($data as $value) {
+		if (Container::isArray($data))
+		{
+			foreach ($data as $value)
+			{
 				$this->append($value);
 			}
 		}
@@ -46,8 +53,10 @@ final class SemanticPostfixedData extends \ArrayObject
 
 	public function append($value)
 	{
-		if (! self::validate($value)) {
-			throw new \InvalidArgumentException($value . ' is not a valid build metadata string');
+		if (!self::validate($value))
+		{
+			throw new \InvalidArgumentException($value .
+				' is not a valid build metadata string');
 		}
 
 		return parent::append($value);

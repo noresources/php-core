@@ -6,7 +6,6 @@
  */
 
 /**
- *
  * @package Core
  */
 namespace NoreSources;
@@ -15,7 +14,6 @@ class DateTime extends \DateTime
 {
 
 	/**
-	 *
 	 * @param integer|string|array $time
 	 * @param \DateTimeZone $timezone
 	 */
@@ -23,7 +21,8 @@ class DateTime extends \DateTime
 	{
 		parent::__construct(\is_string($time) ? $time : null, $timezone);
 
-		if (self::isDateTimeStateArray($time)) {
+		if (self::isDateTimeStateArray($time))
+		{
 			$d = self::__set_state(Container::createArray($time));
 
 			$this->setTimezone($d->getTimezone());

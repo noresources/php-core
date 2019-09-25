@@ -6,7 +6,6 @@
  */
 
 /**
- *
  * @package Core
  */
 namespace NoreSources;
@@ -15,7 +14,6 @@ class PathUtil
 {
 
 	/**
-	 *
 	 * @param string $path
 	 * @return string
 	 */
