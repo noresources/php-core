@@ -13,24 +13,31 @@ class TypeUtil
 	 */
 	public static function toDateTime ($value)
 	{
+		if (\is_null($value))
+			return (new \DateTime('now'));
 		if (\is_int($value))
 		{
 			$d = new \DateTime('now');
 			$d->setTimestamp($value);
-			$value = $d;
+			return $d;
 		}
 		elseif (\is_float($value))
 		{
 			$d = new \DateTime('now');
 			$d->setTimestamp(jdtounix($value));
-			$value = $d;
+			return $d;
 		}
 		elseif (\is_string($value))
 		{
+			if ((strlen($value) == 0) || (strtolower($value) == 'now'))
+				return new \DateTime('now');
+
 			// Always expec ISO format
 			$d = \DateTime::createFromFormat(\DateTime::ISO8601, $value);
 			if (!($d instanceof \DateTime))
-				throw new \Exception('Failed to convert string ' . $value . 'to DateTime');
+				throw new \Exception(__METHOD__ . ' Failed to convert string "' . $value . '" to DateTime');
+
+			return $d;
 		}
 		elseif (\is_array($value))
 		{
@@ -38,24 +45,27 @@ class TypeUtil
 					\array_key_exists('date', $value))
 			{
 				$value = \DateTime::__set_state($value);
+				return $value;
 			}
 			elseif (\array_key_exists('format', $value) && \array_key_exists('time', $value))
 			{
 				$d = \DateTime::createFromFormat($value['format'], $value['time']);
+				
 				if (!($d instanceof \DateTime))
-					throw new \Exception('Failed to convert array ' . var_export($value, true) . ' to DateTime');
+					throw new \Exception(__METHOD__ . ' Failed to convert array ' . var_export($value, true) . ' to DateTime');
 
-				$value = $d;
+				return $d;
 			}
 			else
 			{
-				throw new \Exception('Invalid array format ' . var_export($value, true));
+				throw new \Exception(__METHOD__ . ' Invalid array format ' . var_export($value, true));
 			}
 		}
 
 		if (!($value instanceof \DateTime))
 		{
-			throw new \Exception('Failed to convert ' . gettype($value) . ' to DateTime');
+			throw new \Exception(
+					__METHOD__ . ' Failed to convert ' . gettype($value) . ' ' . var_export($value, true) . ' to DateTime');
 		}
 
 		return $value;
