@@ -23,10 +23,8 @@ final class DateTimeTest extends TestCase
 			$this->assertArrayHasKey('timezone_type', $exported);
 
 			$fromArray = DateTime::createFromArray($exported);
-			$this->assertEquals($dateTime->format(\DateTime::ISO8601), $fromArray->format(\DateTime::ISO8601), $time . ' - From array');
-
-			$ctor = new DateTime($exported);
-			$this->assertEquals($dateTime->format(\DateTime::ISO8601), $ctor->format(\DateTime::ISO8601), $time . ' - Constructor');
+			$this->assertEquals($dateTime->format(\DateTime::ISO8601), $fromArray->format(\DateTime::ISO8601), $time .
+				' - From array');
 		}
 	}
 }

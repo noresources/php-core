@@ -14,36 +14,79 @@ class DateTime extends \DateTime
 {
 
 	/**
-	 * @param integer|string|array $time
+	 * @param string $time
 	 * @param \DateTimeZone $timezone
 	 */
-	public function __construct($time = null, DateTimeZone $timezone = null)
+	public function __construct($time = null, \DateTimeZone $timezone = null)
 	{
-		parent::__construct(\is_string($time) ? $time : null, $timezone);
-
-		if (self::isDateTimeStateArray($time))
-		{
-			$d = self::__set_state(Container::createArray($time));
-
-			$this->setTimezone($d->getTimezone());
-			$this->setTimestamp($d->getTimestamp());
-		}
+		parent::__construct($time, $timezone);
 	}
 
 	/**
 	 * Create a DateTime from a DateTime description array
-	 * @param array $array
+	 *
+	 * @param array $array An associative array with one of the following key/value pairs
+	 *        <ul>
+	 *        <li>DateTime state. The same array format output by var_export().
+	 *        <ul>
+	 *        <li>date: Timestamp without timezone information</li>
+	 *        <li>timezone_type: Timezone type
+	 *        <ol>
+	 *        <li>UTC offset (ex. +0100)</li>
+	 *        <li>Timezone abbreviation (ex. CET)</li>
+	 *        <li>Timezone identifier (@see https://www.php.net/manual/en/class.datetimezone.php)</li>
+	 *        </ol>
+	 *        </li>
+	 *        <li>timezone: Timezone value</li>
+	 *        </ul>
+	 *        </li>
+	 *        <li>DateTimestamp and format
+	 *        <ul>
+	 *        <li>time Timestamp</li>
+	 *        <li>format: Format string</li>
+	 *        <li>timezone: (optional) \DateTimeZone or valid timezone identifier</li>
+	 *        </ul>
+	 *        </li>
+	 *        </ul>
+	 * @param boolean $baseClass Return a built-in \DateTime instance. Otherwise, return a \NoreSources\DateTime (with no
+	 *        particular benefits)
 	 * @throws \InvalidArgumentException
 	 * @return DateTime
 	 *
 	 * @ignore Fractional seconds are not supported
 	 */
-	public static function createFromArray($array)
+	public static function createFromArray($array, $baseClass = true)
 	{
-		if (self::isDateTimeStateArray($array))
-			return new DateTime($array);
+		$timezone = null;
+		$instance = null;
 
-		throw new \InvalidArgumentException(var_export($array, true) . ' is not a valid DateTime array');
+		if (self::isDateTimeStateArray($array))
+		{
+			$instance = \DateTime::__set_state($array);
+			$timezone = $instance->getTimezone();
+		}
+		elseif (Container::keyExists($array, 'format') &&
+			Container::keyExists($array, 'time'))
+		{
+			$timezone = Container::keyValue($array, 'timezone', null);
+			if (\is_string($timezone))
+			{
+				$timezone = new \DateTimeZone($timezone);
+			}
+
+			$instance = \DateTime::createFromFormat(Container::keyValue($array, 'format'), Container::keyValue($array, 'time'), $timezone);
+		}
+
+		if ($instance instanceof \DateTime)
+		{
+			if ($baseClass)
+				return $instance;
+
+			return new DateTime($instance->format(\DateTime::ISO8601), $timezone);
+		}
+
+		throw new \InvalidArgumentException(var_export($array, true) .
+			' is not a valid DateTime array');
 	}
 
 	/**
