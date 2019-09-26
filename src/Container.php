@@ -75,18 +75,15 @@ class Container
 	/**
 	 * Remove an element of a container
 	 *
-	 * @param array|\ArrayAccess|\Traversable $container
-	 *        	Input container
-	 * @param mixed $key
-	 *        	The key of the element to remove
-	 * @param integer $mode
-	 *        	Remove mode.
-	 *        	<ul>
-	 *        	<li>Container::REMOVE_INPLACE: Remove element in-place</li>
-	 *        	<li>Container::REMOVE_COPY: Create a new container without the removed element</li>
-	 *        	<li>Container::REMOVE_COPY_STRICT_TYPE: Ensure the new container have the same type as the input
-	 *        	container</li>
-	 *        	</ul>
+	 * @param array|\ArrayAccess|\Traversable $container Input container
+	 * @param mixed $key The key of the element to remove
+	 * @param integer $mode Remove mode.
+	 *        <ul>
+	 *        <li>Container::REMOVE_INPLACE: Remove element in-place</li>
+	 *        <li>Container::REMOVE_COPY: Create a new container without the removed element</li>
+	 *        <li>Container::REMOVE_COPY_STRICT_TYPE: Ensure the new container have the same type as the input
+	 *        container</li>
+	 *        </ul>
 	 * @throws InvalidContainerException
 	 * @throws \InvalidArgumentException
 	 * @return \ArrayAccess|boolean|\ArrayAccess[]|\Traversable[] The input array if $mode is Container::REMOVE_INPLACE,
@@ -94,15 +91,21 @@ class Container
 	 */
 	public static function removeKey(&$container, $key, $mode = self::REMOVE_COPY)
 	{
-		if ($mode == self::REMOVE_INPLACE) {
-			if ($container instanceof \ArrayAccess) {
-				if ($container->offsetExists($key)) {
+		if ($mode == self::REMOVE_INPLACE)
+		{
+			if ($container instanceof \ArrayAccess)
+			{
+				if ($container->offsetExists($key))
+				{
 					$container->offsetUnset($key);
 				}
 
 				return $container;
-			} elseif (\is_array($container)) {
-				if (\array_key_exists($key, $container)) {
+			}
+			elseif (\is_array($container))
+			{
+				if (\array_key_exists($key, $container))
+				{
 					unset($container[$key]);
 					return true;
 				}
@@ -111,19 +114,28 @@ class Container
 			}
 
 			throw new InvalidContainerException($container, __METHOD__ . ' (inplace)');
-		} elseif ($mode & self::REMOVE_COPY) {
-			$relax = (($mode & self::REMOVE_COPY_STRICT_TYPE) != self::REMOVE_COPY_STRICT_TYPE);
+		}
+		elseif ($mode & self::REMOVE_COPY)
+		{
+			$relax = (($mode & self::REMOVE_COPY_STRICT_TYPE) !=
+				self::REMOVE_COPY_STRICT_TYPE);
 
-			if ($container instanceof \ArrayAccess) {
+			if ($container instanceof \ArrayAccess)
+			{
 				$t = clone $container;
-				if ($t->offsetExists($key)) {
+				if ($t->offsetExists($key))
+				{
 					$t->offsetUnset($key);
 				}
 
 				return $t;
-			} elseif (\is_array($container) || (($container instanceof \Traversable) && $relax)) {
-				$t = \is_object($container) ? new \ArrayObject() : array();
-				foreach ($container as $k => $v) {
+			}
+			elseif (\is_array($container) ||
+				(($container instanceof \Traversable) && $relax))
+			{
+				$t = \is_object($container) ? new \ArrayObject() : array ();
+				foreach ($container as $k => $v)
+				{
 					if ($k !== $key)
 						$t[$k] = $v;
 				}
@@ -131,7 +143,8 @@ class Container
 			}
 
 			throw new InvalidContainerException($container, __METHOD__ . ' (copy)');
-		} else
+		}
+		else
 			throw new \InvalidArgumentException('mode');
 	}
 
@@ -153,7 +166,7 @@ class Container
 	 * @param number $singleElementKey
 	 *        	Key used to create a single element array when is not something that could be
 	 *        	converted to an array
-	 * @return array
+	 * @return array or @c null if @c $anything cannont be converted to array and @c $singleElementKey is @c null 
 	 */
 	public static function createArray($anything, $singleElementKey = 0)
 	{
@@ -174,9 +187,12 @@ class Container
 			}
 		}
 
-		return array(
-			$singleElementKey => $anything
-		);
+		if ($singleElementKey !== null)
+			return array(
+				$singleElementKey => $anything
+			);
+			
+		return null;
 	}
 
 	/**
@@ -316,7 +332,7 @@ class Container
 	 *
 	 * @return mixed Value associated to $key or $defaultValue if the key does not exists
 	 */
-	public static function keyValue($container, $key, $defaultValue)
+	public static function keyValue($container, $key, $defaultValue = null)
 	{
 		if (\is_array($container)) {
 			return (\array_key_exists($key, $container)) ? $container[$key] : $defaultValue;

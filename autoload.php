@@ -11,6 +11,8 @@ spl_autoload_register(function($className) {
 		'noresources\semanticpostfixeddata' => 'src/SemanticVersion.php',
 		'noresources\semanticversion' => 'src/SemanticVersion.php',
 		'noresources\urlutil' => 'src/UrlUtil.php',
+		'noresources\typeconversionexception' => 'src/TypeConversion.php',
+		'noresources\typeconversion' => 'src/TypeConversion.php',
 		'noresources\invalidcontainerexception' => 'src/Container.php',
 		'noresources\container' => 'src/Container.php',
 		'noresources\pathutil' => 'src/PathUtil.php'

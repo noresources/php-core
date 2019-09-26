@@ -62,8 +62,11 @@ class DateTime extends \DateTime
 
 		if (self::isDateTimeStateArray($array))
 		{
-			$instance = \DateTime::__set_state($array);
-			$timezone = $instance->getTimezone();
+			$instance = @\DateTime::__set_state($array);
+			if ($instance instanceof \DateTime)
+			{
+				$timezone = $instance->getTimezone();
+			}
 		}
 		elseif (Container::keyExists($array, 'format') &&
 			Container::keyExists($array, 'time'))
