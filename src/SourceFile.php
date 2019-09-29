@@ -11,64 +11,14 @@
  */
 namespace NoreSources;
 
-const kTokenTypeUnknown = -1;
-
-const kTokenTypeString = 0;
-
-const kTokenTypeElement = 1;
-
-/**
- * Remove line feeds in token content
- *
- * @var integer
- */
-const kTokenDumpSingleLine = 0x01;
-
-/**
- * Always display whitespaces as a single space
- *
- * @var integer
- */
-const kTokenDumpCondensedWhitespaces = 0x02;
-
-/**
- * Output all whitespaces as single space
- *
- * @var integer
- */
-const kTokenOutputCondensedWhitespaces = 0x02;
-
-/**
- * Output code inside anonymous namespace if the code does not
- * reference any namespace
- *
- * @var integer
- */
-const kTokenOutputForceNamespace = 0x04;
-
-/**
- * Do not output PHP open/close tags
- *
- * @var integer
- */
-const kTokenOutputIgnorePhpTags = 0x08;
-
-/**
- * Ignore all tokens which are not PHP code.
- * Implies @c kTokenOutputIgnorePhpTags
- *
- * @var integer
- */
-const kTokenOutputIgnoreInlineHTML = 0x18;
-
-/**
- *
- * @var integer
- */
-const kTokenOutputIgnoreComments = 0x20;
-
 class SourceToken
 {
+
+	const TYPE_UNKNOWN = -1;
+
+	const TYPE_STRING = 0;
+
+	const TYPE_ELEMENT = 1;
 
 	/**
 	 * Move to the next token kind
@@ -109,20 +59,20 @@ class SourceToken
 	 *
 	 * @param mixed $token
 	 *        	a element of the token array given by \token_get_all()
-	 * @return integer One of kTokenType* constants
+	 * @return integer One of Type* constants
 	 */
-	public static function type($token)
+	public static function getType($token)
 	{
 		if (is_array($token) && (count($token) == 3))
 		{
-			return kTokenTypeElement;
+			return SourceToken::TYPE_ELEMENT;
 		}
 		elseif (is_string($token))
 		{
-			return kTokenTypeString;
+			return SourceToken::TYPE_STRING;
 		}
 
-		return kTokenTypeUnknown;
+		return TypeUnknown;
 	}
 
 	/**
@@ -132,10 +82,10 @@ class SourceToken
 	 *        	A token arary given by \token_get_all()
 	 * @return multitype:
 	 */
-	public static function get_namespaces(&$tokens)
+	public static function getNamespaces(&$tokens)
 	{
 		$namespaces = array();
-		$visitor = SourceToken::get_visitor($tokens);
+		$visitor = SourceToken::getVisitor($tokens);
 
 		// Search for namespaces
 		$ns = null;
@@ -150,7 +100,7 @@ class SourceToken
 			list ($index, $entry) = each($search);
 			$token = $entry['token'];
 			$name = '';
-			if ((SourceToken::type($token) == kTokenTypeElement) && ($token[0] == T_STRING))
+			if ((SourceToken::getType($token) == SourceToken::TYPE_ELEMENT) && ($token[0] == T_STRING))
 			{
 				$name = $token[1];
 			}
@@ -189,7 +139,7 @@ class SourceToken
 	 * @param array $tokens
 	 *        	A token array given by \token_get_all()
 	 */
-	public static function get_visitor(&$tokens)
+	public static function getVisitor(&$tokens)
 	{
 		return (new TokenVisitor($tokens));
 	}
@@ -202,11 +152,11 @@ class SourceToken
 
 		if (!is_array($namespaces))
 		{
-			$namespaces = SourceToken::get_namespaces($tokens);
+			$namespaces = SourceToken::getNamespaces($tokens);
 		}
 
-		$visitor = SourceToken::get_visitor($tokens);
-		if ($flags & kTokenOutputIgnorePhpTags)
+		$visitor = SourceToken::getVisitor($tokens);
+		if ($flags & SourceFile::OUTPUT_IGNORE_PHPTAGS)
 		{
 			$openTag = $visitor->moveToToken(T_OPEN_TAG);
 		}
@@ -214,20 +164,20 @@ class SourceToken
 		while ($visitor->valid())
 		{
 			$token = $visitor->current();
-			$type = SourceToken::type($token);
+			$type = SourceToken::getType($token);
 			$value = SourceToken::value($token);
 
-			if ($type == kTokenTypeString)
+			if ($type == SourceToken::TYPE_STRING)
 			{
 				$output .= $value;
 			}
-			elseif ($type == kTokenTypeElement)
+			elseif ($type == SourceToken::TYPE_ELEMENT)
 			{
 				switch ($token[0])
 				{
 					case T_OPEN_TAG_WITH_ECHO:
 						{
-							if ($flags & kTokenOutputIgnorePhpTags)
+							if ($flags & SourceFile::OUTPUT_IGNORE_PHPTAGS)
 							{
 								$output .= 'echo (';
 								$echoTag = true;
@@ -240,15 +190,16 @@ class SourceToken
 					break;
 					case T_OPEN_TAG:
 						{
-							if (!($flags & kTokenOutputIgnorePhpTags))
+							if (!($flags & SourceFile::OUTPUT_IGNORE_PHPTAGS))
 							{
 								$output .= $value;
 							}
 
-							if (($flags & kTokenOutputForceNamespace) && (count($namespaces) == 0))
+							if (($flags & SourceFile::OUTPUT_FORCE_WHITESPACE) &&
+								(count($namespaces) == 0))
 							{
 								$output .= 'namespace';
-								$s = ($flags & kTokenOutputCondensedWhitespaces) ? $condensedWhitespace : PHP_EOL;
+								$s = ($flags & SourceFile::OUTPUT_CONDENSED_WHITESPACES) ? $condensedWhitespace : PHP_EOL;
 								$output .= $s . '{' . $s;
 							}
 						}
@@ -261,14 +212,14 @@ class SourceToken
 							}
 							else
 							{
-								if (($flags & kTokenOutputForceNamespace) &&
+								if (($flags & SourceFile::OUTPUT_FORCE_WHITESPACE) &&
 									(count($namespaces) == 0))
 								{
-									$s = ($flags & kTokenOutputCondensedWhitespaces) ? $condensedWhitespace : PHP_EOL;
+									$s = ($flags & SourceFile::OUTPUT_CONDENSED_WHITESPACES) ? $condensedWhitespace : PHP_EOL;
 									$output .= $s . '}';
 								}
 
-								if (!($flags & kTokenOutputIgnorePhpTags))
+								if (!($flags & SourceFile::OUTPUT_IGNORE_PHPTAGS))
 								{
 									$output .= $value;
 								}
@@ -277,7 +228,7 @@ class SourceToken
 						}
 					case T_INLINE_HTML:
 						{
-							if (!($flags & kTokenOutputIgnoreInlineHTML))
+							if (!($flags & SourceFile::OUTPUT_IGNORE_INLINE_HTML))
 							{
 								$output .= $value;
 							}
@@ -285,13 +236,13 @@ class SourceToken
 					break;
 					case T_WHITESPACE:
 						{
-							$output .= (($flags & kTokenOutputCondensedWhitespaces) ? $condensedWhitespace : $value);
+							$output .= (($flags & SourceFile::OUTPUT_CONDENSED_WHITESPACES) ? $condensedWhitespace : $value);
 						}
 					break;
 					case T_COMMENT:
 					case T_DOC_COMMENT:
 						{
-							if (!($flags & kTokenOutputIgnoreComments))
+							if (!($flags & SourceFile::OUTPUT_IGNORE_COMMENTS))
 							{
 								$output .= $value;
 							}
@@ -315,7 +266,7 @@ class SourceToken
 	/**
 	 * Dump token table to a condensed format
 	 *
-	 * @param unknown $tokens
+	 * @param array $tokens
 	 *        	Token array given by \token_get_all ()
 	 * @param string $eol
 	 *        	A string to add after each entry output
@@ -328,17 +279,17 @@ class SourceToken
 		$result = '';
 		foreach ($tokens as $t)
 		{
-			$type = SourceToken::type($t);
-			$name = ($type == kTokenTypeElement) ? SourceToken::name($t[0]) : 'string';
+			$type = SourceToken::getType($t);
+			$name = ($type == SourceToken::TYPE_ELEMENT) ? SourceToken::name($t[0]) : 'string';
 			$value = SourceToken::value($t);
 
-			if (($flags & kTokenDumpCondensedWhitespaces) && ($type == kTokenTypeElement) &&
-				($t[1] == T_WHITESPACE))
+			if (($flags & SourceFile::DUMP_CONDENSED_WHITESPACES) &&
+				($type == SourceToken::TYPE_ELEMENT) && ($t[1] == T_WHITESPACE))
 			{
 				$value = '';
 			}
 
-			if ($flags & kTokenDumpSingleLine)
+			if ($flags & SourceFile::DUMP_SINGLE_LINE)
 			{
 				$value = str_replace("\r", '<CR>', str_replace("\n", '<LF>', $value));
 			}
@@ -483,11 +434,11 @@ class TokenVisitor implements \iterator, \ArrayAccess, \Countable
 	/**
 	 * Get the type of the current token
 	 *
-	 * @return integer One of the kTokenType* constnats
+	 * @return integer One of the Type* constnats
 	 */
 	public function currentType()
 	{
-		return SourceToken::type($this->current());
+		return SourceToken::getType($this->current());
 	}
 
 	// Iterator
@@ -587,6 +538,56 @@ class SourceFile
 {
 
 	/**
+	 * Remove line feeds in token content
+	 *
+	 * @var integer
+	 */
+	const DUMP_SINGLE_LINE = 0x01;
+
+	/**
+	 * Always display whitespaces as a single space
+	 *
+	 * @var integer
+	 */
+	const DUMP_CONDENSED_WHITESPACES = 0x02;
+
+	/**
+	 * Output all whitespaces as single space
+	 *
+	 * @var integer
+	 */
+	const OUTPUT_CONDENSED_WHITESPACES = 0x02;
+
+	/**
+	 * Output code inside anonymous namespace if the code does not
+	 * reference any namespace
+	 *
+	 * @var integer
+	 */
+	const OUTPUT_FORCE_WHITESPACE = 0x04;
+
+	/**
+	 * Do not output PHP open/close tags
+	 *
+	 * @var integer
+	 */
+	const OUTPUT_IGNORE_PHPTAGS = 0x08;
+
+	/**
+	 * Ignore all tokens which are not PHP code.
+	 * Implies @c SourceFile::OUTPUT_IGNORE_PHPTAGS
+	 *
+	 * @var integer
+	 */
+	const OUTPUT_IGNORE_INLINE_HTML = 0x18;
+
+	/**
+	 *
+	 * @var integer
+	 */
+	const OUTPUT_IGNORE_COMMENTS = 0x20;
+
+	/**
 	 *
 	 * @param string $fileName
 	 *        	PHP source file path
@@ -609,7 +610,7 @@ class SourceFile
 	 */
 	public function getTokenVisitor()
 	{
-		return SourceToken::get_visitor($this->tokens);
+		return SourceToken::getVisitor($this->tokens);
 	}
 
 	/**
@@ -645,7 +646,7 @@ class SourceFile
 
 	private function parse()
 	{
-		$this->namespaces = SourceToken::get_namespaces($this->tokens);
+		$this->namespaces = SourceToken::getNamespaces($this->tokens);
 	}
 
 	/**
