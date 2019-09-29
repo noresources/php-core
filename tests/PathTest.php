@@ -4,7 +4,7 @@ namespace NoreSources;
 
 use PHPUnit\Framework\TestCase;
 
-final class PathUtilTest extends TestCase
+final class PathTest extends TestCase
 {
 
 	public function testIsAbsolute()
@@ -27,7 +27,7 @@ final class PathUtilTest extends TestCase
 
 		foreach ($paths as $path => $expected)
 		{
-			$this->assertEquals($expected, PathUtil::isAbsolute($path), 'Path: "' . $path . '"');
+			$this->assertEquals($expected, Path::isAbsolute($path), 'Path: "' . $path . '"');
 		}
 	}
 }

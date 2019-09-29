@@ -11,7 +11,7 @@
  */
 namespace NoreSources;
 
-class UrlUtil
+class URI
 {
 
 	/**
