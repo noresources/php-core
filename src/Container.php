@@ -11,13 +11,22 @@
  */
 namespace NoreSources;
 
+/**
+ * Exception raise when the object given to Container member class is not a valid container
+ */
 class InvalidContainerException extends \InvalidArgumentException
 {
 
-	public function __construct($element, $forMethod = null)
+	/**
+	 *
+	 * @param mixed $invalidContainer
+	 * @param string $forMethod
+	 *        	Container method name
+	 */
+	public function __construct($invalidContainer, $forMethod = null)
 	{
 		parent::__construct(
-			TypeDescription::getName($element) . ' is not a valid container' .
+			TypeDescription::getName($invalidContainer) . ' is not a valid container' .
 			(\is_string($forMethod) ? ' for method ' . $forMethod : ''));
 	}
 }
@@ -325,6 +334,19 @@ class Container
 		throw new InvalidContainerException($container, __METHOD__);
 	}
 
+	/**
+	 * Indicates if the given value appears in the container elements
+	 *
+	 * @param mixed $container
+	 * @param mixed $value
+	 *        	Value to check in @c $container
+	 * @param boolean $strict
+	 *        	If @c true, use the strict equal (===) operator
+	 *        	
+	 * @throws InvalidContainerException
+	 *
+	 * @return boolean @c true if @c $value appears in @c $container
+	 */
 	public static function valueExists($container, $value, $strict = false)
 	{
 		if (\is_array($container))

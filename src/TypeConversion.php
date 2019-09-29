@@ -6,6 +6,10 @@ use phpDocumentor\Reflection\Types\Integer;
 class TypeConversionException extends \Exception
 {
 
+	/**
+	 *
+	 * @var mixed Value that cannot be converted
+	 */
 	public $value;
 
 	public function __construct($value, $method, $message = null)
@@ -21,6 +25,16 @@ class TypeConversionException extends \Exception
 class TypeConversion
 {
 
+	/**
+	 *
+	 * @param mixed $value
+	 *        	Value to convert
+	 * @param string $type
+	 *        	Target type.
+	 * @param callable $fallback
+	 *        	A cacallback to invoke if the method is nuable to convert the value e
+	 * @throws \BadMethodCallException
+	 */
 	public static function to($value, $type, $fallback)
 	{
 		$methodName = 'to' . $type;
@@ -221,5 +235,17 @@ class TypeConversion
 	public static function toBoolean($value)
 	{
 		return @boolval($value);
+	}
+
+	/**
+	 * Convert any value to @c NULL
+	 *
+	 * @param mixed $value
+	 *        	Value to convert
+	 * @return NULL, obviously...
+	 */
+	public static function toNull($value)
+	{
+		return null;
 	}
 }

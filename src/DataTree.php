@@ -96,7 +96,7 @@ class DataTree implements \ArrayAccess, \Serializable, \IteratorAggregate, \Coun
 	/**
 	 * Equivalent of offsetGet
 	 *
-	 * @param unknown $key
+	 * @param string $key
 	 *        	Key
 	 */
 	public function __get($key)
@@ -107,9 +107,9 @@ class DataTree implements \ArrayAccess, \Serializable, \IteratorAggregate, \Coun
 	/**
 	 * Equivalent of offsetSet
 	 *
-	 * @param unknown $key
+	 * @param string $key
 	 *        	Key
-	 * @param unknown $value
+	 * @param mixed $value
 	 *        	Value
 	 */
 	public function __set($key, $value)
@@ -122,7 +122,7 @@ class DataTree implements \ArrayAccess, \Serializable, \IteratorAggregate, \Coun
 	/**
 	 * Indicates if a setting key exists
 	 *
-	 * @param unknown $key
+	 * @param string $key
 	 */
 	public function offsetExists($key)
 	{
