@@ -72,7 +72,7 @@ class DataTree implements \ArrayAccess, \Serializable, \IteratorAggregate, \Coun
 	 */
 	public function __construct($data = array())
 	{
-		$this->m_elements = new \ArrayObject();
+		$this->elements = new \ArrayObject();
 		if (is_array($data) || ($data instanceof \Traversable))
 		{
 			foreach ($data as $k => $v)
@@ -80,7 +80,7 @@ class DataTree implements \ArrayAccess, \Serializable, \IteratorAggregate, \Coun
 				$this->offsetSet($k, $v);
 			}
 		}
-		$this->m_flags = 0;
+		$this->dataTreeFlags = 0;
 	}
 
 	/**
@@ -126,7 +126,7 @@ class DataTree implements \ArrayAccess, \Serializable, \IteratorAggregate, \Coun
 	 */
 	public function offsetExists($key)
 	{
-		return $this->m_elements->offsetExists($key);
+		return $this->elements->offsetExists($key);
 	}
 
 	/**
@@ -138,13 +138,13 @@ class DataTree implements \ArrayAccess, \Serializable, \IteratorAggregate, \Coun
 	 */
 	public function offsetGet($key)
 	{
-		if ($this->m_elements->offsetExists($key))
+		if ($this->elements->offsetExists($key))
 		{
-			return $this->m_elements->offsetGet($key);
+			return $this->elements->offsetGet($key);
 		}
 
-		return (is_callable($this->m_defaultValueHandler) ? (call_user_func(
-			$this->m_defaultValueHandler, $key, $this)) : null);
+		return (is_callable($this->defaultValueHandler) ? (call_user_func(
+			$this->defaultValueHandler, $key, $this)) : null);
 	}
 
 	/**
@@ -159,9 +159,9 @@ class DataTree implements \ArrayAccess, \Serializable, \IteratorAggregate, \Coun
 	 */
 	public function offsetSet($key, $value)
 	{
-		if ($this->m_flags & kDataTreeReadOnly)
+		if ($this->dataTreeFlags & kDataTreeReadOnly)
 		{
-			if ($this->m_flags & kDataTreeSilent)
+			if ($this->dataTreeFlags & kDataTreeSilent)
 			{
 				return;
 			}
@@ -169,9 +169,9 @@ class DataTree implements \ArrayAccess, \Serializable, \IteratorAggregate, \Coun
 			throw new \Exception('Read only setting table');
 		}
 
-		if (($this->m_flags & kDataTreeRestrictKeys) && !$this->m_elements->offsetExists($key))
+		if (($this->dataTreeFlags & kDataTreeRestrictKeys) && !$this->elements->offsetExists($key))
 		{
-			if ($this->m_flags & kDataTreeSilent)
+			if ($this->dataTreeFlags & kDataTreeSilent)
 			{
 				return;
 			}
@@ -182,18 +182,18 @@ class DataTree implements \ArrayAccess, \Serializable, \IteratorAggregate, \Coun
 		if (\is_array($value) || (is_object($value) && ($value instanceof \Traversable)))
 		{
 			$st = new DataTree();
-			$st->m_defaultValueHandler = $this->m_defaultValueHandler;
-			$st->m_flags = $this->m_flags;
+			$st->defaultValueHandler = $this->defaultValueHandler;
+			$st->dataTreeFlags = $this->dataTreeFlags;
 			foreach ($value as $k => $v)
 			{
 				$st->offsetSet($k, $v);
 			}
 
-			$this->m_elements->offsetSet($key, $st);
+			$this->elements->offsetSet($key, $st);
 		}
 		else
 		{
-			$this->m_elements->offsetSet($key, $value);
+			$this->elements->offsetSet($key, $value);
 		}
 	}
 
@@ -205,7 +205,7 @@ class DataTree implements \ArrayAccess, \Serializable, \IteratorAggregate, \Coun
 	 */
 	public function offsetUnset($key)
 	{
-		$this->m_elements->offsetUnset($key);
+		$this->elements->offsetUnset($key);
 	}
 
 	// IteratorAggregate ////////////////////
@@ -213,7 +213,7 @@ class DataTree implements \ArrayAccess, \Serializable, \IteratorAggregate, \Coun
 	// TiteratorAggregate
 	public function getIterator()
 	{
-		return $this->m_elements->getIterator();
+		return $this->elements->getIterator();
 	}
 
 	// Countable ////////////////////
@@ -221,7 +221,7 @@ class DataTree implements \ArrayAccess, \Serializable, \IteratorAggregate, \Coun
 	// Contable
 	public function count()
 	{
-		return $this->m_elements->count();
+		return $this->elements->count();
 	}
 
 	// Serializable ////////////////////
@@ -242,8 +242,8 @@ class DataTree implements \ArrayAccess, \Serializable, \IteratorAggregate, \Coun
 	 */
 	public function unserialize($serialized)
 	{
-		$this->m_elements = new \ArrayObject(json_decode($serialized, true));
-		foreach ($this->m_elements as $key => &$value)
+		$this->elements = new \ArrayObject(json_decode($serialized, true));
+		foreach ($this->elements as $key => &$value)
 		{
 			if (\is_array($value))
 			{
@@ -260,7 +260,7 @@ class DataTree implements \ArrayAccess, \Serializable, \IteratorAggregate, \Coun
 	public function toArray()
 	{
 		$a = array();
-		foreach ($this->m_elements as $key => $value)
+		foreach ($this->elements as $key => $value)
 		{
 			$a[$key] = (is_object($value) && ($value instanceof DataTree)) ? $value->toArray() : $value;
 		}
@@ -307,9 +307,9 @@ class DataTree implements \ArrayAccess, \Serializable, \IteratorAggregate, \Coun
 			return ($i == $c) ? $t : $defaultValue;
 		}
 
-		if (array_key_exists($key, $this->m_elements))
+		if (array_key_exists($key, $this->elements))
 		{
-			return $this->m_elements[$key];
+			return $this->elements[$key];
 		}
 
 		return $defaultValue;
@@ -335,8 +335,8 @@ class DataTree implements \ArrayAccess, \Serializable, \IteratorAggregate, \Coun
 	 */
 	public function append($value)
 	{
-		$this->m_elements->append($value);
-		return $this->m_elements->count();
+		$this->elements->append($value);
+		return $this->elements->count();
 	}
 
 	/**
@@ -347,9 +347,9 @@ class DataTree implements \ArrayAccess, \Serializable, \IteratorAggregate, \Coun
 	 */
 	public function prepend($value)
 	{
-		$a = $this->m_elements->getArrayCopy();
+		$a = $this->elements->getArrayCopy();
 		$c = array_unshift($a, $value);
-		$this->m_elements->exchangeArray($a);
+		$this->elements->exchangeArray($a);
 		return $c;
 	}
 
@@ -360,7 +360,7 @@ class DataTree implements \ArrayAccess, \Serializable, \IteratorAggregate, \Coun
 	 */
 	public function setFlags($flags)
 	{
-		$this->m_flags = $flags;
+		$this->dataTreeFlags = $flags;
 	}
 
 	/**
@@ -368,7 +368,7 @@ class DataTree implements \ArrayAccess, \Serializable, \IteratorAggregate, \Coun
 	 */
 	public function getFlags()
 	{
-		return $this->m_flags;
+		return $this->dataTreeFlags;
 	}
 
 	/**
@@ -427,8 +427,8 @@ class DataTree implements \ArrayAccess, \Serializable, \IteratorAggregate, \Coun
 	 */
 	public function setDefaultValueHandler($callable)
 	{
-		$this->m_defaultValueHandler = $callable;
-		foreach ($this->m_elements as $k => &$v)
+		$this->defaultValueHandler = $callable;
+		foreach ($this->elements as $k => &$v)
 		{
 			if ($v instanceof DataTree)
 			{
@@ -442,14 +442,14 @@ class DataTree implements \ArrayAccess, \Serializable, \IteratorAggregate, \Coun
 	 *
 	 * @var integer
 	 */
-	private $m_flags;
+	private $dataTreeFlags;
 
 	/**
 	 * Setting map
 	 *
 	 * @var \ArrayObject
 	 */
-	private $m_elements;
+	private $elements;
 
-	private $m_defaultValueHandler;
+	private $defaultValueHandler;
 }
