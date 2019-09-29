@@ -1,9 +1,36 @@
 <?php
 namespace NoreSources;
 
+class SemanticVersionRuleException extends \ErrorException
+{
+
+	/**
+	 *
+	 * @param integer $rulePoint
+	 *        	Unsatisfied semantic versioning rule point.
+	 * @param string $message
+	 *        	Rule
+	 * @param mixed $value
+	 *        	Invalid value
+	 */
+	public function __construct($rulePoint, $message, $value)
+	{
+		parent::__construct(
+			$value . ' does not respect Semantic Versioning rule #' . $rulePoint . ': ' . $message .
+			'.' . PHP_EOL . 'See https://semver.org', $rulePoint);
+	}
+}
+
+/**
+ * Pre-release and build metadata parts
+ */
 final class SemanticPostfixedData extends \ArrayObject
 {
 
+	/**
+	 *
+	 * @param mixed $data
+	 */
 	public function __construct($data)
 	{
 		parent::__construct(array());
@@ -17,15 +44,12 @@ final class SemanticPostfixedData extends \ArrayObject
 
 	public function offsetSet($offset, $value)
 	{
-		if (!(\is_numeric($offset) || is_null($offset)))
+		if (!(\is_numeric($offset) || \is_null($offset)))
 		{
 			throw new \InvalidArgumentException('Non-numeric key "' . strval($offset) . '"');
 		}
-		if (!self::validate($value))
-		{
-			throw new \InvalidArgumentException($value . ' is not a valid build metadata string');
-		}
 
+		self::validate($value);
 		parent::offsetSet($offset, $value);
 	}
 
@@ -47,15 +71,19 @@ final class SemanticPostfixedData extends \ArrayObject
 				$this->append($value);
 			}
 		}
+		elseif (\is_numeric($data))
+			$this->append($data);
+		else
+			throw new \InvalidArgumentException(
+				'Invalid value type ' . TypeDescription::getName($data));
 	}
 
+	/**
+	 * Append part
+	 */
 	public function append($value)
 	{
-		if (!self::validate($value))
-		{
-			throw new \InvalidArgumentException($value . ' is not a valid build metadata string');
-		}
-
+		self::validate($value);
 		return parent::append($value);
 	}
 
@@ -134,12 +162,20 @@ final class SemanticPostfixedData extends \ArrayObject
 		return 0;
 	}
 
+	/**
+	 *
+	 * @param mixed $value
+	 * @throws SemanticVersionRuleException
+	 */
 	private static function validate($value)
 	{
 		if (preg_match(chr(1) . '^0+[0-9]*$' . chr(1), $value))
-			return false; // Numeric identifiers MUST NOT include leading zeroes
+			throw new SemanticVersionRuleException(9,
+				'Numeric identifiers MUST NOT include leading zeroes', $value);
 
-		return preg_match(chr(1) . '^[A-Za-z0-9-]+$' . chr(1), $value);
+		if (!preg_match(chr(1) . '^[A-Za-z0-9-]+$' . chr(1), $value))
+			throw new SemanticVersionRuleException(9, 'Invalid pre-release/build metadata format',
+				$value);
 	}
 
 	private static function compareString($a, $b)
@@ -210,7 +246,7 @@ class SemanticVersion
 			$this->minor = intval($version / $p) % $p;
 			$this->major = intval($version / ($p * $p));
 		}
-		elseif (is_string($version))
+		elseif (\is_string($version))
 		{
 			$matches = array();
 			if (preg_match(chr(1) . '^([0-9.]+)(-(.+?))?(\+(.+?))?$' . chr(1), $version, $matches))
@@ -246,7 +282,8 @@ class SemanticVersion
 		else
 		{
 			$t = is_object($version) ? get_class($version) : gettype($version);
-			throw new \InvalidArgumentException($t . ' is not a valid argument');
+			throw new \InvalidArgumentException(
+				TypeDescription::getName($t) . ' ' . var_export($t, true));
 		}
 	}
 
@@ -310,50 +347,50 @@ class SemanticVersion
 		switch ($member)
 		{
 			case self::MAJOR:
+				if (is_int($value) && $value >= 0)
 				{
-					if (is_int($value) && $value >= 0)
-					{
-						$this->major = $value;
-					}
-					else
-						throw new \InvalidArgumentException($value);
+					$this->major = $value;
 				}
+				else
+					throw new \InvalidArgumentException($value);
 			break;
 			case self::METADATA:
-				{
-					$this->metadata->set($value);
-				}
+				$this->metadata->set($value);
 			break;
 			case self::MINOR:
+				if (is_int($value) && $value >= 0)
 				{
-					if (is_int($value) && $value >= 0)
-					{
-						$this->minor = $value;
-					}
-					else
-						throw new \InvalidArgumentException($value);
+					$this->minor = $value;
 				}
+				else
+					throw new \InvalidArgumentException($value);
 			break;
 			case self::PATCH:
+				if (is_int($value) && $value >= 0)
 				{
-					if (is_int($value) && $value >= 0)
-					{
-						$this->patch = $value;
-					}
-					else
-						throw new \InvalidArgumentException($value);
+					$this->patch = $value;
 				}
+				else
+					throw new \InvalidArgumentException($value);
 			break;
 			case self::PRE_RELEASE:
-				{
-					$this->prerelease->set($value);
-				}
+				$this->prerelease->set($value);
 			break;
 		}
 
 		throw new \InvalidArgumentException($member);
 	}
 
+	/**
+	 *
+	 * @method boolean compare (mixed $version)
+	 * @param string $name
+	 *        	Method name
+	 * @param array $arguments
+	 *        	Method arguments
+	 * @throws \InvalidArgumentException
+	 * @return mixed
+	 */
 	public function __call($name, $arguments)
 	{
 		if ($name == 'compare')
@@ -368,6 +405,16 @@ class SemanticVersion
 		throw new \InvalidArgumentException($name . ' is not callable');
 	}
 
+	/**
+	 *
+	 * @method boolean compare (mixed $version)
+	 * @param string $name
+	 *        	Method name
+	 * @param array $arguments
+	 *        	Method arguments
+	 * @throws \InvalidArgumentException
+	 * @return mixed
+	 */
 	public static function __callstatic($name, $arguments)
 	{
 		if ($name == 'compare')
@@ -382,9 +429,10 @@ class SemanticVersion
 	}
 
 	/**
+	 * Compare two versions
 	 *
-	 * @param unknown $a
-	 * @param unknown $b
+	 * @param mixed $a
+	 * @param mixed $b
 	 * @return number <ul>
 	 *         <li>&lt; 0 if @c $a have lower precedence than @c $b/li>
 	 *         <li>0 if @c $a have the same precedence than @c $b/li>
