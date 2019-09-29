@@ -3,6 +3,7 @@ spl_autoload_register(function($className) {
 	$className = strtolower ($className);
 	$classMap = array (
 		'noresources\path' => 'src/Path.php',
+		'noresources\stack' => 'src/Stack.php',
 		'noresources\uri' => 'src/URI.php',
 		'noresources\datetime' => 'src/DateTime.php',
 		'noresources\typedescription' => 'src/TypeDescription.php',
