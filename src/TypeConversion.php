@@ -1,5 +1,4 @@
 <?php
-
 namespace NoreSources;
 
 use phpDocumentor\Reflection\Types\Integer;
@@ -11,9 +10,9 @@ class TypeConversionException extends \Exception
 
 	public function __construct($value, $method, $message = null)
 	{
-		parent::__construct('Failed to convert ' . TypeDescription::getName($value) .
-			' to ' . preg_replace(',.*::to(.*),', '\1', $method) .
-			($message ? (' : ' . $message) : ''));
+		parent::__construct(
+			'Failed to convert ' . TypeDescription::getName($value) . ' to ' .
+			preg_replace(',.*::to(.*),', '\1', $method) . ($message ? (' : ' . $message) : ''));
 
 		$this->value = $value;
 	}
@@ -28,13 +27,17 @@ class TypeConversion
 		if (\method_exists(self::class, $methodName))
 			return call_user_func ([self::class, $methodName], $value, $fallback);
 
-		throw new \BadMethodCallException('Mo method to convert to ' . $type . ' (' . $methodName . ' not found)');
+		throw new \BadMethodCallException(
+			'Mo method to convert to ' . $type . ' (' . $methodName . ' not found)');
 	}
 
 	/**
 	 * Convert value to POD array
-	 * @param mixed $value Value to convert
-	 * @param callable $fallback A cacallback to invoke if the method is nuable to convert the value e
+	 *
+	 * @param mixed $value
+	 *        	Value to convert
+	 * @param callable $fallback
+	 *        	A cacallback to invoke if the method is nuable to convert the value e
 	 * @throws TypeConversionException
 	 * @return array
 	 */
@@ -54,8 +57,11 @@ class TypeConversion
 
 	/**
 	 * Convert value to DateTime
-	 * @param mixed $value Value to convert
-	 * @param callable $fallback A cacallback to invoke if the method is nuable to convert the value e
+	 *
+	 * @param mixed $value
+	 *        	Value to convert
+	 * @param callable $fallback
+	 *        	A cacallback to invoke if the method is nuable to convert the value e
 	 * @throws TypeConversionException
 	 * @return \DateTime
 	 */
@@ -110,8 +116,11 @@ class TypeConversion
 
 	/**
 	 * Convert value to integer
-	 * @param mixed $value Value to convert
-	 * @param callable $fallback A cacallback to invoke if the method is nuable to convert the value e
+	 *
+	 * @param mixed $value
+	 *        	Value to convert
+	 * @param callable $fallback
+	 *        	A cacallback to invoke if the method is nuable to convert the value e
 	 * @throws TypeConversionException
 	 * @return Integer
 	 */
@@ -139,8 +148,11 @@ class TypeConversion
 
 	/**
 	 * Convert value to float
-	 * @param mixed $value Value to convert
-	 * @param callable $fallback A cacallback to invoke if the method is nuable to convert the value e
+	 *
+	 * @param mixed $value
+	 *        	Value to convert
+	 * @param callable $fallback
+	 *        	A cacallback to invoke if the method is nuable to convert the value e
 	 * @throws TypeConversionException
 	 * @return float
 	 */
@@ -169,8 +181,10 @@ class TypeConversion
 	/**
 	 * Convert value to string
 	 *
-	 * @param mixed $value Value to convert
-	 * @param callable $fallback A cacallback to invoke if the method is nuable to convert the value e
+	 * @param mixed $value
+	 *        	Value to convert
+	 * @param callable $fallback
+	 *        	A cacallback to invoke if the method is nuable to convert the value e
 	 * @throws TypeConversionException
 	 * @return string
 	 */
@@ -179,8 +193,7 @@ class TypeConversion
 		if ($value instanceof \DateTime)
 			return $value->format(\DateTIme::ISO8601);
 
-		if ((\is_object($value) && !\method_exists($value, '__toString')) ||
-			\is_array($value))
+		if ((\is_object($value) && !\method_exists($value, '__toString')) || \is_array($value))
 		{
 			if (\is_callable($fallback))
 				return call_user_func($fallback, $value);
@@ -200,7 +213,9 @@ class TypeConversion
 
 	/**
 	 * Convert value to boolean
-	 * @param mixed $value Value to convert
+	 *
+	 * @param mixed $value
+	 *        	Value to convert
 	 * @return boolean
 	 */
 	public static function toBoolean($value)

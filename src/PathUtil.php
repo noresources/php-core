@@ -6,6 +6,7 @@
  */
 
 /**
+ *
  * @package Core
  */
 namespace NoreSources;
@@ -14,6 +15,7 @@ class PathUtil
 {
 
 	/**
+	 *
 	 * @param string $path
 	 * @return string
 	 */
@@ -51,8 +53,11 @@ class PathUtil
 
 	/**
 	 * Get the relative path from a path to another
-	 * @param string $from Absolute directory path
-	 * @param string $to Absolute directory path
+	 *
+	 * @param string $from
+	 *        	Absolute directory path
+	 * @param string $to
+	 *        	Absolute directory path
 	 *		@relurn Relative path from @param $from to @param $to
 	 */
 	public static function getRelative($from, $to)
@@ -66,7 +71,7 @@ class PathUtil
 		$toCount = count($to);
 		$min = ($fromCount < $toCount) ? $fromCount : $toCount;
 		$commonPartsCount = 0;
-		$result = array ();
+		$result = array();
 		while (($commonPartsCount < $min) && ($from[$commonPartsCount] == $to[$commonPartsCount]))
 		{
 			$commonPartsCount++;

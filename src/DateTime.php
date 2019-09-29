@@ -6,6 +6,7 @@
  */
 
 /**
+ *
  * @package Core
  */
 namespace NoreSources;
@@ -14,6 +15,7 @@ class DateTime extends \DateTime
 {
 
 	/**
+	 *
 	 * @param string $time
 	 * @param \DateTimeZone $timezone
 	 */
@@ -25,31 +27,33 @@ class DateTime extends \DateTime
 	/**
 	 * Create a DateTime from a DateTime description array
 	 *
-	 * @param array $array An associative array with one of the following key/value pairs
-	 *        <ul>
-	 *        <li>DateTime state. The same array format output by var_export().
-	 *        <ul>
-	 *        <li>date: Timestamp without timezone information</li>
-	 *        <li>timezone_type: Timezone type
-	 *        <ol>
-	 *        <li>UTC offset (ex. +0100)</li>
-	 *        <li>Timezone abbreviation (ex. CET)</li>
-	 *        <li>Timezone identifier (@see https://www.php.net/manual/en/class.datetimezone.php)</li>
-	 *        </ol>
-	 *        </li>
-	 *        <li>timezone: Timezone value</li>
-	 *        </ul>
-	 *        </li>
-	 *        <li>DateTimestamp and format
-	 *        <ul>
-	 *        <li>time Timestamp</li>
-	 *        <li>format: Format string</li>
-	 *        <li>timezone: (optional) \DateTimeZone or valid timezone identifier</li>
-	 *        </ul>
-	 *        </li>
-	 *        </ul>
-	 * @param boolean $baseClass Return a built-in \DateTime instance. Otherwise, return a \NoreSources\DateTime (with no
-	 *        particular benefits)
+	 * @param array $array
+	 *        	An associative array with one of the following key/value pairs
+	 *        	<ul>
+	 *        	<li>DateTime state. The same array format output by var_export().
+	 *        	<ul>
+	 *        	<li>date: Timestamp without timezone information</li>
+	 *        	<li>timezone_type: Timezone type
+	 *        	<ol>
+	 *        	<li>UTC offset (ex. +0100)</li>
+	 *        	<li>Timezone abbreviation (ex. CET)</li>
+	 *        	<li>Timezone identifier (@see https://www.php.net/manual/en/class.datetimezone.php)</li>
+	 *        	</ol>
+	 *        	</li>
+	 *        	<li>timezone: Timezone value</li>
+	 *        	</ul>
+	 *        	</li>
+	 *        	<li>DateTimestamp and format
+	 *        	<ul>
+	 *        	<li>time Timestamp</li>
+	 *        	<li>format: Format string</li>
+	 *        	<li>timezone: (optional) \DateTimeZone or valid timezone identifier</li>
+	 *        	</ul>
+	 *        	</li>
+	 *        	</ul>
+	 * @param boolean $baseClass
+	 *        	Return a built-in \DateTime instance. Otherwise, return a \NoreSources\DateTime (with no
+	 *        	particular benefits)
 	 * @throws \InvalidArgumentException
 	 * @return DateTime
 	 *
@@ -68,8 +72,7 @@ class DateTime extends \DateTime
 				$timezone = $instance->getTimezone();
 			}
 		}
-		elseif (Container::keyExists($array, 'format') &&
-			Container::keyExists($array, 'time'))
+		elseif (Container::keyExists($array, 'format') && Container::keyExists($array, 'time'))
 		{
 			$timezone = Container::keyValue($array, 'timezone', null);
 			if (\is_string($timezone))
@@ -77,7 +80,8 @@ class DateTime extends \DateTime
 				$timezone = new \DateTimeZone($timezone);
 			}
 
-			$instance = \DateTime::createFromFormat(Container::keyValue($array, 'format'), Container::keyValue($array, 'time'), $timezone);
+			$instance = \DateTime::createFromFormat(Container::keyValue($array, 'format'),
+				Container::keyValue($array, 'time'), $timezone);
 		}
 
 		if ($instance instanceof \DateTime)
@@ -88,12 +92,13 @@ class DateTime extends \DateTime
 			return new DateTime($instance->format(\DateTime::ISO8601), $timezone);
 		}
 
-		throw new \InvalidArgumentException(var_export($array, true) .
-			' is not a valid DateTime array');
+		throw new \InvalidArgumentException(
+			var_export($array, true) . ' is not a valid DateTime array');
 	}
 
 	/**
 	 * Indicate if the given array can be used to create a DateTime using DateTime::__set_state() magic method.
+	 *
 	 * @param array $array
 	 * @return boolean
 	 */
@@ -101,10 +106,10 @@ class DateTime extends \DateTime
 	{
 		if (Container::isArray($array))
 		{
-			$stateKeys = array (
-					'date',
-					'timezone',
-					'timezone_type'
+			$stateKeys = array(
+				'date',
+				'timezone',
+				'timezone_type'
 			);
 
 			$c = 0;

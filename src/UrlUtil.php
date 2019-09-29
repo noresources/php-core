@@ -6,6 +6,7 @@
  */
 
 /**
+ *
  * @package Core
  */
 namespace NoreSources;
@@ -20,7 +21,9 @@ class UrlUtil
 	 */
 	public static function getHost()
 	{
-		return \array_key_exists('HTTP_HOST', $_SERVER) ? $_SERVER['HTTP_HOST'] : (\array_key_exists('SERVER_NAME', $_SERVER) ? $_SERVER['SERVER_NAME'] : (\array_key_exists('SERVER_ADDR', $_SERVER) ? $_SERVER['SERVER_ADDR'] : null));
+		return \array_key_exists('HTTP_HOST', $_SERVER) ? $_SERVER['HTTP_HOST'] : (\array_key_exists(
+			'SERVER_NAME', $_SERVER) ? $_SERVER['SERVER_NAME'] : (\array_key_exists('SERVER_ADDR',
+			$_SERVER) ? $_SERVER['SERVER_ADDR'] : null));
 	}
 
 	/**
@@ -30,8 +33,10 @@ class UrlUtil
 	 */
 	public static function getScheme()
 	{
-		if (\array_key_exists('SERVER_PROTOCOL', $_SERVER)) {
-			return strtolower(preg_replace(chr(1) . '([A-Za-z]+)/.*' . chr(1), '$1', $_SERVER['SERVER_PROTOCOL']));
+		if (\array_key_exists('SERVER_PROTOCOL', $_SERVER))
+		{
+			return strtolower(
+				preg_replace(chr(1) . '([A-Za-z]+)/.*' . chr(1), '$1', $_SERVER['SERVER_PROTOCOL']));
 		}
 
 		return 'file';
@@ -40,10 +45,11 @@ class UrlUtil
 	/**
 	 * Cleanup URL
 	 * - Remove unecessary /../ etc.
+	 *
 	 * @param string $url
 	 * @return string Cleaned URL
 	 */
-	public static function cleanup ($url)
+	public static function cleanup($url)
 	{
 		$url = preg_replace(chr(1) . '/[^/]+/\.\.(/|$)' . chr(1), '\1', $url);
 		$url = preg_replace(chr(1) . '/\.(/|$)' . chr(1), '\1', $url);

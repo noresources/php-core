@@ -6,12 +6,15 @@
  */
 
 /**
+ *
  * @package Core
  */
 namespace NoreSources;
 
 const kTokenTypeUnknown = -1;
+
 const kTokenTypeString = 0;
+
 const kTokenTypeElement = 1;
 
 /**
@@ -59,6 +62,7 @@ const kTokenOutputIgnorePhpTags = 0x08;
 const kTokenOutputIgnoreInlineHTML = 0x18;
 
 /**
+ *
  * @var integer
  */
 const kTokenOutputIgnoreComments = 0x20;
@@ -69,10 +73,13 @@ class SourceToken
 	/**
 	 * Move to the next token kind
 	 *
-	 * @param array $tokens A token arary given by \token_get_all()
-	 * @param int $tokenIndex Index of the current token
-	 * @param mixed $nextElementType Token to search
-	 *       
+	 * @param array $tokens
+	 *        	A token arary given by \token_get_all()
+	 * @param int $tokenIndex
+	 *        	Index of the current token
+	 * @param mixed $nextElementType
+	 *        	Token to search
+	 *        	
 	 * @return The
 	 */
 	public static function move_next(&$tokens, &$tokenIndex, $nextElementType)
@@ -82,13 +89,11 @@ class SourceToken
 		while ($tokenIndex < $c)
 		{
 			$token = $tokens[$tokenIndex];
-			if (\is_array($token) && \is_int($nextElementType) &&
-				($token[0] == $nextElementType))
+			if (\is_array($token) && \is_int($nextElementType) && ($token[0] == $nextElementType))
 			{
 				return $token;
 			}
-			elseif (is_string($token) && is_string($nextElementType) &&
-				($token == $nextElementType))
+			elseif (is_string($token) && is_string($nextElementType) && ($token == $nextElementType))
 			{
 				return $token;
 			}
@@ -102,7 +107,8 @@ class SourceToken
 	/**
 	 * Get token type
 	 *
-	 * @param mixed $token a element of the token array given by \token_get_all()
+	 * @param mixed $token
+	 *        	a element of the token array given by \token_get_all()
 	 * @return integer One of kTokenType* constants
 	 */
 	public static function type($token)
@@ -122,25 +128,26 @@ class SourceToken
 	/**
 	 * Get the list of namespace declarations
 	 *
-	 * @param array $tokens A token arary given by \token_get_all()
+	 * @param array $tokens
+	 *        	A token arary given by \token_get_all()
 	 * @return multitype:
 	 */
 	public static function get_namespaces(&$tokens)
 	{
-		$namespaces = array ();
+		$namespaces = array();
 		$visitor = SourceToken::get_visitor($tokens);
 
 		// Search for namespaces
 		$ns = null;
 		while (($ns = $visitor->moveToToken(T_NAMESPACE)))
 		{
-			$search = $visitor->queryNextTokens(array (
-					T_STRING,
-					'{',
-					';'
+			$search = $visitor->queryNextTokens(array(
+				T_STRING,
+				'{',
+				';'
 			), true);
 			ksort($search);
-			list ( $index, $entry ) = each($search);
+			list ($index, $entry) = each($search);
 			$token = $entry['token'];
 			$name = '';
 			if ((SourceToken::type($token) == kTokenTypeElement) && ($token[0] == T_STRING))
@@ -148,9 +155,9 @@ class SourceToken
 				$name = $token[1];
 			}
 
-			$item = array (
-					'index' => $visitor->key(),
-					'name' => $name
+			$item = array(
+				'index' => $visitor->key(),
+				'name' => $name
 			);
 
 			$namespaces[] = $item;
@@ -160,7 +167,9 @@ class SourceToken
 	}
 
 	/**
-	 * @param mixed $token An element of the token array given by \token_get_all()
+	 *
+	 * @param mixed $token
+	 *        	An element of the token array given by \token_get_all()
 	 */
 	public static function value($token)
 	{
@@ -176,7 +185,9 @@ class SourceToken
 	}
 
 	/**
-	 * @param array $tokens A token array given by \token_get_all()
+	 *
+	 * @param array $tokens
+	 *        	A token array given by \token_get_all()
 	 */
 	public static function get_visitor(&$tokens)
 	{
@@ -200,49 +211,65 @@ class SourceToken
 			$openTag = $visitor->moveToToken(T_OPEN_TAG);
 		}
 
-		while ($visitor->valid()) {
+		while ($visitor->valid())
+		{
 			$token = $visitor->current();
 			$type = SourceToken::type($token);
 			$value = SourceToken::value($token);
 
-			if ($type == kTokenTypeString) {
+			if ($type == kTokenTypeString)
+			{
 				$output .= $value;
-			} elseif ($type == kTokenTypeElement) {
-				switch ($token[0]) {
+			}
+			elseif ($type == kTokenTypeElement)
+			{
+				switch ($token[0])
+				{
 					case T_OPEN_TAG_WITH_ECHO:
 						{
-							if ($flags & kTokenOutputIgnorePhpTags) {
+							if ($flags & kTokenOutputIgnorePhpTags)
+							{
 								$output .= 'echo (';
 								$echoTag = true;
-							} else {
+							}
+							else
+							{
 								$output .= $value;
 							}
 						}
-						break;
+					break;
 					case T_OPEN_TAG:
 						{
-							if (! ($flags & kTokenOutputIgnorePhpTags)) {
+							if (!($flags & kTokenOutputIgnorePhpTags))
+							{
 								$output .= $value;
 							}
 
-							if (($flags & kTokenOutputForceNamespace) && (count($namespaces) == 0)) {
+							if (($flags & kTokenOutputForceNamespace) && (count($namespaces) == 0))
+							{
 								$output .= 'namespace';
 								$s = ($flags & kTokenOutputCondensedWhitespaces) ? $condensedWhitespace : PHP_EOL;
 								$output .= $s . '{' . $s;
 							}
 						}
-						break;
+					break;
 					case T_CLOSE_TAG:
 						{
-							if ($echoTag) {
+							if ($echoTag)
+							{
 								echo ');';
-							} else {
-								if (($flags & kTokenOutputForceNamespace) && (count($namespaces) == 0)) {
+							}
+							else
+							{
+								if (($flags & kTokenOutputForceNamespace) &&
+									(count($namespaces) == 0))
+								{
 									$s = ($flags & kTokenOutputCondensedWhitespaces) ? $condensedWhitespace : PHP_EOL;
 									$output .= $s . '}';
 								}
 
-								if (! ($flags & kTokenOutputIgnorePhpTags)) {
+								if (!($flags & kTokenOutputIgnorePhpTags))
+								{
 									$output .= $value;
 								}
 							}
@@ -250,31 +277,34 @@ class SourceToken
 						}
 					case T_INLINE_HTML:
 						{
-							if (! ($flags & kTokenOutputIgnoreInlineHTML)) {
+							if (!($flags & kTokenOutputIgnoreInlineHTML))
+							{
 								$output .= $value;
 							}
 						}
-						break;
+					break;
 					case T_WHITESPACE:
 						{
 							$output .= (($flags & kTokenOutputCondensedWhitespaces) ? $condensedWhitespace : $value);
 						}
-						break;
+					break;
 					case T_COMMENT:
 					case T_DOC_COMMENT:
 						{
-							if (! ($flags & kTokenOutputIgnoreComments)) {
+							if (!($flags & kTokenOutputIgnoreComments))
+							{
 								$output .= $value;
 							}
 						}
-						break;
+					break;
 					default:
 						$output .= $value;
 				}
 			}
 
 			$visitor->next();
-			if (strlen($output)) {
+			if (strlen($output))
+			{
 				$condensedWhitespace = ' ';
 			}
 		}
@@ -286,36 +316,41 @@ class SourceToken
 	 * Dump token table to a condensed format
 	 *
 	 * @param unknown $tokens
-	 *			Token array given by \token_get_all ()
+	 *        	Token array given by \token_get_all ()
 	 * @param string $eol
-	 *			A string to add after each entry output
+	 *        	A string to add after each entry output
 	 * @param number $flags
-	 *			Display options
+	 *        	Display options
 	 */
 	public static function dump($tokens, $eol = PHP_EOL, $flags = 0)
 	{
 		$i = 0;
 		$result = '';
-		foreach ($tokens as $t) {
+		foreach ($tokens as $t)
+		{
 			$type = SourceToken::type($t);
 			$name = ($type == kTokenTypeElement) ? SourceToken::name($t[0]) : 'string';
 			$value = SourceToken::value($t);
 
-			if (($flags & kTokenDumpCondensedWhitespaces) && ($type == kTokenTypeElement) && ($t[1] == T_WHITESPACE)) {
+			if (($flags & kTokenDumpCondensedWhitespaces) && ($type == kTokenTypeElement) &&
+				($t[1] == T_WHITESPACE))
+			{
 				$value = '';
 			}
 
-			if ($flags & kTokenDumpSingleLine) {
+			if ($flags & kTokenDumpSingleLine)
+			{
 				$value = str_replace("\r", '<CR>', str_replace("\n", '<LF>', $value));
 			}
 
-			if ($i > 0) {
+			if ($i > 0)
+			{
 				$result .= $eol;
 			}
 
 			$result .= '[' . $i . ', ' . $name . '] <' . $value . '>';
 
-			$i ++;
+			$i++;
 		}
 
 		return $result;
@@ -331,13 +366,13 @@ class TokenVisitor implements \iterator, \ArrayAccess, \Countable
 	/**
 	 *
 	 * @param array $tokens
-	 *			A token array given by \token_get_all()
+	 *        	A token array given by \token_get_all()
 	 */
 	public function __construct(&$tokens)
 	{
 		$this->tokenArray = $tokens;
 		$this->tokenCount = count($this->tokenArray);
-		$this->tokenIndex = - 1;
+		$this->tokenIndex = -1;
 		$this->state = array();
 	}
 
@@ -349,9 +384,12 @@ class TokenVisitor implements \iterator, \ArrayAccess, \Countable
 	 */
 	public function setTokenIndex($index)
 	{
-		if ($index < 0) {
-			$this->tokenIndex = - 1;
-		} elseif ($index >= $this->tokenCount) {
+		if ($index < 0)
+		{
+			$this->tokenIndex = -1;
+		}
+		elseif ($index >= $this->tokenCount)
+		{
 			$this->tokenIndex = $this->tokenCount;
 		}
 
@@ -363,7 +401,7 @@ class TokenVisitor implements \iterator, \ArrayAccess, \Countable
 	 * Move iterator the the next token of the given type
 	 *
 	 * @param mixed $nextElementType
-	 *			One of the php parser token type or a string
+	 *        	One of the php parser token type or a string
 	 * @return mixed An element of the token array or @null if the given token type was not found
 	 */
 	public function moveToToken($nextElementType)
@@ -375,18 +413,19 @@ class TokenVisitor implements \iterator, \ArrayAccess, \Countable
 	 * Search position of a set of tokens types after the current token
 	 *
 	 * @param array $nextElementTypes
-	 *			Array of token types
+	 *        	Array of token types
 	 * @param boolean $tokenIndexAsResultKey
-	 *			If @true,
-	 *			the result array keys are the search result token indexes.
+	 *        	If @true,
+	 *        	the result array keys are the search result token indexes.
 	 * @return array of search result
-	 *		 A search result is an associative array with the following keys
-	 *		 * index: Token index in token array
-	 *		 * token: Token information
+	 *         A search result is an associative array with the following keys
+	 *         * index: Token index in token array
+	 *         * token: Token information
 	 */
 	public function queryNextTokens($nextElementTypes, $tokenIndexAsResultKey = false)
 	{
-		if (! is_array($nextElementTypes)) {
+		if (!is_array($nextElementTypes))
+		{
 			$nextElementTypes = array(
 				$nextElementTypes
 			);
@@ -394,15 +433,19 @@ class TokenVisitor implements \iterator, \ArrayAccess, \Countable
 
 		$s = $this->key();
 		$result = array();
-		foreach ($nextElementTypes as $e) {
+		foreach ($nextElementTypes as $e)
+		{
 			$t = $this->moveToToken($e);
 			$r = array(
 				'index' => $this->key(),
 				'token' => $t
 			);
-			if ($tokenIndexAsResultKey) {
+			if ($tokenIndexAsResultKey)
+			{
 				$result[$this->key()] = $r;
-			} else {
+			}
+			else
+			{
 				$result[] = $r;
 			}
 			$this->setTokenIndex($s);
@@ -429,7 +472,8 @@ class TokenVisitor implements \iterator, \ArrayAccess, \Countable
 	 */
 	public function popState()
 	{
-		if (count($this->state)) {
+		if (count($this->state))
+		{
 			$this->tokenIndex = array_pop();
 		}
 
@@ -449,10 +493,14 @@ class TokenVisitor implements \iterator, \ArrayAccess, \Countable
 	// Iterator
 	public function current()
 	{
-		if ($this->tokenIndex < 0) {
-			if ($this->tokenCount) {
+		if ($this->tokenIndex < 0)
+		{
+			if ($this->tokenCount)
+			{
 				$this->next();
-			} else {
+			}
+			else
+			{
 				return null;
 			}
 		}
@@ -461,7 +509,7 @@ class TokenVisitor implements \iterator, \ArrayAccess, \Countable
 
 	public function next()
 	{
-		$this->tokenIndex ++;
+		$this->tokenIndex++;
 	}
 
 	public function key()
@@ -476,7 +524,7 @@ class TokenVisitor implements \iterator, \ArrayAccess, \Countable
 
 	public function rewind()
 	{
-		$this->tokenIndex = - 1;
+		$this->tokenIndex = -1;
 	}
 
 	// ArrayAccess
@@ -541,7 +589,7 @@ class SourceFile
 	/**
 	 *
 	 * @param string $fileName
-	 *			PHP source file path
+	 *        	PHP source file path
 	 */
 	public function __construct($fileName)
 	{
