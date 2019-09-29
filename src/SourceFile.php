@@ -84,18 +84,18 @@ class SourceToken
 	 */
 	public static function getNamespaces(&$tokens)
 	{
-		$namespaces = array();
+		$namespaces = [];
 		$visitor = SourceToken::getVisitor($tokens);
 
 		// Search for namespaces
 		$ns = null;
 		while (($ns = $visitor->moveToToken(T_NAMESPACE)))
 		{
-			$search = $visitor->queryNextTokens(array(
+			$search = $visitor->queryNextTokens([
 				T_STRING,
 				'{',
 				';'
-			), true);
+			], true);
 			ksort($search);
 			list ($index, $entry) = each($search);
 			$token = $entry['token'];
@@ -105,10 +105,10 @@ class SourceToken
 				$name = $token[1];
 			}
 
-			$item = array(
+			$item = [
 				'index' => $visitor->key(),
 				'name' => $name
-			);
+			];
 
 			$namespaces[] = $item;
 		}
@@ -324,7 +324,7 @@ class TokenVisitor implements \iterator, \ArrayAccess, \Countable
 		$this->tokenArray = $tokens;
 		$this->tokenCount = count($this->tokenArray);
 		$this->tokenIndex = -1;
-		$this->state = array();
+		$this->state = [];
 	}
 
 	/**
@@ -377,20 +377,20 @@ class TokenVisitor implements \iterator, \ArrayAccess, \Countable
 	{
 		if (!is_array($nextElementTypes))
 		{
-			$nextElementTypes = array(
+			$nextElementTypes = [
 				$nextElementTypes
-			);
+			];
 		}
 
 		$s = $this->key();
-		$result = array();
+		$result = [];
 		foreach ($nextElementTypes as $e)
 		{
 			$t = $this->moveToToken($e);
-			$r = array(
+			$r = [
 				'index' => $this->key(),
 				'token' => $t
-			);
+			];
 			if ($tokenIndexAsResultKey)
 			{
 				$result[$this->key()] = $r;
@@ -595,7 +595,7 @@ class SourceFile
 	public function __construct($fileName)
 	{
 		$this->tokens = \token_get_all(file_get_contents($fileName));
-		$this->namespaces = array();
+		$this->namespaces = [];
 		$this->parse();
 	}
 

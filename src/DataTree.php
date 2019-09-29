@@ -70,7 +70,7 @@ class DataTree implements \ArrayAccess, \Serializable, \IteratorAggregate, \Coun
 	 * @param array $data
 	 *        	Initial data
 	 */
-	public function __construct($data = array())
+	public function __construct($data = [])
 	{
 		$this->elements = new \ArrayObject();
 		if (is_array($data) || ($data instanceof \Traversable))
@@ -259,7 +259,7 @@ class DataTree implements \ArrayAccess, \Serializable, \IteratorAggregate, \Coun
 	 */
 	public function toArray()
 	{
-		$a = array();
+		$a = [];
 		foreach ($this->elements as $key => $value)
 		{
 			$a[$key] = (is_object($value) && ($value instanceof DataTree)) ? $value->toArray() : $value;

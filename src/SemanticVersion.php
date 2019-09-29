@@ -33,7 +33,7 @@ final class SemanticPostfixedData extends \ArrayObject
 	 */
 	public function __construct($data)
 	{
-		parent::__construct(array());
+		parent::__construct();
 		$this->set($data);
 	}
 
@@ -55,7 +55,7 @@ final class SemanticPostfixedData extends \ArrayObject
 
 	public function set($data)
 	{
-		$this->exchangeArray(array());
+		$this->exchangeArray([]);
 
 		if (\is_string($data))
 		{
@@ -248,7 +248,7 @@ class SemanticVersion
 		}
 		elseif (\is_string($version))
 		{
-			$matches = array();
+			$matches = [];
 			if (preg_match(chr(1) . '^([0-9.]+)(-(.+?))?(\+(.+?))?$' . chr(1), $version, $matches))
 			{
 				$v = explode('.', $matches[1]);
@@ -396,10 +396,10 @@ class SemanticVersion
 		if ($name == 'compare')
 		{
 			array_unshift($arguments, $this);
-			return call_user_func_array(array(
+			return call_user_func_array([
 				get_called_class(),
 				'compareVersions'
-			), $arguments);
+			], $arguments);
 		}
 
 		throw new \InvalidArgumentException($name . ' is not callable');
@@ -419,10 +419,10 @@ class SemanticVersion
 	{
 		if ($name == 'compare')
 		{
-			return call_user_func_array(array(
+			return call_user_func_array([
 				get_called_class(),
 				'compareVersions'
-			), $arguments);
+			], $arguments);
 		}
 
 		throw new \InvalidArgumentException($name . ' is not callable statically');

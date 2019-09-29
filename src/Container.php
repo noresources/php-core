@@ -144,7 +144,7 @@ class Container
 			}
 			elseif (\is_array($container) || (($container instanceof \Traversable) && $relax))
 			{
-				$t = \is_object($container) ? new \ArrayObject() : array();
+				$t = \is_object($container) ? new \ArrayObject() : [];
 				foreach ($container as $k => $v)
 				{
 					if ($k !== $key)
@@ -197,7 +197,7 @@ class Container
 			}
 			else
 			{
-				$a = array();
+				$a = [];
 				foreach ($anything as $k => $v)
 				{
 					$a[$k] = $v;
@@ -208,9 +208,9 @@ class Container
 		}
 
 		if ($singleElementKey !== null)
-			return array(
+			return [
 				$singleElementKey => $anything
-			);
+			];
 
 		return null;
 	}
@@ -424,7 +424,7 @@ class Container
 	 * @return string
 	 */
 	public static function implodeValues($container, $glue, $callable = null,
-		$callableArguments = array ())
+		$callableArguments = [])
 	{
 		return self::implode($container, $glue, self::IMPLODE_VALUES, $callable, $callableArguments);
 	}
@@ -442,7 +442,7 @@ class Container
 	 * @return string
 	 */
 	public static function implodeKeys($container, $glue, $callable = null,
-		$callableArguments = array ())
+		$callableArguments = [])
 	{
 		return self::implode($container, $glue, self::IMPLODE_KEYS, $callable, $callableArguments);
 	}
@@ -460,7 +460,7 @@ class Container
 	 * @return string
 	 */
 	public static function implode($container, $glue, $what, $callable = null,
-		$callableArguments = array())
+		$callableArguments = [])
 	{
 		if (self::isArray($glue) && is_string($container))
 		{
@@ -478,9 +478,9 @@ class Container
 
 		if (!self::isArray($callableArguments))
 		{
-			$callableArguments = array(
+			$callableArguments = [
 				$callableArguments
-			);
+			];
 		}
 
 		foreach ($container as $k => $v)
@@ -488,7 +488,7 @@ class Container
 			$r = '';
 			if (\is_callable($callable))
 			{
-				$a = array();
+				$a =[];
 				if ($what & self::IMPLODE_KEYS)
 					$a[] = $k;
 				if ($what & self::IMPLODE_VALUES)

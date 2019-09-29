@@ -71,7 +71,7 @@ class Path
 		$toCount = count($to);
 		$min = ($fromCount < $toCount) ? $fromCount : $toCount;
 		$commonPartsCount = 0;
-		$result = array();
+		$result = [];
 		while (($commonPartsCount < $min) && ($from[$commonPartsCount] == $to[$commonPartsCount]))
 		{
 			$commonPartsCount++;

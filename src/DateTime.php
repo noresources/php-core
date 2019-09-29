@@ -106,11 +106,11 @@ class DateTime extends \DateTime
 	{
 		if (Container::isArray($array))
 		{
-			$stateKeys = array(
+			$stateKeys = [
 				'date',
 				'timezone',
 				'timezone_type'
-			);
+			];
 
 			$c = 0;
 			foreach ($stateKeys as $key)
