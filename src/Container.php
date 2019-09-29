@@ -330,6 +330,10 @@ class Container
 
 			return false;
 		}
+		elseif (\is_object($container) && \is_string ($key))
+		{
+			return (\property_exists($container, $key));
+		}
 
 		throw new InvalidContainerException($container, __METHOD__);
 	}
@@ -337,7 +341,7 @@ class Container
 	/**
 	 * Indicates if the given value appears in the container elements
 	 *
-	 * @param mixed $container
+	 * @param array|\ArrayAccess|\Traversable $container
 	 * @param mixed $value
 	 *        	Value to check in @c $container
 	 * @param boolean $strict
@@ -410,8 +414,53 @@ class Container
 
 			return $defaultValue;
 		}
+		elseif (\is_object($container) && \is_string ($key))
+		{
+			if (\property_exists($container, $key) || \method_exists($container, '__get'))
+			{
+				return $container->$key;
+			}
+			
+			return $defaultValue;
+		}
 
 		throw new InvalidContainerException($element);
+	}
+	
+	
+	/**
+	 * 
+	 * @param array|\ArrayAccess|\Traversable $container
+	 * @param mixed $key
+	 * @param mixed $value
+	 * 
+	 * @throws \InvalidArgumentException
+	 * @throws InvalidContainerException
+	 */
+	public function setValue (&$container, $key, $value)
+	{
+		if (\is_array ($container))
+		{
+			$container[$key] = $value;
+			return;
+		}
+		elseif ($container instanceof \ArrayAccess)
+		{
+			$container->offsetSet($key, $value);
+			return;
+		}
+		elseif (\is_object($container) && \is_string ($key))
+		{
+			if (\property_exists($container, $key) || \method_exists($container, '__set'))
+			{
+				$container->$key = $value;
+				return;
+			}
+			
+			throw new \InvalidArgumentException( $key . ' is not a member of ' . TypeDescription::getName($container) );
+		}
+		
+		throw new InvalidContainerException($container);
 	}
 
 	/**
