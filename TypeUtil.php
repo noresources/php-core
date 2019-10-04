@@ -34,10 +34,10 @@ class TypeUtil
 
 			// Always expec ISO format
 			$d = \DateTime::createFromFormat(\DateTime::ISO8601, $value);
-			if (!($d instanceof \DateTime))
-				throw new \Exception(__METHOD__ . ' Failed to convert string "' . $value . '" to DateTime');
-
-			return $d;
+			if ($d instanceof \DateTime)
+				return $d;
+			
+			return (new \DateTime ($value));
 		}
 		elseif (\is_array($value))
 		{
