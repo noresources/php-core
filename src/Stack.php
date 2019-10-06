@@ -110,7 +110,8 @@ class Stack implements \Countable
 	/**
 	 * Attempt to get the given property of the top-most element of the stack
 	 *
-	 * @param string $member Array key or object property
+	 * @param string $member
+	 *        	Array key or object property
 	 * @throws \InvalidArgumentException
 	 * @return mixed|array|\ArrayAccess|\Traversable
 	 */
@@ -127,7 +128,9 @@ class Stack implements \Countable
 
 	/**
 	 * Attempt to set the value of the given property of hte top most element of the stack.
-	 * @param string $member Array key or object property
+	 *
+	 * @param string $member
+	 *        	Array key or object property
 	 * @param mixed $value
 	 * @throws \InvalidArgumentException
 	 * @return mixed
@@ -135,16 +138,17 @@ class Stack implements \Countable
 	public function __set($member, $value)
 	{
 		$e = $this->top();
-		
+
 		if (Container::keyExists($e, $member))
 		{
 			Container::setValue($e, $member, $value);
 			return;
 		}
-			
-		throw new \InvalidArgumentException($member . ' is not a member of ' . TypeDescription::getName($e));
+
+		throw new \InvalidArgumentException(
+			$member . ' is not a member of ' . TypeDescription::getName($e));
 	}
-	
+
 	/**
 	 *
 	 * @var array

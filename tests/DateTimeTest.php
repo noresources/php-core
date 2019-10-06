@@ -1,5 +1,4 @@
 <?php
-
 namespace NoreSources;
 
 use PHPUnit\Framework\TestCase;
@@ -23,8 +22,8 @@ final class DateTimeTest extends TestCase
 			$this->assertArrayHasKey('timezone_type', $exported);
 
 			$fromArray = DateTime::createFromArray($exported);
-			$this->assertEquals($dateTime->format(\DateTime::ISO8601), $fromArray->format(\DateTime::ISO8601), $time .
-				' - From array');
+			$this->assertEquals($dateTime->format(\DateTime::ISO8601),
+				$fromArray->format(\DateTime::ISO8601), $time . ' - From array');
 		}
 	}
 }

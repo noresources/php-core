@@ -1,5 +1,4 @@
 <?php
-
 namespace NoreSources;
 
 use PHPUnit\Framework\TestCase;
@@ -22,8 +21,7 @@ final class TypeConversionTest extends TestCase
 
 		foreach ($input as $value)
 		{
-			$dt = TypeConversion::toArray($value, function ($value)
-			{
+			$dt = TypeConversion::toArray($value, function ($value) {
 				return 'fallback';
 			});
 			$this->assertEquals('fallback', $dt, var_export($value, true));
@@ -40,8 +38,7 @@ final class TypeConversionTest extends TestCase
 
 		foreach ($input as $value)
 		{
-			$actual = TypeConversion::toInteger($value, function ($value)
-			{
+			$actual = TypeConversion::toInteger($value, function ($value) {
 				return 'fallback';
 			});
 			$this->assertEquals('fallback', $actual, var_export($value, true));
@@ -63,8 +60,8 @@ final class TypeConversionTest extends TestCase
 		foreach ($input as $value)
 		{
 			$actual = TypeConversion::toInteger($value);
-			$this->assertEquals('integer', \gettype($actual), var_export($value, true) .
-				' is string type');
+			$this->assertEquals('integer', \gettype($actual),
+				var_export($value, true) . ' is string type');
 		}
 	}
 
@@ -77,8 +74,7 @@ final class TypeConversionTest extends TestCase
 
 		foreach ($input as $value)
 		{
-			$actual = TypeConversion::toString($value, function ($value)
-			{
+			$actual = TypeConversion::toString($value, function ($value) {
 				return 'fallback';
 			});
 			$this->assertEquals('fallback', $actual, var_export($value, true));
@@ -98,8 +94,8 @@ final class TypeConversionTest extends TestCase
 		foreach ($input as $value)
 		{
 			$actual = TypeConversion::toString($value);
-			$this->assertEquals('string', \gettype($actual), var_export($value, true) .
-				' is string type');
+			$this->assertEquals('string', \gettype($actual),
+				var_export($value, true) . ' is string type');
 		}
 	}
 
@@ -114,8 +110,7 @@ final class TypeConversionTest extends TestCase
 
 		foreach ($input as $value)
 		{
-			$dt = TypeConversion::toDateTime($value, function ($value)
-			{
+			$dt = TypeConversion::toDateTime($value, function ($value) {
 				return 'fallback';
 			});
 			$this->assertEquals('fallback', $dt, var_export($value, true));
@@ -141,8 +136,7 @@ final class TypeConversionTest extends TestCase
 
 	public function testShorthand()
 	{
-		$fallback = function ($value)
-		{
+		$fallback = function ($value) {
 			return 'fallback';
 		};
 
@@ -185,7 +179,6 @@ final class TypeConversionTest extends TestCase
 
 			$this->assertEquals('success', $message);
 			$this->assertEquals($expected, $actual);
-			
 		}
 	}
 }

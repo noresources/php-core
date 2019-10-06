@@ -100,7 +100,8 @@ class SourceToken
 			list ($index, $entry) = each($search);
 			$token = $entry['token'];
 			$name = '';
-			if ((SourceToken::getType($token) == SourceToken::TYPE_ELEMENT) && ($token[0] == T_STRING))
+			if ((SourceToken::getType($token) == SourceToken::TYPE_ELEMENT) &&
+				($token[0] == T_STRING))
 			{
 				$name = $token[1];
 			}

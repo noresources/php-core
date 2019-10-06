@@ -29,7 +29,7 @@ final class StackTest extends TestCase
 		$stack->push(new \DateInterval('P2000Y3M1D'));
 		$this->assertEquals(2000, $stack->y);
 	}
-	
+
 	public function testSet()
 	{
 		$stack = new Stack();
@@ -37,7 +37,7 @@ final class StackTest extends TestCase
 		$stack->y = 2019;
 		$this->assertEquals(2019, $stack->y);
 	}
-	
+
 	public function testTopCall()
 	{
 		$stack = new Stack();
@@ -53,7 +53,7 @@ final class StackTest extends TestCase
 		$f = function ($value) {
 			return $value;
 		};
-		
+
 		$stack->push($f);
 		$stack->push(42);
 

@@ -72,16 +72,16 @@ class DataTree implements \ArrayAccess, \Serializable, \IteratorAggregate, \Coun
 	 */
 	public function __construct($data = [])
 	{
-		$this->elements = new \ArrayObject();
-		if (is_array($data) || ($data instanceof \Traversable))
+	$this->elements = new \ArrayObject();
+	if (is_array($data) || ($data instanceof \Traversable))
+	{
+		foreach ($data as $k => $v)
 		{
-			foreach ($data as $k => $v)
-			{
-				$this->offsetSet($k, $v);
-			}
+			$this->offsetSet($k, $v);
 		}
-		$this->dataTreeFlags = 0;
 	}
+	$this->dataTreeFlags = 0;
+}
 
 	/**
 	 * String representation
