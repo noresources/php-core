@@ -2,6 +2,7 @@
 namespace NoreSources;
 
 use phpDocumentor\Reflection\Types\Integer;
+use phpDocumentor\Reflection\Types\Boolean;
 
 class TypeConversionException extends \Exception
 {
@@ -20,6 +21,46 @@ class TypeConversionException extends \Exception
 
 		$this->value = $value;
 	}
+}
+
+interface IntegerConversion
+{
+
+	/**
+	 *
+	 * @return integer Integer representation of the class instance
+	 */
+	function getIntegerValue();
+}
+
+interface FloatConversion
+{
+
+	/**
+	 *
+	 * @return float Float representation of the class instance
+	 */
+	function getFloatValue();
+}
+
+interface BooleanConversion
+{
+
+	/**
+	 *
+	 * @return boolean Boolean representation of the class instance
+	 */
+	function getBooleanValue();
+}
+
+interface ArrayConversion
+{
+
+	/**
+	 *
+	 * @return array Array representation of the class instance
+	 */
+	function getArrayCopy();
 }
 
 class TypeConversion
@@ -140,6 +181,9 @@ class TypeConversion
 	 */
 	public static function toInteger($value, $fallback = null)
 	{
+		if ($value instanceof IntegerConversion)
+			return $value->getIntegerValue();
+
 		if ($value instanceof \DateTime)
 			return $value->getTimestamp();
 		elseif (\is_bool($value))
@@ -172,6 +216,9 @@ class TypeConversion
 	 */
 	public static function toFloat($value, $fallback = null)
 	{
+		if ($value instanceof FloatConversion)
+			return $value->getFloatValue();
+
 		if ($value instanceof \DateTime)
 			return unixtojd($value->getTimestamp());
 		elseif (\is_bool($value))
@@ -234,6 +281,8 @@ class TypeConversion
 	 */
 	public static function toBoolean($value)
 	{
+		if ($value instanceof BooleanConversion)
+			return $value->getBooleanValue();
 		return @boolval($value);
 	}
 

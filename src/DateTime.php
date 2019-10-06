@@ -11,7 +11,7 @@
  */
 namespace NoreSources;
 
-class DateTime extends \DateTime
+class DateTime extends \DateTime implements IntegerConversion, FloatConversion
 {
 
 	/**
@@ -123,5 +123,23 @@ class DateTime extends \DateTime
 		}
 
 		return false;
+	}
+
+	/**
+	 * 
+	 * @return integer UNIX time
+	 */
+	public function getIntegerValue()
+	{
+		return $this->getTimestamp();
+	}
+
+	/**
+	 * 
+	 * @return float Julian day
+	 */
+	public function getFloatValue()
+	{
+		return unixtojd($this->getTimestamp());
 	}
 }

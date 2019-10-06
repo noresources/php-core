@@ -62,7 +62,7 @@ const kDataTreeLoadMerge = 2;
 /**
  * Serializable data tree structure
  */
-class DataTree implements \ArrayAccess, \Serializable, \IteratorAggregate, \Countable
+class DataTree implements \ArrayAccess, \Serializable, \IteratorAggregate, \Countable, ArrayConversion
 {
 
 	/**
@@ -231,7 +231,7 @@ class DataTree implements \ArrayAccess, \Serializable, \IteratorAggregate, \Coun
 	 */
 	public function serialize()
 	{
-		return json_encode($this->toArray());
+		return json_encode($this->getArrayCopy());
 	}
 
 	/**
@@ -252,17 +252,18 @@ class DataTree implements \ArrayAccess, \Serializable, \IteratorAggregate, \Coun
 		}
 	}
 
+
 	/**
 	 * Convert the DataTree to a regular PHP array
 	 *
 	 * @return array
 	 */
-	public function toArray()
+	public function getArrayCopy()
 	{
 		$a = [];
 		foreach ($this->elements as $key => $value)
 		{
-			$a[$key] = (is_object($value) && ($value instanceof DataTree)) ? $value->toArray() : $value;
+			$a[$key] = (is_object($value) && ($value instanceof DataTree)) ? $value->getArrayCopy() : $value;
 		}
 
 		return $a;
@@ -435,6 +436,14 @@ class DataTree implements \ArrayAccess, \Serializable, \IteratorAggregate, \Coun
 				$v->setDefaultValueHandler($callable);
 			}
 		}
+	}
+
+	/**
+	* @deprecated Kept for backward compatibility. Use getArrayCopy() 
+	 */
+	public function toArray()
+	{
+		return $this->getArrayCopy();
 	}
 
 	/**

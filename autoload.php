@@ -16,6 +16,10 @@ spl_autoload_register(
 			'noresources\semanticpostfixeddata' => 'src/SemanticVersion.php',
 			'noresources\semanticversion' => 'src/SemanticVersion.php',
 			'noresources\typeconversionexception' => 'src/TypeConversion.php',
+		'noresources\integerconversion' => 'src/TypeConversion.php',
+		'noresources\floatconversion' => 'src/TypeConversion.php',
+		'noresources\booleanconversion' => 'src/TypeConversion.php',
+		'noresources\arrayconversion' => 'src/TypeConversion.php',
 			'noresources\typeconversion' => 'src/TypeConversion.php',
 			'noresources\invalidcontainerexception' => 'src/Container.php',
 			'noresources\container' => 'src/Container.php'

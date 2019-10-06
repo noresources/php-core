@@ -177,8 +177,14 @@ final class TypeConversionTest extends TestCase
 				$message = $e->getMessage();
 			}
 
-			$this->assertEquals('success', $message);
-			$this->assertEquals($expected, $actual);
+			$this->assertEquals('success', $message,
+				'Successful conversion from ' . TypeDescription::getName($value) . ' to ' . $type);
+
+			if ($message == 'sucess')
+			{
+				$this->assertEquals($type, TypeDescription::getName($actual), 'Type name');
+				$this->assertEquals($expected, $actual, 'Converted value type');
+			}
 		}
 	}
 }
