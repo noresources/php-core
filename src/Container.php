@@ -464,6 +464,30 @@ class Container
 	}
 
 	/**
+	 * String to prepend before each array element.
+	 * @var unknown
+	 */
+	const IMPLODE_BEFORE = 'before';
+	
+	/**
+	 * String to append after each array element.
+	 * @var unknown
+	 */
+	const IMPLODE_AFTER  = 'after';
+	
+	/**
+	 * String to insert between two elements of the array.
+	 * @var unknown
+	 */
+	const IMPLODE_BETWEEN = 'between';
+	
+	/**
+	 * String to insert between the penultimate and last element of the array.
+	 * @var unknown
+	 */
+	const IMPLODE_BETWEEN_LAST = 'last'; 
+	
+	/**
 	 * Implode array values
 	 *
 	 * @param array $container
@@ -472,10 +496,41 @@ class Container
 	 *        	Element glue
 	 * @return string
 	 */
-	public static function implodeValues($container, $glue, $callable = null,
-		$callableArguments = [])
+	public static function implodeValues($container, $glue, $callable = null, $callableArguments = array())
 	{
-		return self::implode($container, $glue, self::IMPLODE_VALUES, $callable, $callableArguments);
+		$a = '';
+		$b = '';
+		$i = $glue;
+		$p = $glue;
+		if (self::isArray($glue))
+		{
+			$a = self::keyValue($glue, self::IMPLODE_AFTER);
+			$b = self::keyValue($glue, self::IMPLODE_BEFORE);
+			$i = self::keyValue($glue, self::IMPLODE_BETWEEN);
+			$p = self::keyValue($glue, self::IMPLODE_BETWEEN_LAST);
+		}
+	
+		$count = self::count($container);
+		$index = 0;
+		$result = '';
+		foreach ($container as $k => $v)
+		{
+			if ($index > 0)
+			{
+				$result .= ($index - ($count - 1) ? $i : $p);
+			}
+	
+			if (\is_callable($callable))
+				$result .= $b . call_user_func_array(
+					$callable, 
+					\array_merge([$v], $callableArguments)
+					) . $a;
+			else
+				$result .= $b . TypeConversion::toString($v) . $a;
+			$index++;
+		}
+	
+		return $result;
 	}
 
 	/**
@@ -491,9 +546,41 @@ class Container
 	 * @return string
 	 */
 	public static function implodeKeys($container, $glue, $callable = null,
-		$callableArguments = [])
+		$callableArguments = array ())
 	{
-		return self::implode($container, $glue, self::IMPLODE_KEYS, $callable, $callableArguments);
+		$a = '';
+		$b = '';
+		$i = $glue;
+		$p = $glue;
+		if (self::isArray($glue))
+		{
+			$a = self::keyValue($glue, self::IMPLODE_AFTER);
+			$b = self::keyValue($glue, self::IMPLODE_BEFORE);
+			$i = self::keyValue($glue, self::IMPLODE_BETWEEN);
+			$p = self::keyValue($glue, self::IMPLODE_BETWEEN_LAST);
+		}
+		
+		$count = self::count($container);
+		$index = 0;
+		$result = '';
+		foreach ($container as $k => $v)
+		{
+			if ($index > 0)
+			{
+				$result .= ($index - ($count - 1) ? $i : $p);
+			}
+			
+			if (\is_callable($callable))
+				$result .= $b . call_user_func_array(
+					$callable,
+					\array_merge([$k], $callableArguments)
+					) . $a;
+					else
+						$result .= $b . TypeConversion::toString($k) . $a;
+						$index++;
+		}
+		
+		return $result;
 	}
 
 	/**
@@ -508,67 +595,36 @@ class Container
 	 *
 	 * @return string
 	 */
-	public static function implode($container, $glue, $what, $callable = null,
-		$callableArguments = [])
+	public static function implode($container, $glue, $callable, $callableArguments = [])
 	{
-		if (self::isArray($glue) && is_string($container))
-		{
-			$a = $glue;
-			$glue = $container;
-			$container = $a;
-		}
+	$a = '';
+	$b = '';
+	$i = $glue;
+	$p = $glue;
 
-		if (!self::isArray($container) || self::count($container) == 0)
-		{
-			return '';
-		}
-
-		$result = '';
-
-		if (!self::isArray($callableArguments))
-		{
-			$callableArguments = [
-				$callableArguments
-			];
-		}
-
-		foreach ($container as $k => $v)
-		{
-			$r = '';
-			if (\is_callable($callable))
-			{
-				$a =[];
-				if ($what & self::IMPLODE_KEYS)
-					$a[] = $k;
-				if ($what & self::IMPLODE_VALUES)
-					$a[] = $v;
-				$r = call_user_func_array($callable, array_merge($a, $callableArguments));
-			}
-			else 
-				if ($what & self::IMPLODE_VALUES)
-				{
-					$r = $v;
-				}
-				else 
-					if ($what & self::IMPLODE_KEYS)
-					{
-						$r = $k;
-					}
-
-			if (strlen($r) == 0)
-			{
-				continue;
-			}
-
-			if (strlen($result) > 0)
-			{
-				$result .= $glue;
-			}
-
-			$result .= $r;
-		}
-
-		return $result;
+	if (self::isArray($glue))
+	{
+		$a = self::keyValue($glue, self::IMPLODE_AFTER);
+		$b = self::keyValue($glue, self::IMPLODE_BEFORE);
+		$i = self::keyValue($glue, self::IMPLODE_BETWEEN);
+		$p = self::keyValue($glue, self::IMPLODE_BETWEEN_LAST);
 	}
+
+	$count = self::count($container);
+	$index = 0;
+	$result = '';
+	foreach ($container as $k => $v)
+	{
+		if ($index > 0)
+		{
+			$result .= ($index - ($count - 1) ? $i : $p);
+		}
+			
+			$result .= $b . call_user_func_array($callable, \array_merge([$k, $v], $callableArguments)) . $a;
+		$index++;
+	}
+
+	return $result;
+}
 }
 

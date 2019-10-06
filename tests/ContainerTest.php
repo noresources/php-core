@@ -62,7 +62,7 @@ class ArrayAccessImpl implements \ArrayAccess
 
 $hashReferenceImpl = new ArrayAccessImpl($hashReference);
 
-final class ContainerIsArrayTest extends TestCase
+final class ContainerTest extends TestCase
 {
 
 	public function testPODArrayIsArray()
@@ -87,37 +87,29 @@ final class ContainerIsArrayTest extends TestCase
 		$o = new SimpleClass();
 		$this->assertEquals(false, Container::isArray($o));
 	}
-}
 
-final class ContainerValueExistsTest extends TestCase
-{
-
-	public function testCountArray()
+	public function testValueExists()
 	{
 		global $indexedReference;
 		$this->assertEquals(true, Container::valueExists($indexedReference, 'two'));
 		$this->assertEquals(false, Container::valueExists($indexedReference, 'deux'));
 	}
-}
 
-final class ContainerValueSetTest extends TestCase
-{
-
-	public function testArray()
+	public function testSetValueArray()
 	{
 		$a = [ 'hello' => 'everyone', 'good' => 'bye' ];
 		Container::setValue($a, 'hello', 'world');
 		$this->assertEquals('world', $a['hello']);
 	}
 
-	public function testArrayAccess()
+	public function testSetValueArrayAccess()
 	{
 		$a = new \ArrayObject([ 'hello' => 'everyone', 'good' => 'bye' ]);
 		Container::setValue($a, 'hello', 'world');
 		$this->assertEquals('world', $a['hello']);
 	}
 
-	public function testArbitraryClass()
+	public function testSetValueArbitraryClass()
 	{
 		$a = new \stdClass();
 		$a->hello = 'world';
@@ -127,29 +119,43 @@ final class ContainerValueSetTest extends TestCase
 		$this->assertEquals('world', $a->hello);
 	}
 
-	public function testArbitraryClassInvalidMember()
+	public function testSetValueArbitraryClassInvalidMember()
 	{
 		$a = new \stdClass();
 		$a->hello = 'world';
 		$a->good = 'bye';
+
+		$exception = null;
+		try
+		{
+			Container::setValue($a, 'undefied', 42);
+		}
+		catch (\Exception $e)
+		{
+			$exception = $e;
+		}
 		
-		$this->expectException(\InvalidArgumentException::class);
-		Container::setValue($a, 'undefied', 42);
+		$this->assertInstanceOf(\InvalidArgumentException::class, $exception);
 	}
 
-	public function testArbitraryClassInvalidKey()
+	public function testSetValueArbitraryClassInvalidKey()
 	{
 		$a = new \stdClass();
 		$a->hello = 'world';
 		$a->good = 'bye';
-		
-		$this->expectException(InvalidContainerException::class);
-		Container::setValue($a, 2, 42);
-	}
-}
 
-final class ContainerCountTest extends TestCase
-{
+		$exception = null;
+		try
+		{
+			Container::setValue($a, 2, 42);
+		}
+		catch (\Exception $e)
+		{
+			$exception = $e;
+		}
+		
+		$this->assertInstanceOf(InvalidContainerException::class, $exception);
+	}
 
 	public function testCountArray()
 	{
@@ -213,10 +219,15 @@ final class ContainerCountTest extends TestCase
 			}
 		}
 	}
-}
 
-final class ContainerRemoveKeyTest extends TestCase
-{
+	public function testImplodeValueBasic()
+	{
+		global $indexedReference;
+		$builtin = \implode(', ', $indexedReference);
+		$ns = Container::implodeValues($indexedReference, ', ');
+
+		$this->assertEquals($builtin, $ns, 'implodeValue basically mimics the implode function');
+	}
 
 	public function testremoveKeyArrayCopy()
 	{
