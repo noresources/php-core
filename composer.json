@@ -15,8 +15,11 @@
 	},
 	"autoload": {
 		"psr-4": {
-			"NoreSources\\": "./src"
-		}
+			"NoreSources\\": "src/"
+		},
+		"files": [
+			"autoload.php"
+		]
 	},
 	"scripts": {
 		"tests": "@php  ./vendor/bin/phpunit --bootstrap autoload.php tests"
