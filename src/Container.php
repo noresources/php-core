@@ -260,7 +260,7 @@ class Container
 	 *        	Array, \Countable or \Traversable object
 	 * @throws InvalidContainerException
 	 * @return number Number of elements in $container
-	 *        
+	 *
 	 */
 	public static function count($container)
 	{
@@ -330,7 +330,7 @@ class Container
 
 			return false;
 		}
-		elseif (\is_object($container) && \is_string ($key))
+		elseif (\is_object($container) && \is_string($key))
 		{
 			return (\property_exists($container, $key));
 		}
@@ -346,7 +346,7 @@ class Container
 	 *        	Value to check in @c $container
 	 * @param boolean $strict
 	 *        	If @c true, use the strict equal (===) operator
-	 *        	
+	 *
 	 * @throws InvalidContainerException
 	 *
 	 * @return boolean @c true if @c $value appears in @c $container
@@ -414,32 +414,31 @@ class Container
 
 			return $defaultValue;
 		}
-		elseif (\is_object($container) && \is_string ($key))
+		elseif (\is_object($container) && \is_string($key))
 		{
 			if (\property_exists($container, $key) || \method_exists($container, '__get'))
 			{
 				return $container->$key;
 			}
-			
+
 			return $defaultValue;
 		}
 
 		throw new InvalidContainerException($element);
 	}
-	
-	
+
 	/**
-	 * 
+	 *
 	 * @param array|\ArrayAccess|\Traversable $container
 	 * @param mixed $key
 	 * @param mixed $value
-	 * 
+	 *
 	 * @throws \InvalidArgumentException
 	 * @throws InvalidContainerException
 	 */
-	public function setValue (&$container, $key, $value)
+	public function setValue(&$container, $key, $value)
 	{
-		if (\is_array ($container))
+		if (\is_array($container))
 		{
 			$container[$key] = $value;
 			return;
@@ -449,44 +448,49 @@ class Container
 			$container->offsetSet($key, $value);
 			return;
 		}
-		elseif (\is_object($container) && \is_string ($key))
+		elseif (\is_object($container) && \is_string($key))
 		{
 			if (\property_exists($container, $key) || \method_exists($container, '__set'))
 			{
 				$container->$key = $value;
 				return;
 			}
-			
-			throw new \InvalidArgumentException( $key . ' is not a member of ' . TypeDescription::getName($container) );
+
+			throw new \InvalidArgumentException(
+				$key . ' is not a member of ' . TypeDescription::getName($container));
 		}
-		
+
 		throw new InvalidContainerException($container);
 	}
 
 	/**
 	 * String to prepend before each array element.
+	 *
 	 * @var unknown
 	 */
 	const IMPLODE_BEFORE = 'before';
-	
+
 	/**
 	 * String to append after each array element.
+	 *
 	 * @var unknown
 	 */
-	const IMPLODE_AFTER  = 'after';
-	
+	const IMPLODE_AFTER = 'after';
+
 	/**
 	 * String to insert between two elements of the array.
+	 *
 	 * @var unknown
 	 */
 	const IMPLODE_BETWEEN = 'between';
-	
+
 	/**
 	 * String to insert between the penultimate and last element of the array.
+	 *
 	 * @var unknown
 	 */
-	const IMPLODE_BETWEEN_LAST = 'last'; 
-	
+	const IMPLODE_BETWEEN_LAST = 'last';
+
 	/**
 	 * Implode array values
 	 *
@@ -496,7 +500,8 @@ class Container
 	 *        	Element glue
 	 * @return string
 	 */
-	public static function implodeValues($container, $glue, $callable = null, $callableArguments = array())
+	public static function implodeValues($container, $glue, $callable = null,
+		$callableArguments = array())
 	{
 		$a = '';
 		$b = '';
@@ -509,28 +514,29 @@ class Container
 			$i = self::keyValue($glue, self::IMPLODE_BETWEEN);
 			$p = self::keyValue($glue, self::IMPLODE_BETWEEN_LAST);
 		}
-	
-		$count = self::count($container);
-		$index = 0;
-		$result = '';
-		foreach ($container as $k => $v)
+		if (\is_callable($callable))
 		{
-			if ($index > 0)
+			$parts = [];
+			foreach ($container as $k => $v)
 			{
-				$result .= ($index - ($count - 1) ? $i : $p);
+				$part = call_user_func_array($callable, \array_merge([
+					$v
+				], $callableArguments));
+
+				if ($part !== false)
+					$parts[] = $part;
 			}
-	
-			if (\is_callable($callable))
-				$result .= $b . call_user_func_array(
-					$callable, 
-					\array_merge([$v], $callableArguments)
-					) . $a;
-			else
-				$result .= $b . TypeConversion::toString($v) . $a;
-			$index++;
 		}
-	
-		return $result;
+		else
+		{
+			$parts = [];
+			foreach ($container as $key => $value)
+			{
+				$parts[] = $value;
+			}
+		}
+
+		return self::implodeParts($parts, $b, $i, $p, $a);
 	}
 
 	/**
@@ -540,13 +546,13 @@ class Container
 	 *        	Table
 	 * @param string $glue
 	 *        	Element glue
-	 *        	
+	 *
 	 *		@note This function accepts parameter inversion
 	 *
 	 * @return string
 	 */
 	public static function implodeKeys($container, $glue, $callable = null,
-		$callableArguments = array ())
+		$callableArguments = array())
 	{
 		$a = '';
 		$b = '';
@@ -559,28 +565,30 @@ class Container
 			$i = self::keyValue($glue, self::IMPLODE_BETWEEN);
 			$p = self::keyValue($glue, self::IMPLODE_BETWEEN_LAST);
 		}
-		
-		$count = self::count($container);
-		$index = 0;
-		$result = '';
-		foreach ($container as $k => $v)
+
+		if (\is_callable($callable))
 		{
-			if ($index > 0)
+			$parts = [];
+			foreach ($container as $k => $v)
 			{
-				$result .= ($index - ($count - 1) ? $i : $p);
+				$part = call_user_func_array($callable, \array_merge([
+					$k
+				], $callableArguments));
+
+				if ($part !== false)
+					$parts[] = $part;
 			}
-			
-			if (\is_callable($callable))
-				$result .= $b . call_user_func_array(
-					$callable,
-					\array_merge([$k], $callableArguments)
-					) . $a;
-					else
-						$result .= $b . TypeConversion::toString($k) . $a;
-						$index++;
 		}
-		
-		return $result;
+		else
+		{
+			$parts = [];
+			foreach ($container as $key => $value)
+			{
+				$parts[] = $key;
+			}
+		}
+
+		return self::implodeParts($parts, $b, $i, $p, $a);
 	}
 
 	/**
@@ -595,36 +603,53 @@ class Container
 	 *
 	 * @return string
 	 */
-	public static function implode($container, $glue, $callable, $callableArguments = [])
+	public static function implode($container, $glue, $callable, $callableArguments = array())
 	{
-	$a = '';
-	$b = '';
-	$i = $glue;
-	$p = $glue;
+		$a = '';
+		$b = '';
+		$i = $glue;
+		$p = $glue;
 
-	if (self::isArray($glue))
-	{
-		$a = self::keyValue($glue, self::IMPLODE_AFTER);
-		$b = self::keyValue($glue, self::IMPLODE_BEFORE);
-		$i = self::keyValue($glue, self::IMPLODE_BETWEEN);
-		$p = self::keyValue($glue, self::IMPLODE_BETWEEN_LAST);
-	}
-
-	$count = self::count($container);
-	$index = 0;
-	$result = '';
-	foreach ($container as $k => $v)
-	{
-		if ($index > 0)
+		if (self::isArray($glue))
 		{
-			$result .= ($index - ($count - 1) ? $i : $p);
+			$a = self::keyValue($glue, self::IMPLODE_AFTER);
+			$b = self::keyValue($glue, self::IMPLODE_BEFORE);
+			$i = self::keyValue($glue, self::IMPLODE_BETWEEN);
+			$p = self::keyValue($glue, self::IMPLODE_BETWEEN_LAST);
 		}
-			
-			$result .= $b . call_user_func_array($callable, \array_merge([$k, $v], $callableArguments)) . $a;
-		$index++;
+
+		$parts = [];
+		foreach ($container as $k => $v)
+		{
+			$part = call_user_func_array($callable, \array_merge([
+				$k,
+				$v
+			], $callableArguments));
+
+			if ($part !== false)
+				$parts[] = $part;
+		}
+
+		return self::implodeParts($parts, $b, $i, $p, $a);
 	}
 
-	return $result;
-}
+	private static function implodeParts($parts, $b, $i, $p, $a)
+	{
+		$count = self::count($parts);
+		$index = 0;
+		$result = '';
+		foreach ($parts as $part)
+		{
+			if ($index > 0)
+			{
+				$result .= ($index - ($count - 1) ? $i : $p);
+			}
+
+			$result .= $b . $part . $a;
+			$index++;
+		}
+
+		return $result;
+	}
 }
 

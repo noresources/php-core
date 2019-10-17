@@ -97,14 +97,20 @@ final class ContainerTest extends TestCase
 
 	public function testSetValueArray()
 	{
-		$a = [ 'hello' => 'everyone', 'good' => 'bye' ];
+		$a = [
+			'hello' => 'everyone',
+			'good' => 'bye'
+		];
 		Container::setValue($a, 'hello', 'world');
 		$this->assertEquals('world', $a['hello']);
 	}
 
 	public function testSetValueArrayAccess()
 	{
-		$a = new \ArrayObject([ 'hello' => 'everyone', 'good' => 'bye' ]);
+		$a = new \ArrayObject([
+			'hello' => 'everyone',
+			'good' => 'bye'
+		]);
 		Container::setValue($a, 'hello', 'world');
 		$this->assertEquals('world', $a['hello']);
 	}
@@ -134,7 +140,7 @@ final class ContainerTest extends TestCase
 		{
 			$exception = $e;
 		}
-		
+
 		$this->assertInstanceOf(\InvalidArgumentException::class, $exception);
 	}
 
@@ -153,7 +159,7 @@ final class ContainerTest extends TestCase
 		{
 			$exception = $e;
 		}
-		
+
 		$this->assertInstanceOf(InvalidContainerException::class, $exception);
 	}
 
@@ -227,6 +233,72 @@ final class ContainerTest extends TestCase
 		$ns = Container::implodeValues($indexedReference, ', ');
 
 		$this->assertEquals($builtin, $ns, 'implodeValue basically mimics the implode function');
+	}
+
+	/**
+	 * Test ability to skip elements
+	 */
+	public function testImplodeValueSparse()
+	{
+		$source = [
+			0 => 'zero',
+			1 => 'one',
+			2 => false,
+			3 => 'three',
+			4 => false,
+			5 => false,
+			7 => 'seven'
+		];
+
+		$glue = [
+			'before' => '[',
+			'after' => ']',
+			'between' => ', ',
+			'last' => ' and '
+		];
+
+		$even = '[zero], [] and []';
+		$evenStrings = '[zero]';
+		$odd = '[one], [three], [] and [seven]';
+		$stringValues = '[zero], [one], [three] and [seven]';
+
+		$evenResult = Container::implode($source, $glue,
+			function ($k, $v) {
+				if ($k % 2 == 0)
+					return strval($v);
+				return false;
+			});
+
+		$this->assertEquals($even, $evenResult, 'Only even indexes');
+
+		$evenStringsResult = Container::implode($source, $glue,
+			function ($k, $v) {
+				if ($k % 2 == 1)
+					return false;
+				if ($v === false)
+					return false;
+				return strval($v);
+			});
+
+		$this->assertEquals($evenStrings, $evenStringsResult, 'Filter odd keys and false values');
+
+		$oddResult = Container::implode($source, $glue,
+			function ($k, $v) {
+				if ($k % 2 == 0)
+					return false;
+				return strval($v);
+			});
+
+		$this->assertEquals($odd, $oddResult);
+
+		$stringValuesResult = Container::implodeValues($source, $glue,
+			function ($v) {
+				if ($v === false)
+					return false;
+				return strval($v);
+			});
+
+		$this->assertEquals($stringValues, $stringValuesResult, 'Only string values');
 	}
 
 	public function testremoveKeyArrayCopy()
