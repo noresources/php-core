@@ -203,7 +203,7 @@ final class SemanticPostfixedData extends \ArrayObject
  *
  * @see https://semver.org/
  */
-class SemanticVersion
+class SemanticVersion implements StringConversion, IntegerConversion
 {
 
 	const MAJOR = 'major';
@@ -299,6 +299,11 @@ class SemanticVersion
 		return $s;
 	}
 
+	public function getIntegerValue()
+	{
+		return ($this->patch + $this->minor * 100 + $this->major * 10000);
+	}
+
 	/**
 	 *
 	 * @property-read integer $major Major
@@ -306,7 +311,7 @@ class SemanticVersion
 	 * @property-read integer $patch Patch level
 	 * @property-read string $prerelease Pre-release data
 	 * @property-read string $metadata Metadata
-	 *               
+	 *
 	 * @param string $member
 	 * @throws \InvalidArgumentException
 	 * @return number|string
@@ -337,7 +342,7 @@ class SemanticVersion
 	 * @property-write integer $patch Patch level
 	 * @property-write string $prerelease Pre-release data
 	 * @property-write string $metadata Metadata
-	 *                
+	 *
 	 * @param string $member
 	 * @param mixed $value
 	 * @throws \InvalidArgumentException

@@ -53,4 +53,44 @@ final class SemanticVersionTest extends TestCase
 			$previous = $v;
 		}
 	}
+
+	public function testToNumber()
+	{
+		$tests = [
+			[
+				'version' => '1.0.0',
+				'value' => 10000
+			],
+			[
+				'version' => '1.0.0-alpha2',
+				'value' => 10000
+			],
+			[
+				'version' => '1.0',
+				'value' => 10000
+			],
+			[
+				'version' => '2.3.4',
+				'value' => 20304
+			],
+			[
+				'version' => 123,
+				'value' => 123
+			],
+			[
+				'version' => '0.1.23',
+				'value' => 123
+			]
+		];
+
+		foreach ($tests as $test)
+		{
+
+			$version = null;
+			$version = new SemanticVersion($test['version']);
+
+			$this->assertEquals($test['value'], $version->getIntegerValue(),
+				'Integer conversion of ' . $version);
+		}
+	}
 }
