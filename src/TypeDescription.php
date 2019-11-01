@@ -33,6 +33,13 @@ class TypeDescription
 		return substr($element, $p + 1);
 	}
 
+	/**
+	 * Get class namespaces
+	 *
+	 * @param object $element
+	 * @throws \InvalidArgumentException
+	 * @return array
+	 */
 	public static function getNamespaces($element)
 	{
 		$name = $element;
@@ -52,11 +59,23 @@ class TypeDescription
 	 *        	Class name or Class instance
 	 * @param string $parent
 	 *        	Class name
-	 *        	
+	 *
 	 * @return boolean @true if @c $object is a subclass of @c $parent
 	 */
 	public static function isSubclassOf($object, $parent)
 	{
 		return \is_subclass_of($object, $parent, true);
+	}
+
+	/**
+	 * Indicates if the given variable can be converted to string using TypeConversion utility
+	 *
+	 * @param mixed $element
+	 *        	Any type
+	 */
+	public static function hasStringConversion($element)
+	{
+		return (\is_string($element) ||
+			(\is_object($element) && \method_exists($element, '__toString')));
 	}
 }
