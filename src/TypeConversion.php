@@ -4,6 +4,9 @@ namespace NoreSources;
 use phpDocumentor\Reflection\Types\Integer;
 use phpDocumentor\Reflection\Types\Boolean;
 
+/**
+ * Type conversion exception
+ */
 class TypeConversionException extends \Exception
 {
 
@@ -23,6 +26,9 @@ class TypeConversionException extends \Exception
 	}
 }
 
+/**
+ * Object have a integer representation
+ */
 interface IntegerConversion
 {
 
@@ -33,6 +39,9 @@ interface IntegerConversion
 	function getIntegerValue();
 }
 
+/**
+ * Object have a float representation
+ */
 interface FloatConversion
 {
 
@@ -43,6 +52,9 @@ interface FloatConversion
 	function getFloatValue();
 }
 
+/**
+ * Object have a boolean representation
+ */
 interface BooleanConversion
 {
 
@@ -53,6 +65,9 @@ interface BooleanConversion
 	function getBooleanValue();
 }
 
+/**
+ * Object can be converted to array
+ */
 interface ArrayConversion
 {
 
@@ -61,6 +76,12 @@ interface ArrayConversion
 	 * @return array Array representation of the class instance
 	 */
 	function getArrayCopy();
+}
+
+interface StringConversion
+{
+
+	function __toString();
 }
 
 class TypeConversion
