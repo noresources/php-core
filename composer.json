@@ -2,6 +2,9 @@
 	"name": "noresources/ns-php-core",
 	"description": "Utility class library for PHP",
 	"type": "library",
+	"keywords": [
+		"Utility"
+	],
 	"license": "MIT",
 	"authors": [
 		{
