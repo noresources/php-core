@@ -226,6 +226,12 @@ class SemanticVersion implements StringConversion, IntegerConversion
 		$this->set($version, $numberFormDigitCount);
 	}
 
+	public function __clone()
+	{
+		$this->prerelease = clone $this->prerelease;
+		$this->metadata = clone $this->metadata;
+	}
+
 	/**
 	 *
 	 * @param array|string|integer $version
@@ -239,37 +245,30 @@ class SemanticVersion implements StringConversion, IntegerConversion
 		$this->prerelease = new SemanticPostfixedData('');
 		$this->metadata = new SemanticPostfixedData('');
 
-		if (is_int($version))
-		{
-			$p = pow(10, $numberFormDigitCount);
-			$this->patch = $version % $p;
-			$this->minor = intval($version / $p) % $p;
-			$this->major = intval($version / ($p * $p));
-		}
-		elseif (\is_string($version))
-		{
-			$matches = [];
-			if (preg_match(chr(1) . '^([0-9.]+)(-(.+?))?(\+(.+?))?$' . chr(1), $version, $matches))
-			{
-				$v = explode('.', $matches[1]);
-				$this->major = Container::keyValue($v, 0, 0);
-				$this->minor = Container::keyValue($v, 1, 0);
-				$this->patch = Container::keyValue($v, 2, 0);
-				$this->prerelease->set(Container::keyValue($matches, 3, ''));
-				$this->metadata->set(Container::keyValue($matches, 5, ''));
-			}
-			else
-			{
-				throw new \InvalidArgumentException('Invalid version format "' . $version . '"');
-			}
-		}
-		elseif ($version instanceof SemanticVersion)
+		if ($version instanceof SemanticVersion)
 		{
 			$this->major = $version->major;
 			$this->minor = $version->minor;
 			$this->patch = $version->patch;
 			$this->prerelease = clone $version->prerelease;
 			$this->metadata = clone $version->metadata;
+		}
+		elseif (is_int($version) || ($version instanceof IntegerConversion))
+		{
+			$version = TypeConversion::toInteger($version);
+			$p = pow(10, $numberFormDigitCount);
+			$this->patch = $version % $p;
+			$this->minor = intval($version / $p) % $p;
+			$this->major = intval($version / ($p * $p));
+		}
+		elseif (TypeDescription::hasStringConversion($version) &&
+			preg_match(chr(1) . self::PATTERN . chr(1), TypeConversion::toString($version), $matches))
+		{
+			$this->major = Container::keyValue($matches, 1, 0);
+			$this->minor = Container::keyValue($matches, 3, 0);
+			$this->patch = Container::keyValue($matches, 5, 0);
+			$this->prerelease->set(Container::keyValue($matches, 6, ''));
+			$this->metadata->set(Container::keyValue($matches, 8, ''));
 		}
 		elseif (Container::isArray($version))
 		{
@@ -281,9 +280,14 @@ class SemanticVersion implements StringConversion, IntegerConversion
 		}
 		else
 		{
-			$t = is_object($version) ? get_class($version) : gettype($version);
+			$s = '';
+			if (TypeDescription::hasStringConversion($version))
+				$s = TypeConversion::toString($version);
+			else
+				$s = var_export($version, true);
 			throw new \InvalidArgumentException(
-				TypeDescription::getName($t) . ' ' . var_export($t, true));
+				TypeDescription::getName($version) . ' (' . $s . ') has no valid conversion to ' .
+				__CLASS__);
 		}
 	}
 
@@ -471,6 +475,8 @@ class SemanticVersion implements StringConversion, IntegerConversion
 
 		return $a->prerelease->compare($b->prerelease);
 	}
+
+	const PATTERN = '^([0-9]|[1-9][0-9]*)(\.([0-9]|[1-9][0-9]*)(\.([0-9]|[1-9][0-9]*))?)?(?:-([0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*))?(\+([0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*))?$';
 
 	/**
 	 *

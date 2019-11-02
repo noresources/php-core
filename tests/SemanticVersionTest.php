@@ -33,20 +33,22 @@ final class SemanticVersionTest extends TestCase
 		foreach ($versions as $version)
 		{
 			$v = new SemanticVersion($version);
-			$this->assertTrue($v instanceof SemanticVersion);
+			$this->assertInstanceOf(SemanticVersion::class, $v);
 
 			if (!($v instanceof SemanticVersion))
 				continue;
 
 			if (is_string($version))
 			{
-				$this->assertEquals($version, strval($v));
+				$this->assertEquals($version, strval($v),
+					'String representation of Semantic version');
 			}
 
 			if ($previous instanceof SemanticVersion)
 			{
 				$this->assertLessThan(0, $previous->compare($v), 'Version comparison');
-				$this->assertLessThan(0, SemanticVersion::compare($previous, $v),
+				$this->assertLessThan(0,
+					SemanticVersion::compare($previous, $v, 'Version comparison (static method)'),
 					'Version comparison (static)');
 			}
 
