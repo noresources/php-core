@@ -262,7 +262,8 @@ class SemanticVersion implements StringConversion, IntegerConversion
 			$this->major = intval($version / ($p * $p));
 		}
 		elseif (TypeDescription::hasStringConversion($version) &&
-			preg_match(chr(1) . self::PATTERN . chr(1), TypeConversion::toString($version), $matches))
+			preg_match(chr(1) . self::PATTERN . chr(1) . self::PATTERN_MODIFIERS,
+				TypeConversion::toString($version), $matches))
 		{
 			$this->major = Container::keyValue($matches, 1, 0);
 			$this->minor = Container::keyValue($matches, 3, 0);
@@ -476,7 +477,9 @@ class SemanticVersion implements StringConversion, IntegerConversion
 		return $a->prerelease->compare($b->prerelease);
 	}
 
-	const PATTERN = '^([0-9]|[1-9][0-9]*)(\.([0-9]|[1-9][0-9]*)(\.([0-9]|[1-9][0-9]*))?)?(?:-([0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*))?(\+([0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*))?$';
+	const PATTERN = '^([0-9]|[1-9][0-9]*)(\.([0-9]|[1-9][0-9]*)(\.([0-9]|[1-9][0-9]*))?)?(?:-([0-9a-z-]+(?:\.[0-9a-z-]+)*))?(\+([0-9a-z-]+(?:\.[0-9a-z-]+)*))?$';
+
+	const PATTERN_MODIFIERS = 'i';
 
 	/**
 	 *
