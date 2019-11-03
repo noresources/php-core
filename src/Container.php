@@ -436,7 +436,7 @@ class Container
 	 * @throws \InvalidArgumentException
 	 * @throws InvalidContainerException
 	 */
-	public function setValue(&$container, $key, $value)
+	public static function setValue(&$container, $key, $value)
 	{
 		if (\is_array($container))
 		{
