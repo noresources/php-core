@@ -21,6 +21,8 @@ spl_autoload_register(function($className) {
 		'noresources\arrayrepresentation' => 'src/TypeConversion.php',
 		'noresources\stringrepresentation' => 'src/TypeConversion.php',
 		'noresources\typeconversion' => 'src/TypeConversion.php',
+		'noresources\mediatypeexception' => 'src/MediaType.php',
+		'noresources\mediasubtype' => 'src/MediaType.php',
 		'noresources\mediatype' => 'src/MediaType.php',
 		'noresources\invalidcontainerexception' => 'src/Container.php',
 		'noresources\container' => 'src/Container.php'
