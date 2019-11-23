@@ -203,7 +203,7 @@ final class SemanticPostfixedData extends \ArrayObject
  *
  * @see https://semver.org/
  */
-class SemanticVersion implements StringConversion, IntegerConversion
+class SemanticVersion implements StringRepresentation, IntegerRepresentation
 {
 
 	const MAJOR = 'major';
@@ -253,7 +253,7 @@ class SemanticVersion implements StringConversion, IntegerConversion
 			$this->prerelease = clone $version->prerelease;
 			$this->metadata = clone $version->metadata;
 		}
-		elseif (is_int($version) || ($version instanceof IntegerConversion))
+		elseif (is_int($version) || ($version instanceof IntegerRepresentation))
 		{
 			$version = TypeConversion::toInteger($version);
 			$p = pow(10, $numberFormDigitCount);

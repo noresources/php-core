@@ -11,7 +11,7 @@
  */
 namespace NoreSources;
 
-class DateTime extends \DateTime implements IntegerConversion, FloatConversion
+class DateTime extends \DateTime implements IntegerRepresentation, FloatRepresentation
 {
 
 	/**

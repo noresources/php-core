@@ -62,7 +62,7 @@ const kDataTreeLoadMerge = 2;
 /**
  * Serializable data tree structure
  */
-class DataTree implements \ArrayAccess, \Serializable, \IteratorAggregate, \Countable, ArrayConversion
+class DataTree implements \ArrayAccess, \Serializable, \IteratorAggregate, \Countable, ArrayRepresentation
 {
 
 	/**

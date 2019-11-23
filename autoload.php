@@ -15,12 +15,13 @@ spl_autoload_register(function($className) {
 		'noresources\semanticpostfixeddata' => 'src/SemanticVersion.php',
 		'noresources\semanticversion' => 'src/SemanticVersion.php',
 		'noresources\typeconversionexception' => 'src/TypeConversion.php',
-		'noresources\integerconversion' => 'src/TypeConversion.php',
-		'noresources\floatconversion' => 'src/TypeConversion.php',
-		'noresources\booleanconversion' => 'src/TypeConversion.php',
-		'noresources\arrayconversion' => 'src/TypeConversion.php',
-		'noresources\stringconversion' => 'src/TypeConversion.php',
+		'noresources\integerrepresentation' => 'src/TypeConversion.php',
+		'noresources\floatrepresentation' => 'src/TypeConversion.php',
+		'noresources\booleanrepresentation' => 'src/TypeConversion.php',
+		'noresources\arrayrepresentation' => 'src/TypeConversion.php',
+		'noresources\stringrepresentation' => 'src/TypeConversion.php',
 		'noresources\typeconversion' => 'src/TypeConversion.php',
+		'noresources\mediatype' => 'src/MediaType.php',
 		'noresources\invalidcontainerexception' => 'src/Container.php',
 		'noresources\container' => 'src/Container.php'
 	); // classMap

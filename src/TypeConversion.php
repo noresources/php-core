@@ -29,7 +29,7 @@ class TypeConversionException extends \Exception
 /**
  * Object have a integer representation
  */
-interface IntegerConversion
+interface IntegerRepresentation
 {
 
 	/**
@@ -42,7 +42,7 @@ interface IntegerConversion
 /**
  * Object have a float representation
  */
-interface FloatConversion
+interface FloatRepresentation
 {
 
 	/**
@@ -55,7 +55,7 @@ interface FloatConversion
 /**
  * Object have a boolean representation
  */
-interface BooleanConversion
+interface BooleanRepresentation
 {
 
 	/**
@@ -68,7 +68,7 @@ interface BooleanConversion
 /**
  * Object can be converted to array
  */
-interface ArrayConversion
+interface ArrayRepresentation
 {
 
 	/**
@@ -78,9 +78,17 @@ interface ArrayConversion
 	function getArrayCopy();
 }
 
-interface StringConversion
+/**
+ * Object have a string representation.
+ * This interface is a syntaxic sugar to indicates the object redefines the __toString() magic method
+ */
+interface StringRepresentation
 {
 
+	/**
+	 *
+	 * @return string The string representation of the class instance
+	 */
 	function __toString();
 }
 
@@ -202,7 +210,7 @@ class TypeConversion
 	 */
 	public static function toInteger($value, $fallback = null)
 	{
-		if ($value instanceof IntegerConversion)
+		if ($value instanceof IntegerRepresentation)
 			return $value->getIntegerValue();
 
 		if ($value instanceof \DateTime)
@@ -237,7 +245,7 @@ class TypeConversion
 	 */
 	public static function toFloat($value, $fallback = null)
 	{
-		if ($value instanceof FloatConversion)
+		if ($value instanceof FloatRepresentation)
 			return $value->getFloatValue();
 
 		if ($value instanceof \DateTime)
@@ -302,7 +310,7 @@ class TypeConversion
 	 */
 	public static function toBoolean($value)
 	{
-		if ($value instanceof BooleanConversion)
+		if ($value instanceof BooleanRepresentation)
 			return $value->getBooleanValue();
 		return @boolval($value);
 	}
