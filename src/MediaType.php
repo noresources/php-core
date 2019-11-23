@@ -100,6 +100,8 @@ class MediaSubType implements StringRepresentation
 class MediaType implements StringRepresentation
 {
 
+	const ANY = '*';
+
 	/**
 	 * Media main type
 	 *
@@ -132,13 +134,34 @@ class MediaType implements StringRepresentation
 
 	public function __toString()
 	{
-		return $this->name . '/' . strval($this->mediaSubType);
+		if (\is_string($this->name) && strlen($this->name) && ($this->name != self::ANY))
+		{
+			$s = $this->name . '/';
+			if ($this->mediaSubType instanceof MediaSubType)
+				$s .= strval($this->mediaSubType);
+			else
+				$s .= '*';
+			return $s;
+		}
+
+		return '*/*';
 	}
 
-	public static function fromString($mediaTypeString)
+	/**
+	 * Parse a media type string
+	 *
+	 * @param string $mediaTypeString
+	 *        	Mediga type strin
+	 * @param boolean $acceptStar
+	 *        	Accept the character '*' indicating "any type or subtype" in HTTP Accept header
+	 * @throws MediaTypeException
+	 * @return \NoreSources\MediaType
+	 */
+	public static function fromString($mediaTypeString, $acceptStar = false)
 	{
 		$matches = [];
-		if (!\preg_match(chr(1) . self::PATTERN . chr(1) . 'i', $mediaTypeString, $matches))
+		$pattern = ($acceptStar ? self::PATTERN_OPTIONAL : self::PATTERN_STRICT);
+		if (!\preg_match(chr(1) . $pattern . chr(1) . 'i', $mediaTypeString, $matches))
 			throw new MediaTypeException($mediaTypeString, 'Not a valid media type string');
 
 		$subType = null;
@@ -149,7 +172,7 @@ class MediaType implements StringRepresentation
 			$subType = new MediaSubType($facets, $syntax);
 		}
 
-		return new MediaType($matches[1], $subType);
+		return new MediaType(Container::keyValue($matches, 1, self::ANY), $subType);
 	}
 
 	/**
@@ -162,17 +185,22 @@ class MediaType implements StringRepresentation
 	 */
 	public function getStructuredSyntax()
 	{
+		if (!($this->mediaSubType instanceof MediaSubType))
+			return null;
+
 		$s = $this->mediaSubType->getStructuredSyntax();
 		if ($s)
 			return $s;
 
-		if (strtolower($this->name) == 'text' && $this->mediaSubType->getFacetCount() == 1)
+		if ((strtolower($this->name) == 'text') && ($this->mediaSubType->getFacetCount() == 1))
 			return strtolower($this->mediaSubType->getFacet(0));
 
 		return null;
 	}
 
-	const PATTERN = '^([a-z0-9](?:[a-z0-9!#$&^ -]{0,126}))/((?:[a-z0-9](?:[a-z0-9!#$&^ -]{0,126}))(?:\.(?:[a-z0-9](?:[a-z0-9!#$&^ -]{0,126})))*)(?:\+([a-z0-9](?:[a-z0-9!#$&^ -]{0,126})))*$';
+	const PATTERN_STRICT = '^([a-z0-9](?:[a-z0-9!#$&^ -]{0,126}))/((?:[a-z0-9](?:[a-z0-9!#$&^ -]{0,126}))(?:\.(?:[a-z0-9](?:[a-z0-9!#$&^ -]{0,126})))*)(?:\+([a-z0-9](?:[a-z0-9!#$&^ -]{0,126})))*$';
+
+	const PATTERN_OPTIONAL = '^(?:\*/\*)|(?:([a-z0-9](?:[a-z0-9!#$&^ -]{0,126}))/(?:(?:\*)|((?:[a-z0-9](?:[a-z0-9!#$&^ -]{0,126}))(?:\.(?:[a-z0-9](?:[a-z0-9!#$&^ -]{0,126})))*)(?:\+([a-z0-9](?:[a-z0-9!#$&^ -]{0,126})))*))$';
 
 	/**
 	 *
