@@ -171,6 +171,23 @@ class Container
 	}
 
 	/**
+	 *
+	 * Indicates if the parameter is an array or an object which
+	 *
+	 * @param boolean $acceptAnyObject
+	 *        	Any class instance is considered as traversable
+	 *
+	 * @return boolean @c true if@c $container is traversable (i.e usable in a roreach statement)
+	 */
+	public static function isTraversable($container, $acceptAnyObject = false)
+	{
+		if (\is_array($container))
+			return true;
+
+		return ($acceptAnyObject ? \is_object($container) : ($container instanceof \Traversable));
+	}
+
+	/**
 	 * Transform any type to a plain PHP array
 	 *
 	 * @param mixed $anything
@@ -357,7 +374,7 @@ class Container
 		{
 			return (\in_array($value, $container, $strict));
 		}
-		elseif ($container instanceof \Traversable)
+		elseif (self::isTraversable($container))
 		{
 			if ($strict)
 			{
