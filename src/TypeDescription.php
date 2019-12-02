@@ -73,7 +73,7 @@ class TypeDescription
 	 * @param mixed $element
 	 *        	Any type
 	 */
-	public static function hasStringConversion($element)
+	public static function hasStringRepresentation($element)
 	{
 		return (\is_string($element) ||
 			(\is_object($element) && \method_exists($element, '__toString')));

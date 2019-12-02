@@ -261,7 +261,7 @@ class SemanticVersion implements StringRepresentation, IntegerRepresentation
 			$this->minor = intval($version / $p) % $p;
 			$this->major = intval($version / ($p * $p));
 		}
-		elseif (TypeDescription::hasStringConversion($version) &&
+		elseif (TypeDescription::hasStringRepresentation($version) &&
 			preg_match(chr(1) . self::PATTERN . chr(1) . self::PATTERN_MODIFIERS,
 				TypeConversion::toString($version), $matches))
 		{
@@ -282,7 +282,7 @@ class SemanticVersion implements StringRepresentation, IntegerRepresentation
 		else
 		{
 			$s = '';
-			if (TypeDescription::hasStringConversion($version))
+			if (TypeDescription::hasStringRepresentation($version))
 				$s = TypeConversion::toString($version);
 			else
 				$s = var_export($version, true);
