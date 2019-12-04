@@ -200,7 +200,7 @@ class ArrayUtil
 	 * @param mixed $key
 	 * @param mixed $a_defaultValue
 	 */
-	public static function keyValue(&$table, $key, $a_defaultValue)
+	public static function keyValue(&$table, $key, $a_defaultValue = null)
 	{
 		if (\is_array($table))
 		{
