@@ -148,6 +148,54 @@ class MediaType implements StringRepresentation
 	}
 
 	/**
+	 * Get media type of a file or stream
+	 *
+	 * @param string|resource $media
+	 *        	File path or stream
+	 * @return \NoreSources\MediaType
+	 */
+	public static function fromMedia($media)
+	{
+		$type = @mime_content_type($media);
+
+		if ($type === false)
+			throw \Exception('Unable to recognize media type');
+		elseif ($type == 'text/plain')
+		{
+			if (is_file($media))
+			{
+				$x = self::fromFileExtension(pathinfo($media, PATHINFO_EXTENSION));
+				if ($x !== false)
+					$type = $x;
+			}
+		}
+
+		return self::fromString($type);
+	}
+
+	/**
+	 * Get Media type from file extension
+	 *
+	 * @param string $extension
+	 *        	File extension
+	 * @return \NoreSources\MediaType|false
+	 */
+	public static function fromFileExtension($extension)
+	{
+		if (!\is_array(self::$extensions))
+			self::$extensions = [
+				'html' => 'text/html',
+				'json' => 'application/json',
+				'xml' => 'text/xml'
+			];
+
+		$mediaTypeString = Container::keyValue(self::$extensions, strtolower($extension), false);
+		if (\is_string($mediaTypeString))
+			return self::fromString($mediaTypeString);
+		return $mediaTypeString;
+	}
+
+	/**
 	 * Parse a media type string
 	 *
 	 * @param string $mediaTypeString
@@ -192,8 +240,15 @@ class MediaType implements StringRepresentation
 		if ($s)
 			return $s;
 
-		if ((strtolower($this->name) == 'text') && ($this->mediaSubType->getFacetCount() == 1))
-			return strtolower($this->mediaSubType->getFacet(0));
+		if ($this->mediaSubType->getFacetCount() == 1)
+		{
+			$facet = $this->mediaSubType->getFacet(0);
+			if ((strtolower($this->name) == 'text') || \in_array($facet, [
+				'json',
+				'xml'
+			]))
+				return $facet;
+		}
 
 		return null;
 	}
@@ -207,4 +262,6 @@ class MediaType implements StringRepresentation
 	 * @var MediaSubType
 	 */
 	private $mediaSubType;
+
+	private static $extensions;
 }

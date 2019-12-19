@@ -94,4 +94,10 @@ final class MediaTypeTest extends TestCase
 			$this->assertEquals($text, strval($mediaType), $text . ' to string');
 		}
 	}
+
+	public function testFromMedia()
+	{
+		$this->assertEquals('application/json',
+			strval(MediaType::fromMedia(__DIR__ . '/data/a.json')));
+	}
 }
