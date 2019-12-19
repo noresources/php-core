@@ -23,48 +23,39 @@ class DataTree implements \ArrayAccess, \Serializable, \IteratorAggregate, \Coun
 	 *
 	 * @var integer
 	 */
-	const kDataTreeRestrictKeys = 0x1;
+	const RESTRICTED_KEYS = 0x01;
 
 	/**
 	 * Do not allow to change any value
 	 *
 	 * @var integer
 	 */
-	const kDataTreeReadOnly = 0x3;
+	const READ_ONLY = 0x02;
 
 	/**
 	 * Do not raise exception on set/get error
 	 *
 	 * @var integer
 	 */
-	const SILENT = 0x4;
+	const SILENT = 0x04;
 
-	const FILETYPE_AUTO = 0;
-
-	const FILETYPE_PHP = 1;
-
-	const FILETYPE_JSON = 2;
+	const MODE_REPLACE = 0x01;
 
 	/**
-	 * Remove all existing entries, then load all elements of the file
+	 * Merge exising data with new content.
+	 * Append new key
 	 *
 	 * @var integer
 	 */
-	const LOAD_REPLACE = 1;
+	const MODE_MERGE = 0x02;
 
 	/**
-	 * Don't override existing entries
+	 * Merge existing content with new content.
+	 * Overwrite existing key values.
 	 *
 	 * @var integer
 	 */
-	const LOAD_APPEND = 2;
-
-	/**
-	 * Merge existing entries with the one in the file
-	 *
-	 * @var integer
-	 */
-	const LOAD_MERGE = 2;
+	const MODE_MERGE_OVERWRITE = 0x06;
 
 	/**
 	 *
@@ -74,13 +65,9 @@ class DataTree implements \ArrayAccess, \Serializable, \IteratorAggregate, \Coun
 	public function __construct($data = [])
 	{
 		$this->elements = new \ArrayObject();
-		if (is_array($data) || ($data instanceof \Traversable))
-		{
-			foreach ($data as $k => $v)
-			{
-				$this->offsetSet($k, $v);
-			}
-		}
+		if (Container::isTraversable($data, true))
+			$this->setContent($data, $mode = self::MODE_REPLACE);
+
 		$this->dataTreeFlags = 0;
 	}
 
@@ -160,7 +147,23 @@ class DataTree implements \ArrayAccess, \Serializable, \IteratorAggregate, \Coun
 	 */
 	public function offsetSet($key, $value)
 	{
-		if ($this->dataTreeFlags & self::kDataTreeReadOnly)
+		$this->setElement($key, $value, self::MODE_REPLACE);
+	}
+
+	/**
+	 * Set element of a DataTree
+	 *
+	 * @param string|integer $key
+	 *        	Element key
+	 * @param mixed $value
+	 *        	Element value
+	 * @param unknown $mode
+	 *        	Fusion mode
+	 * @throws \Exception
+	 */
+	public function setElement($key, $value, $mode = self::MODE_REPLACE)
+	{
+		if ($this->dataTreeFlags & self::READ_ONLY)
 		{
 			if ($this->dataTreeFlags & self::SILENT)
 			{
@@ -170,8 +173,7 @@ class DataTree implements \ArrayAccess, \Serializable, \IteratorAggregate, \Coun
 			throw new \Exception('Read only setting table');
 		}
 
-		if (($this->dataTreeFlags & self::kDataTreeRestrictKeys) &&
-			!$this->elements->offsetExists($key))
+		if (($this->dataTreeFlags & self::RESTRICTED_KEYS) && !$this->elements->offsetExists($key))
 		{
 			if ($this->dataTreeFlags & self::SILENT)
 			{
@@ -181,22 +183,39 @@ class DataTree implements \ArrayAccess, \Serializable, \IteratorAggregate, \Coun
 			throw new \Exception('New key are not accepted');
 		}
 
-		if (\is_array($value) || (is_object($value) && ($value instanceof \Traversable)))
+		$exists = $this->elements->offsetExists($key);
+
+		if ($exists)
 		{
-			$st = new DataTree();
-			$st->defaultValueHandler = $this->defaultValueHandler;
-			$st->dataTreeFlags = $this->dataTreeFlags;
-			foreach ($value as $k => $v)
+			if (!($mode & self::MODE_REPLACE) &&
+				!(($mode & self::MODE_MERGE_OVERWRITE) == self::MODE_MERGE_OVERWRITE))
+				return;
+		}
+
+		if (Container::isTraversable($value))
+		{
+			$st = null;
+			if ($exists)
 			{
-				$st->offsetSet($k, $v);
+				$existing = $this->elements->offsetGet($key);
+				if ($existing instanceof DataTree && !($mode & self::MODE_REPLACE))
+					$st = $existing;
 			}
+
+			if (!($st instanceof DataTree))
+			{
+				$st = new DataTree();
+				$st->defaultValueHandler = $this->defaultValueHandler;
+				$st->dataTreeFlags = $this->dataTreeFlags;
+			}
+
+			foreach ($value as $k => $v)
+				$st->setElement($k, $v, $mode);
 
 			$this->elements->offsetSet($key, $st);
 		}
 		else
-		{
 			$this->elements->offsetSet($key, $value);
-		}
 	}
 
 	/**
@@ -372,51 +391,50 @@ class DataTree implements \ArrayAccess, \Serializable, \IteratorAggregate, \Coun
 	}
 
 	/**
-	 * Load a setting file
-	 * - JSON format: Recomended for static settings
-	 * - PHP format: For dynamic settings only.
-	 * The file is included
-	 * and should contains 'set' commands such as <code>$this->key =
-	 * 'value';</code>
 	 *
-	 * @attention Never use this method with untrusted PHP files
-	 *
-	 * @param string $filename
-	 *        	File to load
-	 * @param string $filetype
-	 *        	One of self::kDataTreeFile*. If @c self::FILETYPE_AUTO, the
-	 *        	file type is
-	 *        	automatically detected using the file extension
+	 * @param array $data
+	 *        	Data tree content
+	 * @param integer $mode
+	 *        	Fusion mode
+	 * @throws \ErrorException
 	 */
-	public function load($filename, $filetype = self::FILETYPE_AUTO)
+	public function setContent($data, $mode = self::MODE_REPLACE)
 	{
-		if ($filetype == self::FILETYPE_AUTO)
-		{
-			if (preg_match(chr(1) . '.*\.json' . chr(1) . 'i', $filename))
-			{
-				$filetype = self::FILETYPE_JSON;
-			}
-			if (preg_match(chr(1) . '.*\.php[0-9]*' . chr(1) . 'i', $filename))
-			{
-				$filetype = self::FILETYPE_PHP;
-			}
-		}
+		if (!\is_array($data))
+			throw new \ErrorException('Invalid content. Array expected');
 
-		if ($filetype == self::FILETYPE_JSON)
+		if (($mode & self::MODE_REPLACE) == self::MODE_REPLACE)
+			$this->elements->exchangeArray([]);
+		else
+			$mode |= self::MODE_MERGE;
+
+		foreach ($data as $key => $value)
 		{
-			$elements = json_decode(file_get_contents($filename), true);
-			if (\is_array($elements))
-			{
-				foreach ($elements as $k => $v)
-				{
-					$this->offsetSet($k, $v);
-				}
-			}
+			$this->setElement($key, $value, $mode);
 		}
-		elseif ($filetype == self::FILETYPE_PHP)
-		{
-			include ($filename);
-		}
+	}
+
+	public function load($filename, $mediaType = null, $mode = self::MODE_REPLACE)
+	{
+		if (!\file_exists($filename))
+			throw new \InvalidArgumentException($filename . ' not found');
+
+		$type = null;
+		if ($mediaType === null)
+			$type = MediaType::fromMedia($filename);
+		elseif (\is_string($type))
+			$type = MediaType::fromString($type);
+
+		if (!($type instanceof MediaType))
+			throw new \InvalidArgumentException(
+				'Invalid mediaType argument (' . TypeDescription::getName($mediaType) . ')');
+
+		$data = file_get_contents($filename);
+
+		if ($type->getStructuredSyntax() == 'json')
+			$data = json_decode($data, true);
+
+		return $this->setContent($data, $mode);
 	}
 
 	/**
