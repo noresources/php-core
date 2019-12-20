@@ -65,10 +65,11 @@ class DataTree implements \ArrayAccess, \Serializable, \IteratorAggregate, \Coun
 	public function __construct($data = [])
 	{
 		$this->elements = new \ArrayObject();
-		if (Container::isTraversable($data, true))
-			$this->setContent($data, $mode = self::REPLACE);
-
 		$this->dataTreeFlags = 0;
+		$this->defaultValueHandler = null;
+
+		if (Container::isTraversable($data, true))
+			$this->setContent($data, self::REPLACE);
 	}
 
 	/**
@@ -278,9 +279,7 @@ class DataTree implements \ArrayAccess, \Serializable, \IteratorAggregate, \Coun
 		foreach ($this->elements as $key => &$value)
 		{
 			if (\is_array($value))
-			{
 				$this->offsetSet($key, $value);
-			}
 		}
 	}
 
@@ -340,9 +339,7 @@ class DataTree implements \ArrayAccess, \Serializable, \IteratorAggregate, \Coun
 		}
 
 		if (array_key_exists($key, $this->elements))
-		{
 			return $this->elements[$key];
-		}
 
 		return $defaultValue;
 	}
@@ -398,6 +395,8 @@ class DataTree implements \ArrayAccess, \Serializable, \IteratorAggregate, \Coun
 	 * @param integer $mode
 	 *        	Fusion mode
 	 * @throws \ErrorException
+	 *
+	 * @return DataTree
 	 */
 	public function setContent($data, $mode = self::REPLACE)
 	{
@@ -413,8 +412,22 @@ class DataTree implements \ArrayAccess, \Serializable, \IteratorAggregate, \Coun
 		{
 			$this->setElement($key, $value, $mode);
 		}
+
+		return $this;
 	}
 
+	/**
+	 * Load a DataTree from a file
+	 *
+	 * @param string $filename
+	 *        	File name
+	 * @param integer $mode
+	 *        	Control interaction with existing content
+	 * @param MediaType|string|null $mediaType
+	 *        	Specify file media type. If @c null, media type is automatically detected
+	 * @throws \InvalidArgumentException
+	 * @return DataTree
+	 */
 	public function load($filename, $mode = self::REPLACE, $mediaType = null)
 	{
 		if (!\file_exists($filename))
@@ -432,8 +445,13 @@ class DataTree implements \ArrayAccess, \Serializable, \IteratorAggregate, \Coun
 
 		$data = file_get_contents($filename);
 
-		if ($type->getStructuredSyntax() == 'json')
+		$structuredText = $type->getStructuredSyntax();
+		if ($structuredText == 'json')
 			$data = self::dataFromJson($data);
+		elseif ($structuredText == 'yaml')
+			$data = self::dataFromYaml($data);
+		else
+			throw new \UnexpectedValueException($type . ' is not supported');
 
 		return $this->setContent($data, $mode);
 	}
@@ -468,6 +486,18 @@ class DataTree implements \ArrayAccess, \Serializable, \IteratorAggregate, \Coun
 		if (!\is_array($data))
 			throw new \ErrorException('Expect object or array. Got ',
 				TypeDescription::getName($data));
+
+		return $data;
+	}
+
+	private static function dataFromYaml($text)
+	{
+		if (!\function_exists('yaml_parse'))
+			throw new \Exception('YAML extension not available');
+
+		$data = @\yaml_parse($text);
+		if ($data === false)
+			throw new \ErrorException('Invalid YAML');
 
 		return $data;
 	}

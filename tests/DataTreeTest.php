@@ -34,6 +34,14 @@ final class DataTreeTest extends TestCase
 		$this->derived->assertDerivedFile($data, __METHOD__, null, 'json');
 	}
 
+	public function testLoadYaml()
+	{
+		$tree = new DataTree();
+		$tree->load(__DIR__ . '/data/a.yaml');
+		$data = json_encode($tree, JSON_PRETTY_PRINT);
+		$this->derived->assertDerivedFile($data, __METHOD__, null, 'json');
+	}
+
 	public function testLoadInvalidJson()
 	{
 		$tree = new DataTree();
