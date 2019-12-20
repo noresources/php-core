@@ -39,7 +39,7 @@ class DataTree implements \ArrayAccess, \Serializable, \IteratorAggregate, \Coun
 	 */
 	const SILENT = 0x04;
 
-	const MODE_REPLACE = 0x01;
+	const REPLACE = 0x01;
 
 	/**
 	 * Merge exising data with new content.
@@ -47,7 +47,7 @@ class DataTree implements \ArrayAccess, \Serializable, \IteratorAggregate, \Coun
 	 *
 	 * @var integer
 	 */
-	const MODE_MERGE = 0x02;
+	const MERGE = 0x02;
 
 	/**
 	 * Merge existing content with new content.
@@ -55,7 +55,7 @@ class DataTree implements \ArrayAccess, \Serializable, \IteratorAggregate, \Coun
 	 *
 	 * @var integer
 	 */
-	const MODE_MERGE_OVERWRITE = 0x06;
+	const MERGE_OVERWRITE = 0x06;
 
 	/**
 	 *
@@ -66,7 +66,7 @@ class DataTree implements \ArrayAccess, \Serializable, \IteratorAggregate, \Coun
 	{
 		$this->elements = new \ArrayObject();
 		if (Container::isTraversable($data, true))
-			$this->setContent($data, $mode = self::MODE_REPLACE);
+			$this->setContent($data, $mode = self::REPLACE);
 
 		$this->dataTreeFlags = 0;
 	}
@@ -147,7 +147,7 @@ class DataTree implements \ArrayAccess, \Serializable, \IteratorAggregate, \Coun
 	 */
 	public function offsetSet($key, $value)
 	{
-		$this->setElement($key, $value, self::MODE_REPLACE);
+		$this->setElement($key, $value, self::REPLACE);
 	}
 
 	/**
@@ -161,7 +161,7 @@ class DataTree implements \ArrayAccess, \Serializable, \IteratorAggregate, \Coun
 	 *        	Fusion mode
 	 * @throws \Exception
 	 */
-	public function setElement($key, $value, $mode = self::MODE_REPLACE)
+	public function setElement($key, $value, $mode = self::REPLACE)
 	{
 		if ($this->dataTreeFlags & self::READ_ONLY)
 		{
@@ -187,8 +187,8 @@ class DataTree implements \ArrayAccess, \Serializable, \IteratorAggregate, \Coun
 
 		if ($exists)
 		{
-			if (!($mode & self::MODE_REPLACE) &&
-				!(($mode & self::MODE_MERGE_OVERWRITE) == self::MODE_MERGE_OVERWRITE))
+			if (!($mode & self::REPLACE) &&
+				!(($mode & self::MERGE_OVERWRITE) == self::MERGE_OVERWRITE))
 				return;
 		}
 
@@ -198,7 +198,7 @@ class DataTree implements \ArrayAccess, \Serializable, \IteratorAggregate, \Coun
 			if ($exists)
 			{
 				$existing = $this->elements->offsetGet($key);
-				if ($existing instanceof DataTree && !($mode & self::MODE_REPLACE))
+				if ($existing instanceof DataTree && !($mode & self::REPLACE))
 					$st = $existing;
 			}
 
@@ -273,7 +273,8 @@ class DataTree implements \ArrayAccess, \Serializable, \IteratorAggregate, \Coun
 	 */
 	public function unserialize($serialized)
 	{
-		$this->elements = new \ArrayObject(json_decode($serialized, true));
+		$this->elements->exchangeArray(self::dataFromJson($serialized));
+
 		foreach ($this->elements as $key => &$value)
 		{
 			if (\is_array($value))
@@ -398,15 +399,15 @@ class DataTree implements \ArrayAccess, \Serializable, \IteratorAggregate, \Coun
 	 *        	Fusion mode
 	 * @throws \ErrorException
 	 */
-	public function setContent($data, $mode = self::MODE_REPLACE)
+	public function setContent($data, $mode = self::REPLACE)
 	{
 		if (!\is_array($data))
 			throw new \ErrorException('Invalid content. Array expected');
 
-		if (($mode & self::MODE_REPLACE) == self::MODE_REPLACE)
+		if (($mode & self::REPLACE) == self::REPLACE)
 			$this->elements->exchangeArray([]);
 		else
-			$mode |= self::MODE_MERGE;
+			$mode |= self::MERGE;
 
 		foreach ($data as $key => $value)
 		{
@@ -414,7 +415,7 @@ class DataTree implements \ArrayAccess, \Serializable, \IteratorAggregate, \Coun
 		}
 	}
 
-	public function load($filename, $mediaType = null, $mode = self::MODE_REPLACE)
+	public function load($filename, $mode = self::REPLACE, $mediaType = null)
 	{
 		if (!\file_exists($filename))
 			throw new \InvalidArgumentException($filename . ' not found');
@@ -432,7 +433,7 @@ class DataTree implements \ArrayAccess, \Serializable, \IteratorAggregate, \Coun
 		$data = file_get_contents($filename);
 
 		if ($type->getStructuredSyntax() == 'json')
-			$data = json_decode($data, true);
+			$data = self::dataFromJson($data);
 
 		return $this->setContent($data, $mode);
 	}
@@ -453,6 +454,22 @@ class DataTree implements \ArrayAccess, \Serializable, \IteratorAggregate, \Coun
 				$v->setDefaultValueHandler($callable);
 			}
 		}
+	}
+
+	private static function dataFromJson($text)
+	{
+		$data = @json_decode($text, true);
+		$code = json_last_error();
+		if ($code != JSON_ERROR_NONE)
+		{
+			throw new \ErrorException(json_last_error_msg(), $code);
+		}
+
+		if (!\is_array($data))
+			throw new \ErrorException('Expect object or array. Got ',
+				TypeDescription::getName($data));
+
+		return $data;
 	}
 
 	/**

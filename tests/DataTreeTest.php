@@ -34,11 +34,27 @@ final class DataTreeTest extends TestCase
 		$this->derived->assertDerivedFile($data, __METHOD__, null, 'json');
 	}
 
+	public function testLoadInvalidJson()
+	{
+		$tree = new DataTree();
+		$exceptionInstance = null;
+		try
+		{
+			$tree->load(__DIR__ . '/data/syntax-error.json');
+		}
+		catch (\Exception $e)
+		{
+			$exceptionInstance = $e;
+		}
+
+		$this->assertInstanceOf (\ErrorException::class, $exceptionInstance);
+	}
+
 	public function testMerge()
 	{
 		$tree = new DataTree();
 		$tree->load(__DIR__ . '/data/a.json');
-		$tree->load(__DIR__ . '/data/b.json', null, DataTree::MODE_MERGE_OVERWRITE);
+		$tree->load(__DIR__ . '/data/b.json', DataTree::MERGE_OVERWRITE);
 		$data = json_encode($tree, JSON_PRETTY_PRINT);
 		$this->derived->assertDerivedFile($data, __METHOD__, null, 'json');
 	}
