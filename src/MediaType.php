@@ -97,6 +97,11 @@ class MediaSubType implements StringRepresentation
 	private $structuredSyntax;
 }
 
+/**
+ *
+ * @see https://www.iana.org/assignments/media-types/media-types.xhtml
+ *
+ */
 class MediaType implements StringRepresentation
 {
 
@@ -184,9 +189,13 @@ class MediaType implements StringRepresentation
 	{
 		if (!\is_array(self::$extensions))
 			self::$extensions = [
+				'css' => 'text/css',
 				'html' => 'text/html',
+				'htm' => 'text/html',
+				'js' => 'text/javascript',
 				'json' => 'application/json',
-				'xml' => 'text/xml'
+				'xml' => 'text/xml',
+				'yaml' => 'text/yaml'
 			];
 
 		$mediaTypeString = Container::keyValue(self::$extensions, strtolower($extension), false);
