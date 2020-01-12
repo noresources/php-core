@@ -1,4 +1,13 @@
 <?php
+/**
+ * Copyright © 2012 - 2020 by Renaud Guillard (dev@nore.fr)
+ * Distributed under the terms of the MIT License, see LICENSE
+ */
+
+/**
+ *
+ * @package Core
+ */
 namespace NoreSources;
 
 use phpDocumentor\Reflection\Types\Integer;
@@ -43,7 +52,10 @@ class TypeConversion
 	{
 		$methodName = 'to' . $type;
 		if (\method_exists(self::class, $methodName))
-			return call_user_func ([self::class, $methodName], $value, $fallback);
+			return call_user_func([
+				self::class,
+				$methodName
+			], $value, $fallback);
 
 		throw new \BadMethodCallException(
 			'Mo method to convert to ' . $type . ' (' . $methodName . ' not found)');

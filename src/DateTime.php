@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Copyright © 2012-2018 by Renaud Guillard (dev@nore.fr)
+ * Copyright © 2012 - 2020 by Renaud Guillard (dev@nore.fr)
  * Distributed under the terms of the MIT License, see LICENSE
  */
 
@@ -126,7 +126,7 @@ class DateTime extends \DateTime implements IntegerRepresentation, FloatRepresen
 	}
 
 	/**
-	 * 
+	 *
 	 * @return integer UNIX time
 	 */
 	public function getIntegerValue()
@@ -135,7 +135,7 @@ class DateTime extends \DateTime implements IntegerRepresentation, FloatRepresen
 	}
 
 	/**
-	 * 
+	 *
 	 * @return float Julian day
 	 */
 	public function getFloatValue()

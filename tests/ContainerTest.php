@@ -1,7 +1,15 @@
 <?php
+/**
+ * Copyright © 2012 - 2020 by Renaud Guillard (dev@nore.fr)
+ * Distributed under the terms of the MIT License, see LICENSE
+ */
+
+/**
+ *
+ * @package Core
+ */
 namespace NoreSources;
 
-use PHPUnit\Framework\TestCase;
 $indexedReference = array(
 	"zero",
 	"one",
@@ -62,7 +70,7 @@ class ArrayAccessImpl implements \ArrayAccess
 
 $hashReferenceImpl = new ArrayAccessImpl($hashReference);
 
-final class ContainerTest extends TestCase
+final class ContainerTest extends \PHPUnit\Framework\TestCase
 {
 
 	public function testPODArrayIsArray()
@@ -220,7 +228,8 @@ final class ContainerTest extends TestCase
 			catch (\Exception $e)
 			{
 				$result = get_class($e);
-			} finally {
+			}
+			finally {
 				$this->assertEquals(InvalidContainerException::class, $result);
 			}
 		}

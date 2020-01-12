@@ -1,9 +1,16 @@
 <?php
+/**
+ * Copyright © 2012 - 2020 by Renaud Guillard (dev@nore.fr)
+ * Distributed under the terms of the MIT License, see LICENSE
+ */
+
+/**
+ *
+ * @package Core
+ */
 namespace NoreSources;
 
-use PHPUnit\Framework\TestCase;
-
-final class MediaTypeTest extends TestCase
+final class MediaTypeTest extends \PHPUnit\Framework\TestCase
 {
 
 	public function testParse()
@@ -68,7 +75,7 @@ final class MediaTypeTest extends TestCase
 
 			if ($parsed['subtype'])
 			{
-			$this->assertInstanceOf(MediaSubType::class, $mediaType->subType, $text . ' subtype');
+				$this->assertInstanceOf(MediaSubType::class, $mediaType->subType, $text . ' subtype');
 				/**
 				 *
 				 * @var MediaSubType $subType

@@ -1,14 +1,21 @@
 <?php
+/**
+ * Copyright © 2012 - 2020 by Renaud Guillard (dev@nore.fr)
+ * Distributed under the terms of the MIT License, see LICENSE
+ */
+
+/**
+ *
+ * @package Core
+ */
 namespace NoreSources;
 
-use PHPUnit\Framework\TestCase;
-
-final class DataTreeTest extends TestCase
+final class DataTreeTest extends \PHPUnit\Framework\TestCase
 {
 
 	public function __construct()
 	{
-		$this->derived = new \DerivedFileManager();
+		$this->derived = new DerivedFileManager();
 	}
 
 	public function testFromArray()
@@ -55,7 +62,7 @@ final class DataTreeTest extends TestCase
 			$exceptionInstance = $e;
 		}
 
-		$this->assertInstanceOf (\ErrorException::class, $exceptionInstance);
+		$this->assertInstanceOf(\ErrorException::class, $exceptionInstance);
 	}
 
 	public function testMerge()

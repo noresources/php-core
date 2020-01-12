@@ -1,9 +1,16 @@
 <?php
+/**
+ * Copyright © 2012 - 2020 by Renaud Guillard (dev@nore.fr)
+ * Distributed under the terms of the MIT License, see LICENSE
+ */
+
+/**
+ *
+ * @package Core
+ */
 namespace NoreSources;
 
-use PHPUnit\Framework\TestCase;
-
-final class TypeDescriptionTest extends TestCase
+final class TypeDescriptionTest extends \PHPUnit\Framework\TestCase
 {
 
 	public function testGetName()
@@ -27,8 +34,8 @@ final class TypeDescriptionTest extends TestCase
 	public function testGetLocalName()
 	{
 		$types = [
-			'DateTime' => (new \DateTime ('now')),
-			'TypeDescription' => (new TypeDescription)
+			'DateTime' => (new \DateTime('now')),
+			'TypeDescription' => (new TypeDescription())
 		];
 
 		foreach ($types as $name => $mixed)
@@ -41,9 +48,22 @@ final class TypeDescriptionTest extends TestCase
 	public function testGetNamespaces()
 	{
 		$types = [
-			[ 'type' => (new \DateTime ('now')), 'namespaces' => [] ],
-			[ 'type' => new TypeDescription (), 'namespaces' => ['NoreSources'] ],
-			[ 'type' => TypeDescription::class, 'namespaces' => ['NoreSources'] ]
+			[
+				'type' => (new \DateTime('now')),
+				'namespaces' => []
+			],
+			[
+				'type' => new TypeDescription(),
+				'namespaces' => [
+					'NoreSources'
+				]
+			],
+			[
+				'type' => TypeDescription::class,
+				'namespaces' => [
+					'NoreSources'
+				]
+			]
 		];
 
 		foreach ($types as $test)

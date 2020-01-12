@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Copyright © 2012-2018 by Renaud Guillard (dev@nore.fr)
+ * Copyright © 2012 - 2020 by Renaud Guillard (dev@nore.fr)
  * Distributed under the terms of the MIT License, see LICENSE
  */
 
@@ -29,7 +29,7 @@ class SourceToken
 	 *        	Index of the current token
 	 * @param mixed $nextElementType
 	 *        	Token to search
-	 *        	
+	 *
 	 * @return The
 	 */
 	public static function move_next(&$tokens, &$tokenIndex, $nextElementType)

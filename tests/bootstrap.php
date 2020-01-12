@@ -1,9 +1,18 @@
 <?php
-use PHPUnit\Framework\TestCase;
+/**
+ * Copyright © 2012 - 2020 by Renaud Guillard (dev@nore.fr)
+ * Distributed under the terms of the MIT License, see LICENSE
+ */
+
+/**
+ *
+ * @package Core
+ */
+namespace NoreSources;
 
 require_once (__DIR__ . '/../vendor/autoload.php');
 
-class DerivedFileManager extends TestCase
+class DerivedFileManager extends \PHPUnit\Framework\TestCase
 {
 
 	const DIRECTORY_REFERENCE = 'reference';

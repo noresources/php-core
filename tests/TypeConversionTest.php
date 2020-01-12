@@ -1,7 +1,14 @@
 <?php
-namespace NoreSources;
+/**
+ * Copyright © 2012 - 2020 by Renaud Guillard (dev@nore.fr)
+ * Distributed under the terms of the MIT License, see LICENSE
+ */
 
-use PHPUnit\Framework\TestCase;
+/**
+ *
+ * @package Core
+ */
+namespace NoreSources;
 
 class TypeConversionTestClassWithoutToString
 {
@@ -9,14 +16,14 @@ class TypeConversionTestClassWithoutToString
 	public $value = 5;
 }
 
-final class TypeConversionTest extends TestCase
+final class TypeConversionTest extends \PHPUnit\Framework\TestCase
 {
 
 	public function testInvalidArray()
 	{
 		$input = [
-				false,
-				'A string'
+			false,
+			'A string'
 		];
 
 		foreach ($input as $value)
@@ -31,9 +38,13 @@ final class TypeConversionTest extends TestCase
 	public function testInvalidInteger()
 	{
 		$input = [
-				new TypeConversionTestClassWithoutToString(),
-				[1, 2, 3],
-				'text'
+			new TypeConversionTestClassWithoutToString(),
+			[
+				1,
+				2,
+				3
+			],
+			'text'
 		];
 
 		foreach ($input as $value)
@@ -48,13 +59,13 @@ final class TypeConversionTest extends TestCase
 	public function testValidInteger()
 	{
 		$input = [
-				128,
-				'2014',
-				456.125,
-				new \DateTime('now'),
-				false,
-				true,
-				null
+			128,
+			'2014',
+			456.125,
+			new \DateTime('now'),
+			false,
+			true,
+			null
 		];
 
 		foreach ($input as $value)
@@ -68,8 +79,12 @@ final class TypeConversionTest extends TestCase
 	public function testInvalidString()
 	{
 		$input = [
-				new TypeConversionTestClassWithoutToString(),
-			[1, 2, 3]
+			new TypeConversionTestClassWithoutToString(),
+			[
+				1,
+				2,
+				3
+			]
 		];
 
 		foreach ($input as $value)
@@ -84,11 +99,13 @@ final class TypeConversionTest extends TestCase
 	public function testValidString()
 	{
 		$input = [
-				'2014-05-04',
-				4096,
-				1.2,
-				new DataTree (['key' => "value"]),
-				new \DateTime('now')
+			'2014-05-04',
+			4096,
+			1.2,
+			new DataTree([
+				'key' => "value"
+			]),
+			new \DateTime('now')
 		];
 
 		foreach ($input as $value)
@@ -102,10 +119,14 @@ final class TypeConversionTest extends TestCase
 	public function testInvalidDateTime()
 	{
 		$input = [
-				new DataTree(),
-				'2017 04 08 @ 15:22',
-				false,
-				[ 'foo-date' => '2012-10-14T16:32:45', 'bar-timezone_type' => 1, 'timezone' => '+0100' ]
+			new DataTree(),
+			'2017 04 08 @ 15:22',
+			false,
+			[
+				'foo-date' => '2012-10-14T16:32:45',
+				'bar-timezone_type' => 1,
+				'timezone' => '+0100'
+			]
 		];
 
 		foreach ($input as $value)
@@ -120,17 +141,24 @@ final class TypeConversionTest extends TestCase
 	public function testValidDateTime()
 	{
 		$input = [
-				'2014-05-04',
-				4096,
-				1.2,
-				[ 'date' => '2012-10-14T16:32:45', 'timezone_type' => 1, 'timezone' => '+0100' ],
-				[ 'time' => '2018-06-15T17:42:18+01:30', 'format' => \DateTIme::ISO8601 ]
+			'2014-05-04',
+			4096,
+			1.2,
+			[
+				'date' => '2012-10-14T16:32:45',
+				'timezone_type' => 1,
+				'timezone' => '+0100'
+			],
+			[
+				'time' => '2018-06-15T17:42:18+01:30',
+				'format' => \DateTIme::ISO8601
+			]
 		];
 
 		foreach ($input as $value)
 		{
 			$dt = TypeConversion::toDateTime($value);
-			$this->assertInstanceOf(\DateTIme::class, $dt, var_export ($value, true));
+			$this->assertInstanceOf(\DateTIme::class, $dt, var_export($value, true));
 		}
 	}
 
@@ -144,22 +172,69 @@ final class TypeConversionTest extends TestCase
 		$epoch100->setTimestamp(100);
 		$epoch100j = unixtojd($epoch100->getTimestamp());
 		$epoch100s = $epoch100->format(\DateTIme::ISO8601);
-		
+
 		foreach ([
-				['456', 'integer', 456 ],
-				[ 7, 'integer', 7 ],
-				[ $epoch100, 'integer', 100 ],
-				[ $epoch100, 'float', $epoch100j ],
-				[ 100, 'datetime', $epoch100 ],
-				[ $epoch100s, 'string', '1970-01-01T00:01:40+0000' ],
-				[ [ 'date' => '1970-01-01T00:01:40', 'timezone_type' => 1, 'timezone' => '+0000' ],
-					'datetime', $epoch100 ],
-				//[ [ 'date' => 'fail-01-01T00:01:40', 'timezone_type' => 1, 'timezone' => '+0000' ],
-				//		'datetime', 'fallback', $fallback ],
-				['256.123', 'float', 256.123 ],
-				[ 8, 'boolean', true ],
-				[ 'text', 'boolean', true ],
-				[ '', 'boolean', false ]
+			[
+				'456',
+				'integer',
+				456
+			],
+			[
+				7,
+				'integer',
+				7
+			],
+			[
+				$epoch100,
+				'integer',
+				100
+			],
+			[
+				$epoch100,
+				'float',
+				$epoch100j
+			],
+			[
+				100,
+				'datetime',
+				$epoch100
+			],
+			[
+				$epoch100s,
+				'string',
+				'1970-01-01T00:01:40+0000'
+			],
+			[
+				[
+					'date' => '1970-01-01T00:01:40',
+					'timezone_type' => 1,
+					'timezone' => '+0000'
+				],
+				'datetime',
+				$epoch100
+			],
+			//[ [ 'date' => 'fail-01-01T00:01:40', 'timezone_type' => 1, 'timezone' => '+0000' ],
+			//		'datetime', 'fallback', $fallback ],
+			[
+				'256.123',
+				'float',
+				256.123
+			],
+			[
+				8,
+				'boolean',
+				true
+			],
+			[
+				'text',
+				'boolean',
+				true
+			],
+			[
+				'',
+				'boolean',
+				false
+			]
 		] as $test)
 		{
 			$value = Container::keyValue($test, 0);

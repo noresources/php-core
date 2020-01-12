@@ -1,4 +1,13 @@
 <?php
+/**
+ * Copyright © 2012 - 2020 by Renaud Guillard (dev@nore.fr)
+ * Distributed under the terms of the MIT License, see LICENSE
+ */
+
+/**
+ *
+ * @package Core
+ */
 namespace NoreSources;
 
 class Stack implements \Countable
@@ -100,7 +109,7 @@ class Stack implements \Countable
 			throw new \BadMethodCallException(
 				$name . ' is not a method of ' . TypeDescription::getName($e));
 		;
-		
+
 		return \call_user_func_array([
 			$e,
 			$name

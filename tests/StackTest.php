@@ -1,9 +1,16 @@
 <?php
+/**
+ * Copyright © 2012 - 2020 by Renaud Guillard (dev@nore.fr)
+ * Distributed under the terms of the MIT License, see LICENSE
+ */
+
+/**
+ *
+ * @package Core
+ */
 namespace NoreSources;
 
-use PHPUnit\Framework\TestCase;
-
-final class StackTest extends TestCase
+final class StackTest extends \PHPUnit\Framework\TestCase
 {
 
 	public function testPushPop()
@@ -67,7 +74,7 @@ final class StackTest extends TestCase
 		{
 			$exception = $e;
 		}
-		
+
 		$this->assertInstanceOf(\Exception::class, $exception);
 
 		$stack->pop();

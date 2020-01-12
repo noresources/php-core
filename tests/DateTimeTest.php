@@ -1,16 +1,26 @@
 <?php
+/**
+ * Copyright © 2012 - 2020 by Renaud Guillard (dev@nore.fr)
+ * Distributed under the terms of the MIT License, see LICENSE
+ */
+
+/**
+ *
+ * @package Core
+ */
 namespace NoreSources;
 
-use PHPUnit\Framework\TestCase;
-
-final class DateTimeTest extends TestCase
+final class DateTimeTest extends \PHPUnit\Framework\TestCase
 {
 
 	public function testFromArray()
 	{
 		$tz = new \DateTimeZone('Europe/Berlin');
-		
-		foreach (['2019-09-07 12:13:14.500000+0200', 'now'] as $time)
+
+		foreach ([
+			'2019-09-07 12:13:14.500000+0200',
+			'now'
+		] as $time)
 		{
 			$dateTime = new \DateTime($time, $tz);
 
