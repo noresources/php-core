@@ -19,7 +19,7 @@ class DerivedFileManager extends \PHPUnit\Framework\TestCase
 
 	const DIRECTORY_DERIVED = 'derived';
 
-	public function __construct()
+	public function __construct($name = null, array $data = [], $dataName = '')
 	{
 		$this->derivedDataFiles = new \ArrayObject();
 	}

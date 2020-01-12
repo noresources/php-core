@@ -25,7 +25,7 @@ final class DateTimeTest extends \PHPUnit\Framework\TestCase
 			$dateTime = new \DateTime($time, $tz);
 
 			$exported = Container::createArray($dateTime);
-			$this->assertInternalType('array', $exported, $time . ' - DateTime to array');
+			$this->assertIsArray($exported, $time . ' - DateTime to array');
 			$this->assertCount(3, $exported);
 			$this->assertArrayHasKey('date', $exported);
 			$this->assertArrayHasKey('timezone', $exported);

@@ -13,8 +13,9 @@ namespace NoreSources;
 final class DataTreeTest extends \PHPUnit\Framework\TestCase
 {
 
-	public function __construct()
+	public function __construct($name = null, array $data = [], $dataName = '')
 	{
+		parent::__construct($name, $data, $dataName);
 		$this->derived = new DerivedFileManager();
 	}
 
