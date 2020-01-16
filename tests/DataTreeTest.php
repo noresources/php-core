@@ -34,6 +34,34 @@ final class DataTreeTest extends \PHPUnit\Framework\TestCase
 			'Non-existing key');
 	}
 
+	public function testClone()
+	{
+		$a = new DataTree([
+			'key' => 'value',
+			'tree' => [
+				'one' => 1,
+				'two' => 2
+			]
+		]);
+
+		$reference = $a;
+		$cloned = clone $a;
+
+		$this->assertEquals($a->getArrayCopy(), $reference->getArrayCopy(),
+			'Reference has identical data');
+		$this->assertEquals($a->getArrayCopy(), $cloned->getArrayCopy(), 'Clone has identical data');
+
+		$a->key = 'new value';
+
+		$this->assertEquals('new value', $reference->key, 'Reference has changed');
+		$this->assertEquals('value', $cloned->key, 'Cloned tree did not change');
+
+		$a->tree->three = 3;
+
+		$this->assertEquals(3, $reference->tree->three, 'Reference has changed (subtree)');
+		$this->assertEquals(null, $cloned->tree->three, 'Cloned tree did not change (subtree)');
+	}
+
 	public function testLoadJson()
 	{
 		$tree = new DataTree();

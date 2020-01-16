@@ -64,11 +64,16 @@ class DataTree implements \ArrayAccess, \Serializable, \IteratorAggregate, \Coun
 	public function __construct($data = [])
 	{
 		$this->elements = new \ArrayObject();
-		$this->dataTreeFlags = 0;
-		$this->defaultValueHandler = null;
 
 		if (Container::isTraversable($data, true))
 			$this->setContent($data, self::REPLACE);
+	}
+
+	public function __clone()
+	{
+		$data = $this->getArrayCopy();
+		$this->elements = new \ArrayObject();
+		$this->setContent($data, self::REPLACE);
 	}
 
 	/**
@@ -131,8 +136,7 @@ class DataTree implements \ArrayAccess, \Serializable, \IteratorAggregate, \Coun
 			return $this->elements->offsetGet($key);
 		}
 
-		return (is_callable($this->defaultValueHandler) ? (call_user_func(
-			$this->defaultValueHandler, $key, $this)) : null);
+		return null;
 	}
 
 	/**
@@ -163,26 +167,6 @@ class DataTree implements \ArrayAccess, \Serializable, \IteratorAggregate, \Coun
 	 */
 	public function setElement($key, $value, $mode = self::REPLACE)
 	{
-		if ($this->dataTreeFlags & self::READ_ONLY)
-		{
-			if ($this->dataTreeFlags & self::SILENT)
-			{
-				return;
-			}
-
-			throw new \Exception('Read only setting table');
-		}
-
-		if (($this->dataTreeFlags & self::RESTRICTED_KEYS) && !$this->elements->offsetExists($key))
-		{
-			if ($this->dataTreeFlags & self::SILENT)
-			{
-				return;
-			}
-
-			throw new \Exception('New key are not accepted');
-		}
-
 		$exists = $this->elements->offsetExists($key);
 
 		if ($exists)
@@ -205,8 +189,6 @@ class DataTree implements \ArrayAccess, \Serializable, \IteratorAggregate, \Coun
 			if (!($st instanceof DataTree))
 			{
 				$st = new DataTree();
-				$st->defaultValueHandler = $this->defaultValueHandler;
-				$st->dataTreeFlags = $this->dataTreeFlags;
 			}
 
 			foreach ($value as $k => $v)
@@ -370,24 +352,6 @@ class DataTree implements \ArrayAccess, \Serializable, \IteratorAggregate, \Coun
 	}
 
 	/**
-	 * Set setting table flags
-	 *
-	 * @param integer $flags
-	 */
-	public function setFlags($flags)
-	{
-		$this->dataTreeFlags = $flags;
-	}
-
-	/**
-	 * Get setting table flags
-	 */
-	public function getFlags()
-	{
-		return $this->dataTreeFlags;
-	}
-
-	/**
 	 *
 	 * @param array $data
 	 *        	Data tree content
@@ -463,7 +427,6 @@ class DataTree implements \ArrayAccess, \Serializable, \IteratorAggregate, \Coun
 	 */
 	public function setDefaultValueHandler($callable)
 	{
-		$this->defaultValueHandler = $callable;
 		foreach ($this->elements as $k => &$v)
 		{
 			if ($v instanceof DataTree)
@@ -502,22 +465,9 @@ class DataTree implements \ArrayAccess, \Serializable, \IteratorAggregate, \Coun
 	}
 
 	/**
-	 * Option flags
-	 *
-	 * @var integer
-	 */
-	private $dataTreeFlags;
-
-	/**
 	 * Setting map
 	 *
 	 * @var \ArrayObject
 	 */
 	private $elements;
-
-	/**
-	 *
-	 * @var mixed
-	 */
-	private $defaultValueHandler;
 }
