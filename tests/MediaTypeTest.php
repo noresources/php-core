@@ -53,6 +53,36 @@ final class MediaTypeTest extends \PHPUnit\Framework\TestCase
 				],
 				'syntax' => null
 			],
+			'image/vnd.noresources.amazing.format' => [
+				'strict' => true,
+				'type' => 'image',
+				'subtype' => [
+					'text' => 'vnd.noresources.amazing.format',
+					'facets' => [
+						'vnd',
+						'noresources',
+						"amazing",
+						'format'
+					],
+					'syntax' => null
+				],
+				'syntax' => null
+			],
+			'text/vnd.noresources.incredibly.flexible+xml' => [
+				'strict' => true,
+				'type' => 'text',
+				'subtype' => [
+					'text' => 'vnd.noresources.incredibly.flexible+xml',
+					'facets' => [
+						'vnd',
+						'noresources',
+						"incredibly",
+						'flexible'
+					],
+					'syntax' => 'xml'
+				],
+				'syntax' => 'xml'
+			],
 			'application/alto-costmap+json' => [
 				'strict' => true,
 				'type' => 'application',
@@ -76,11 +106,8 @@ final class MediaTypeTest extends \PHPUnit\Framework\TestCase
 			if ($parsed['subtype'])
 			{
 				$this->assertInstanceOf(MediaSubType::class, $mediaType->subType, $text . ' subtype');
-				/**
-				 *
-				 * @var MediaSubType $subType
-				 */
-				$subType = $mediaType->subType;
+
+				$subType = $mediaType->getSubType();
 
 				$this->assertCount(count($parsed['subtype']['facets']), $subType->getFacets(),
 					$text . ' subtype facets');

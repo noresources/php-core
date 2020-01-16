@@ -242,6 +242,15 @@ class MediaType implements StringRepresentation
 	}
 
 	/**
+	 *
+	 * @return \NoreSources\MediaSubType
+	 */
+	public function getSubType()
+	{
+		return $this->mediaSubType;
+	}
+
+	/**
 	 * Get the subtype structured syntax name if any.
 	 *
 	 * If the subtype does not specify a structured syntax name and if the media main type is "test",
