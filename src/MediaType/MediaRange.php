@@ -27,11 +27,19 @@ class MediaRange implements MediaTypeInterface, StringRepresentation
 		$this->subType = $subType;
 	}
 
+	/**
+	 *
+	 * @return string
+	 */
 	public function getMainType()
 	{
 		return $this->mainType;
 	}
 
+	/**
+	 *
+	 * @return MediaSubType|string
+	 */
 	public function getSubType()
 	{
 		return $this->subType;
@@ -64,6 +72,31 @@ class MediaRange implements MediaTypeInterface, StringRepresentation
 		}
 
 		return new MediaRange(Container::keyValue($matches, 1, self::ANY), $subType);
+	}
+
+	/**
+	 *
+	 * @param MediaTypeInterface $a
+	 * @param MediaTypeInterface $b
+	 * @return number -1 if @c $a < @c $b, 1 if @c $a > @c $b, 0 if equal or not comparable
+	 */
+	public static function compare(MediaTypeInterface $a, MediaTypeInterface $b)
+	{
+		if ($a->getMainType() == self::ANY)
+		{
+			return (($b->getMainType() == self::ANY) ? 0 : -1);
+		}
+		elseif ($b->getMainType() == self::ANY)
+			return 1;
+
+		if ($a->getSubType() == self::ANY)
+		{
+			return (($b->getSubType() == self::ANY) ? 0 : -1);
+		}
+		elseif ($b->getSubType() == self::ANY)
+			return 1;
+
+		return $a->getSubType()->compare($b->getSubType());
 	}
 
 	/**

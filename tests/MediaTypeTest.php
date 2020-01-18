@@ -15,6 +15,7 @@ use NoreSources\MediaType\MediaSubType;
 use NoreSources\MediaType\MediaTypeException;
 use NoreSources\MediaType\MediaRange;
 use NoreSources\MediaType\MediaTypeFactory;
+use NoreSources\MediaType\MediaTypeInterface;
 
 final class MediaTypeTest extends \PHPUnit\Framework\TestCase
 {
@@ -161,5 +162,114 @@ final class MediaTypeTest extends \PHPUnit\Framework\TestCase
 	{
 		$this->assertEquals('application/json',
 			strval(MediaTypeFactory::fromMedia(__DIR__ . '/data/a.json')));
+	}
+
+	public function testCompareSubTypes()
+	{
+		$tests = [
+			'identical' => [
+				'html',
+				'html',
+				0
+			],
+			'identical (3 facets)' => [
+				'vnc.ns.php',
+				'vnc.ns.php',
+				0
+			],
+			'not comparable' => [
+				'html',
+				'json',
+				0
+			],
+			'more precise' => [
+				'vnd.ns.php',
+				'vnd.ns',
+				1
+			],
+			'less precise' => [
+				'vnd.ns',
+				'vnd.ns.php',
+				-1
+			]
+		];
+
+		foreach ($tests as $test)
+		{
+			$a = null;
+			$b = null;
+			try
+			{
+				$a = MediaRange::fromString('whatever/' . $test[0]);
+				$a = $a->getSubType();
+				$b = MediaRange::fromString('whatever/' . $test[1]);
+				$b = $b->getSubType();
+
+				$result = $a->compare($b);
+			}
+			catch (\Exception $e)
+			{
+				$this->assertEquals('No error', $e->getMessage(), 'MediaType creation');
+				continue;
+			}
+
+			$this->assertEquals($test[2], $result, $test[0] . ' < ' . $test[1] . ' = ...');
+		}
+	}
+
+	public function testCompareRanges()
+	{
+		$tests = [
+			'identical types' => [
+				'text/html',
+				'text/html',
+				0
+			],
+			'identical ranges' => [
+				'text/*',
+				'text/*',
+				0
+			],
+			'identical ranges (any)' => [
+				'*/*',
+				'*/*',
+				0
+			],
+			'not comparable' => [
+				'text/html',
+				'font/ttf',
+				0
+			],
+			'type more precise than any' => [
+				'text/*',
+				'*/*',
+				1
+			],
+			'subtype more precise than any' => [
+				'text/xml',
+				'text/*',
+				1
+			],
+			'more precise subtype' => [
+				'application/vnd.ns.php',
+				'application/vnd.ns',
+				1
+			]
+		];
+
+		foreach ($tests as $test)
+		{
+			$a = MediaTypeFactory::fromString($test[0], true);
+			$b = MediaTypeFactory::fromString($test[1], true);
+
+			$label = $test[0] . ' < ' . $test[1];
+
+			$this->assertInstanceOf(MediaTypeInterface::class, $a, $label . ' left operand class');
+			$this->assertInstanceOf(MediaTypeInterface::class, $b, $label . ' right operand class');
+
+			$result = MediaRange::compare($a, $b);
+
+			$this->assertEquals($test[2], $result, $label . ' = ...');
+		}
 	}
 }

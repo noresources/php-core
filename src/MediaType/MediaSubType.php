@@ -76,6 +76,30 @@ class MediaSubType implements StringRepresentation
 		return null;
 	}
 
+	public function compare(MediaSubType $b)
+	{
+		$fca = $this->getFacetCount();
+		$fcb = $b->getFacetCount();
+		$fcm = min($fca, $fcb);
+		$fcM = max($fca, $fcb);
+		$i = 0;
+		for (; $i < $fcm; $i++)
+		{
+			$fa = $this->getFacet($i);
+			$fb = $b->getFacet($i);
+
+			if ($fb != $fb)
+			{
+				if ($i == ($fcM - 1))
+					return \strcmp($fa, $fb);
+
+				return 0;
+			}
+		}
+
+		return ($fca > $fcb) ? 1 : (($fca < $fcb) ? -1 : 0);
+	}
+
 	/**
 	 *
 	 * @var array
