@@ -26,6 +26,6 @@ class MediaTypeException extends \Exception
 	 */
 	public function __construct($type, $message)
 	{
-		parent::__construct($message);
+		parent::__construct('[' . strval($type) . '] ' . $message);
 	}
 }

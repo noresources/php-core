@@ -12,6 +12,9 @@ namespace NoreSources;
 
 use NoreSources\MediaType\MediaType;
 use NoreSources\MediaType\MediaSubType;
+use NoreSources\MediaType\MediaTypeException;
+use NoreSources\MediaType\MediaRange;
+use NoreSources\MediaType\MediaTypeFactory;
 
 final class MediaTypeTest extends \PHPUnit\Framework\TestCase
 {
@@ -20,7 +23,8 @@ final class MediaTypeTest extends \PHPUnit\Framework\TestCase
 	{
 		$tests = [
 			'text/html' => [
-				'strict' => true,
+				'valid' => true,
+				'class' => MediaType::class,
 				'type' => 'text',
 				'subtype' => [
 					'text' => 'html',
@@ -32,19 +36,22 @@ final class MediaTypeTest extends \PHPUnit\Framework\TestCase
 				'syntax' => 'html'
 			],
 			'text/*' => [
-				'strict' => false,
+				'valid' => true,
+				'class' => MediaRange::class,
 				'type' => 'text',
 				'subtype' => null,
 				'syntax' => null
 			],
 			'*/*' => [
-				'strict' => false,
+				'valid' => true,
+				'class' => MediaRange::class,
 				'type' => '*',
 				'subtype' => null,
 				'syntax' => null
 			],
 			'text/vnd.abc' => [
-				'strict' => true,
+				'valid' => true,
+				'class' => MediaType::class,
 				'type' => 'text',
 				'subtype' => [
 					'text' => 'vnd.abc',
@@ -57,7 +64,8 @@ final class MediaTypeTest extends \PHPUnit\Framework\TestCase
 				'syntax' => null
 			],
 			'image/vnd.noresources.amazing.format' => [
-				'strict' => true,
+				'valid' => true,
+				'class' => MediaType::class,
 				'type' => 'image',
 				'subtype' => [
 					'text' => 'vnd.noresources.amazing.format',
@@ -72,7 +80,8 @@ final class MediaTypeTest extends \PHPUnit\Framework\TestCase
 				'syntax' => null
 			],
 			'text/vnd.noresources.incredibly.flexible+xml' => [
-				'strict' => true,
+				'valid' => true,
+				'class' => MediaType::class,
 				'type' => 'text',
 				'subtype' => [
 					'text' => 'vnd.noresources.incredibly.flexible+xml',
@@ -87,7 +96,8 @@ final class MediaTypeTest extends \PHPUnit\Framework\TestCase
 				'syntax' => 'xml'
 			],
 			'application/alto-costmap+json' => [
-				'strict' => true,
+				'valid' => true,
+				'class' => MediaType::class,
 				'type' => 'application',
 				'subtype' => [
 					'text' => 'alto-costmap+json',
@@ -102,8 +112,20 @@ final class MediaTypeTest extends \PHPUnit\Framework\TestCase
 
 		foreach ($tests as $text => $parsed)
 		{
-			$mediaType = MediaType::fromString($text, !$parsed['strict']);
-			$this->assertInstanceOf(MediaType::class, $mediaType, $text);
+			$mediaType = null;
+			try
+			{
+				$mediaType = MediaTypeFactory::fromString($text,
+					$parsed['class'] == MediaRange::class);
+			}
+			catch (MediaTypeException $e)
+			{
+				if ($parsed['valid'])
+					throw $e;
+				continue;
+			}
+
+			$this->assertInstanceOf($parsed['class'], $mediaType, $text);
 			$this->assertEquals($parsed['type'], $mediaType->getMainType(), $text . ' name');
 
 			if ($parsed['subtype'])
@@ -125,6 +147,8 @@ final class MediaTypeTest extends \PHPUnit\Framework\TestCase
 						$text . ' subtype facet ' . $index);
 				}
 			}
+			else
+				$this->assertEquals(MediaRange::ANY, $mediaType->getSubType(), 'Subtype is a range');
 
 			$this->assertEquals($parsed['syntax'], $mediaType->getStructuredSyntax(),
 				$text . ' syntax');
@@ -136,6 +160,6 @@ final class MediaTypeTest extends \PHPUnit\Framework\TestCase
 	public function testFromMedia()
 	{
 		$this->assertEquals('application/json',
-			strval(MediaType::fromMedia(__DIR__ . '/data/a.json')));
+			strval(MediaTypeFactory::fromMedia(__DIR__ . '/data/a.json')));
 	}
 }

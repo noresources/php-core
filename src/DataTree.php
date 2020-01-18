@@ -12,6 +12,7 @@ namespace NoreSources;
 
 use NoreSources\MediaType\MediaType;
 use NoreSources\MediaType\MediaSubType;
+use NoreSources\MediaType\MediaTypeFactory;
 
 /**
  * Serializable data tree structure
@@ -401,7 +402,7 @@ class DataTree implements \ArrayAccess, \Serializable, \IteratorAggregate, \Coun
 
 		$type = null;
 		if ($mediaType === null)
-			$type = MediaType::fromMedia($filename);
+			$type = MediaTypeFactory::fromMedia($filename);
 		elseif (\is_string($type))
 			$type = MediaType::fromString($type);
 

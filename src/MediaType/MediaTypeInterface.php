@@ -26,4 +26,14 @@ interface MediaTypeInterface
 	 * @return \NoreSources\MediaType\MediaSubType|string
 	 */
 	function getSubType();
+
+	/**
+	 * Get the subtype structured syntax name if any.
+	 *
+	 * If the subtype does not specify a structured syntax name and if the media main type is "test",
+	 * the sybtype name is returned.
+	 *
+	 * @return string|array|string|NULL
+	 */
+	function getStructuredSyntax();
 }
