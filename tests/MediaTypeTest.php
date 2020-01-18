@@ -10,6 +10,9 @@
  */
 namespace NoreSources;
 
+use NoreSources\MediaType\MediaType;
+use NoreSources\MediaType\MediaSubType;
+
 final class MediaTypeTest extends \PHPUnit\Framework\TestCase
 {
 
@@ -101,11 +104,12 @@ final class MediaTypeTest extends \PHPUnit\Framework\TestCase
 		{
 			$mediaType = MediaType::fromString($text, !$parsed['strict']);
 			$this->assertInstanceOf(MediaType::class, $mediaType, $text);
-			$this->assertEquals($parsed['type'], $mediaType->name, $text . ' name');
+			$this->assertEquals($parsed['type'], $mediaType->getMainType(), $text . ' name');
 
 			if ($parsed['subtype'])
 			{
-				$this->assertInstanceOf(MediaSubType::class, $mediaType->subType, $text . ' subtype');
+				$this->assertInstanceOf(MediaSubType::class, $mediaType->getSubType(),
+					$text . ' subtype');
 
 				$subType = $mediaType->getSubType();
 

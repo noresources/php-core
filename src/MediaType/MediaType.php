@@ -8,151 +8,52 @@
  *
  * @package Core
  */
-namespace NoreSources;
+namespace NoreSources\MediaType;
 
-class MediaTypeException extends \Exception
-{
-
-	/**
-	 *
-	 * @var MediaType|MediaSubType|string
-	 */
-	public $type;
-
-	/**
-	 *
-	 * @param MediaType|MediaSubType|string $type
-	 * @param string $message
-	 */
-	public function __construct($type, $message)
-	{
-		parent::__construct($message);
-	}
-}
-
-class MediaSubType implements StringRepresentation
-{
-
-	/**
-	 *
-	 * @param array|string $facets
-	 * @param string|null $structuredSyntax
-	 */
-	public function __construct($facets, $structuredSyntax = null)
-	{
-		$this->facets = $facets;
-		$this->structuredSyntax = $structuredSyntax;
-
-		if (\is_string($facets))
-			$this->facets = explode('.', $facets);
-	}
-
-	public function __toString()
-	{
-		$s = \implode('.', $this->facets);
-		if (\is_string($this->structuredSyntax) && \strlen($this->structuredSyntax))
-			$s .= '+' . $this->structuredSyntax;
-
-		return $s;
-	}
-
-	/**
-	 *
-	 * @return array Subtype facets
-	 */
-	public function getFacets()
-	{
-		return $this->facets;
-	}
-
-	/**
-	 *
-	 * @param integer $index
-	 * @return string|NULL Subtype facet at the given index or @c null if the index does not exists
-	 */
-	public function getFacet($index)
-	{
-		return Container::keyValue($this->facets, $index, null);
-	}
-
-	public function getFacetCount()
-	{
-		return count($this->facets);
-	}
-
-	/**
-	 * Get the sub type structured syntax name
-	 *
-	 * @see https://tools.ietf.org/html/rfc6838#section-4.2.8
-	 * @return string If any, the lower-case structured syntax name
-	 */
-	public function getStructuredSyntax()
-	{
-		if (\is_string($this->structuredSyntax) && \strlen($this->structuredSyntax))
-			return strtolower($this->structuredSyntax);
-		return null;
-	}
-
-	/**
-	 *
-	 * @var array
-	 */
-	private $facets;
-
-	/**
-	 *
-	 * @var string
-	 */
-	private $structuredSyntax;
-}
+use NoreSources\StringRepresentation;
+use NoreSources\Container;
 
 /**
  *
  * @see https://www.iana.org/assignments/media-types/media-types.xhtml
  *
  */
-class MediaType implements StringRepresentation
+class MediaType implements MediaTypeInterface, StringRepresentation
 {
 
-	const ANY = '*';
-
 	/**
-	 * Media main type
 	 *
-	 * @var string
+	 * @return string
 	 */
-	public $name;
-
-	public function __construct($type, MediaSubType $subType = null)
+	public function getMainType()
 	{
-		$this->name = $type;
-		$this->mediaSubType = $subType;
+		return $this->mainType;
 	}
 
 	/**
 	 *
-	 * @property-read MediaSubType $subType
-	 * @property-read MediaSubType $subtype
-	 *
-	 * @param string $member
-	 * @return \NoreSources\MediaSubType
+	 * @return \NoreSources\MediaType\MediaSubType
 	 */
-	public function __get($member)
+	public function getSubType()
 	{
-		if (strtolower($member) == 'subtype')
-			return $this->mediaSubType;
+		return $this->subType;
+	}
 
-		throw new \InvalidArgumentException(
-			$member . ' is nat a member of ' . TypeDescription::getName($this));
+	const ANY = '*';
+
+	public function __construct($type, MediaSubType $subType = null)
+	{
+		$this->mainType = $type;
+		$this->subType = $subType;
 	}
 
 	public function __toString()
 	{
-		if (\is_string($this->name) && strlen($this->name) && ($this->name != self::ANY))
+		if (\is_string($this->mainType) && strlen($this->mainType) && ($this->mainType != self::ANY))
 		{
-			$s = $this->name . '/';
-			if ($this->mediaSubType instanceof MediaSubType)
-				$s .= strval($this->mediaSubType);
+			$s = $this->mainType . '/';
+			if ($this->subType instanceof MediaSubType)
+				$s .= strval($this->subType);
 			else
 				$s .= '*';
 			return $s;
@@ -166,7 +67,7 @@ class MediaType implements StringRepresentation
 	 *
 	 * @param string|resource $media
 	 *        	File path or stream
-	 * @return \NoreSources\MediaType
+	 * @return \NoreSources\MediaType\MediaType
 	 */
 	public static function fromMedia($media)
 	{
@@ -192,7 +93,7 @@ class MediaType implements StringRepresentation
 	 *
 	 * @param string $extension
 	 *        	File extension
-	 * @return \NoreSources\MediaType|false
+	 * @return \NoreSources\MediaType\MediaType|false
 	 */
 	public static function fromFileExtension($extension)
 	{
@@ -221,7 +122,7 @@ class MediaType implements StringRepresentation
 	 * @param boolean $acceptStar
 	 *        	Accept the character '*' indicating "any type or subtype" in HTTP Accept header
 	 * @throws MediaTypeException
-	 * @return \NoreSources\MediaType
+	 * @return \NoreSources\MediaType\MediaType
 	 */
 	public static function fromString($mediaTypeString, $acceptStar = false)
 	{
@@ -242,15 +143,6 @@ class MediaType implements StringRepresentation
 	}
 
 	/**
-	 *
-	 * @return \NoreSources\MediaSubType
-	 */
-	public function getSubType()
-	{
-		return $this->mediaSubType;
-	}
-
-	/**
 	 * Get the subtype structured syntax name if any.
 	 *
 	 * If the subtype does not specify a structured syntax name and if the media main type is "test",
@@ -260,17 +152,17 @@ class MediaType implements StringRepresentation
 	 */
 	public function getStructuredSyntax()
 	{
-		if (!($this->mediaSubType instanceof MediaSubType))
+		if (!($this->subType instanceof MediaSubType))
 			return null;
 
-		$s = $this->mediaSubType->getStructuredSyntax();
+		$s = $this->subType->getStructuredSyntax();
 		if ($s)
 			return $s;
 
-		if ($this->mediaSubType->getFacetCount() == 1)
+		if ($this->subType->getFacetCount() == 1)
 		{
-			$facet = $this->mediaSubType->getFacet(0);
-			if ((strtolower($this->name) == 'text') || \in_array($facet, [
+			$facet = $this->subType->getFacet(0);
+			if ((strtolower($this->mainType) == 'text') || \in_array($facet, [
 				'json',
 				'xml'
 			]))
@@ -285,10 +177,17 @@ class MediaType implements StringRepresentation
 	const PATTERN_OPTIONAL = '^(?:\*/\*)|(?:([a-z0-9](?:[a-z0-9!#$&^ -]{0,126}))/(?:(?:\*)|((?:[a-z0-9](?:[a-z0-9!#$&^ -]{0,126}))(?:\.(?:[a-z0-9](?:[a-z0-9!#$&^ -]{0,126})))*)(?:\+([a-z0-9](?:[a-z0-9!#$&^ -]{0,126})))*))$';
 
 	/**
+	 * Media main type
+	 *
+	 * @var string
+	 */
+	private $mainType;
+
+	/**
 	 *
 	 * @var MediaSubType
 	 */
-	private $mediaSubType;
+	private $subType;
 
 	private static $extensions;
 }

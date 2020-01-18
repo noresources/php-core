@@ -10,6 +10,9 @@
  */
 namespace NoreSources;
 
+use NoreSources\MediaType\MediaType;
+use NoreSources\MediaType\MediaSubType;
+
 /**
  * Serializable data tree structure
  */

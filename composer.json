@@ -1,5 +1,6 @@
 {
 	"name": "noresources/ns-php-core",
+	"version": "2.0.1",
 	"description": "Utility class library for PHP",
 	"type": "library",
 	"keywords": [
