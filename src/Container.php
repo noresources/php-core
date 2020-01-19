@@ -440,7 +440,7 @@ class Container
 			return $defaultValue;
 		}
 
-		throw new InvalidContainerException($element);
+		throw new InvalidContainerException($container, __METHOD__);
 	}
 
 	/**
