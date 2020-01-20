@@ -16,6 +16,7 @@ use NoreSources\StringRepresentation;
 class MediaRange implements MediaTypeInterface, StringRepresentation
 {
 	use MediaTypeStructuredTextTrait;
+	use MediaTypeParameterMapTrait;
 
 	const ANY = '*';
 
@@ -25,6 +26,7 @@ class MediaRange implements MediaTypeInterface, StringRepresentation
 	{
 		$this->mainType = $type;
 		$this->subType = $subType;
+		$this->initializeParameterMap();
 	}
 
 	/**

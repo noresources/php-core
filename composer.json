@@ -32,6 +32,9 @@
 	"suggest": {
 		"ext-yaml": "Needed to load DataTree content from YAML encoded file"
 	},
+	"scripts": {
+		"tests": "@php  ./vendor/bin/phpunit --color=never --bootstrap tests/bootstrap.php tests"
+	},
 	"require-dev": {
 		"phpunit/phpunit": "~8.0"
 	},

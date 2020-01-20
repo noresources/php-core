@@ -21,7 +21,17 @@ use NoreSources\StringRepresentation;
 class MediaType implements MediaTypeInterface, StringRepresentation
 {
 
+	/**
+	 * Parameter name pattern.
+	 *
+	 * @see https://raw.githubusercontent.com/httpwg/http-core/master/httpbis.abnf
+	 *
+	 * @var string
+	 */
+	const PARAMETER_NAME_PATTERN = '[A-Za-z0-9!#$%\'*+.^_`|~-]+';
+
 	use MediaTypeStructuredTextTrait;
+	use MediaTypeParameterMapTrait;
 
 	/**
 	 *
@@ -45,6 +55,7 @@ class MediaType implements MediaTypeInterface, StringRepresentation
 	{
 		$this->mainType = $type;
 		$this->subType = $subType;
+		$this->initializeParameterMap();
 	}
 
 	public function __toString()

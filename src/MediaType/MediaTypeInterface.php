@@ -36,4 +36,11 @@ interface MediaTypeInterface
 	 * @return string|array|string|NULL
 	 */
 	function getStructuredSyntax();
+
+	/**
+	 * Media Type parameters
+	 *
+	 * @return MediaTypeParameterMapInterface A reference to a MediaTypeParameterMap implementation
+	 */
+	function getParameters();
 }
