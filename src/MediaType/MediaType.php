@@ -10,8 +10,8 @@
  */
 namespace NoreSources\MediaType;
 
-use NoreSources\StringRepresentation;
 use NoreSources\Container;
+use NoreSources\StringRepresentation;
 
 /**
  *
@@ -41,8 +41,6 @@ class MediaType implements MediaTypeInterface, StringRepresentation
 		return $this->subType;
 	}
 
-	const ANY = '*';
-
 	public function __construct($type, MediaSubType $subType = null)
 	{
 		$this->mainType = $type;
@@ -62,10 +60,16 @@ class MediaType implements MediaTypeInterface, StringRepresentation
 	 * @throws MediaTypeException
 	 * @return \NoreSources\MediaType\MediaType
 	 */
-	public static function fromString($mediaTypeString)
+	public static function fromString($mediaTypeString, $strict = true)
 	{
+		$pattern = self::STRING_PATTERN;
+		if ($strict)
+			$pattern = '^' . $pattern . '$';
+		else
+			$pattern = '^[\x9\x20]*' . $pattern;
+
 		$matches = [];
-		if (!\preg_match(chr(1) . self::STRING_PATTERN . chr(1) . 'i', $mediaTypeString, $matches))
+		if (!\preg_match(chr(1) . $pattern . chr(1) . 'i', $mediaTypeString, $matches))
 			throw new MediaTypeException($mediaTypeString, 'Not a valid media type string');
 
 		$subType = null;
@@ -76,10 +80,10 @@ class MediaType implements MediaTypeInterface, StringRepresentation
 			$subType = new MediaSubType($facets, $syntax);
 		}
 
-		return new MediaType(Container::keyValue($matches, 1, self::ANY), $subType);
+		return new MediaType($matches[1], $subType);
 	}
 
-	const STRING_PATTERN = '^([a-z0-9](?:[a-z0-9!#$&^ -]{0,126}))/((?:[a-z0-9](?:[a-z0-9!#$&^ -]{0,126}))(?:\.(?:[a-z0-9](?:[a-z0-9!#$&^ -]{0,126})))*)(?:\+([a-z0-9](?:[a-z0-9!#$&^ -]{0,126})))*$';
+	const STRING_PATTERN = '([a-z0-9](?:[a-z0-9!#$&^ -]{0,126}))/((?:[a-z0-9](?:[a-z0-9!#$&^ -]{0,126}))(?:\.(?:[a-z0-9](?:[a-z0-9!#$&^ -]{0,126})))*)(?:\+([a-z0-9](?:[a-z0-9!#$&^ -]{0,126})))*';
 
 	/**
 	 * Media main type

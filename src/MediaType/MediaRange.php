@@ -10,8 +10,8 @@
  */
 namespace NoreSources\MediaType;
 
-use NoreSources\StringRepresentation;
 use NoreSources\Container;
+use NoreSources\StringRepresentation;
 
 class MediaRange implements MediaTypeInterface, StringRepresentation
 {
@@ -19,7 +19,7 @@ class MediaRange implements MediaTypeInterface, StringRepresentation
 
 	const ANY = '*';
 
-	const STRING_PATTERN = '^(?:\*/\*)|(?:([a-z0-9](?:[a-z0-9!#$&^ -]{0,126}))/(?:(?:\*)|((?:[a-z0-9](?:[a-z0-9!#$&^ -]{0,126}))(?:\.(?:[a-z0-9](?:[a-z0-9!#$&^ -]{0,126})))*)(?:\+([a-z0-9](?:[a-z0-9!#$&^ -]{0,126})))*))$';
+	const STRING_PATTERN = '(?:\*/\*)|(?:([a-z0-9](?:[a-z0-9!#$&^ -]{0,126}))/(?:(?:\*)|((?:[a-z0-9](?:[a-z0-9!#$&^ -]{0,126}))(?:\.(?:[a-z0-9](?:[a-z0-9!#$&^ -]{0,126})))*)(?:\+([a-z0-9](?:[a-z0-9!#$&^ -]{0,126})))*))';
 
 	public function __construct($type = self::ANY, $subType = self::ANY)
 	{
@@ -57,10 +57,16 @@ class MediaRange implements MediaTypeInterface, StringRepresentation
 	 * @throws MediaTypeException
 	 * @return \NoreSources\MediaType\MediaRange
 	 */
-	public static function fromString($mediaTypeString)
+	public static function fromString($mediaTypeString, $strict = true)
 	{
+		$pattern = self::STRING_PATTERN;
+		if ($strict)
+			$pattern = '^' . $pattern . '$';
+		else
+			$pattern = '^[\x9\x20]*' . $pattern;
+
 		$matches = [];
-		if (!\preg_match(chr(1) . self::STRING_PATTERN . chr(1) . 'i', $mediaTypeString, $matches))
+		if (!\preg_match(chr(1) . $pattern . chr(1) . 'i', $mediaTypeString, $matches))
 			throw new MediaTypeException($mediaTypeString, 'Not a valid media range string');
 
 		$subType = self::ANY;
