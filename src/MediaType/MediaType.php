@@ -94,7 +94,7 @@ class MediaType implements MediaTypeInterface, StringRepresentation
 		return new MediaType($matches[1], $subType);
 	}
 
-	const STRING_PATTERN = '([a-z0-9](?:[a-z0-9!#$&^ -]{0,126}))/((?:[a-z0-9](?:[a-z0-9!#$&^ -]{0,126}))(?:\.(?:[a-z0-9](?:[a-z0-9!#$&^ -]{0,126})))*)(?:\+([a-z0-9](?:[a-z0-9!#$&^ -]{0,126})))*';
+	const STRING_PATTERN = '([a-z0-9](?:[a-z0-9!#$&^_-]{0,126}))/((?:[a-z0-9](?:[a-z0-9!#$&^_-]{0,126}))(?:\.(?:[a-z0-9](?:[a-z0-9!#$&^_-]{0,126})))*)(?:\+([a-z0-9](?:[a-z0-9!#$&^_-]{0,126})))*';
 
 	/**
 	 * Media main type

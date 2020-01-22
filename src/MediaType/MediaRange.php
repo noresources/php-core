@@ -20,7 +20,7 @@ class MediaRange implements MediaTypeInterface, StringRepresentation
 
 	const ANY = '*';
 
-	const STRING_PATTERN = '(?:\*/\*)|(?:([a-z0-9](?:[a-z0-9!#$&^ -]{0,126}))/(?:(?:\*)|((?:[a-z0-9](?:[a-z0-9!#$&^ -]{0,126}))(?:\.(?:[a-z0-9](?:[a-z0-9!#$&^ -]{0,126})))*)(?:\+([a-z0-9](?:[a-z0-9!#$&^ -]{0,126})))*))';
+	const STRING_PATTERN = '(?:\*/\*)|(?:([a-z0-9](?:[a-z0-9!#$&^_-]{0,126}))/(?:(?:\*)|((?:[a-z0-9](?:[a-z0-9!#$&^_-]{0,126}))(?:\.(?:[a-z0-9](?:[a-z0-9!#$&^_-]{0,126})))*)(?:\+([a-z0-9](?:[a-z0-9!#$&^_-]{0,126})))*))';
 
 	public function __construct($type = self::ANY, $subType = self::ANY)
 	{
