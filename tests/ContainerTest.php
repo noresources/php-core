@@ -10,6 +10,16 @@
  */
 namespace NoreSources;
 
+use Psr\Container\ContainerInterface;
+use Psr\Container\NotFoundExceptionInterface;
+
+class NotFoundException implements NotFoundExceptionInterface
+{
+
+	public function __construct()
+	{}
+}
+
 $indexedReference = array(
 	"zero",
 	"one",
@@ -29,6 +39,7 @@ $hashReference = array(
 $hashReferenceObject = new \ArrayObject($hashReference);
 $indexedReferenceObject = new \ArrayObject($indexedReference);
 $sparseIndexedReferenceObject = new \ArrayObject($sparseIndexedReference);
+
 $nullValue = null;
 
 class SimpleClass
@@ -63,6 +74,30 @@ class ArrayAccessImpl implements \ArrayAccess
 	public function offsetUnset($offset)
 	{
 		unset($this->table[$offset]);
+	}
+
+	private $table;
+}
+
+class ContainerImpl implements ContainerInterface
+{
+
+	public function __construct($a)
+	{
+		$this->table = $a;
+	}
+
+	public function has($id)
+	{
+		return \array_key_exists($id, $this->table);
+	}
+
+	public function get($id)
+	{
+		if (\array_key_exists($id, $this->table))
+			return $this->table[$id];
+
+		throw new NotFoundException();
 	}
 
 	private $table;

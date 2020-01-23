@@ -27,7 +27,8 @@
 	},
 	"require": {
 		"php": ">= 5.5",
-		"ext-json": "*"
+		"ext-json": "*",
+		"psr/container": "^1.0"
 	},
 	"suggest": {
 		"ext-yaml": "Needed to load DataTree content from YAML encoded file"

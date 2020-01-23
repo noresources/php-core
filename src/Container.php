@@ -10,6 +10,8 @@
  */
 namespace NoreSources;
 
+use Psr\Container\ContainerInterface;
+
 /**
  * Exception raise when the object given to Container member class is not a valid container
  */
@@ -35,6 +37,48 @@ class InvalidContainerException extends \InvalidArgumentException
  */
 class Container
 {
+
+	/**
+	 * Container is modifiable
+	 *
+	 * @var number
+	 */
+	const MODIFIABLE = 0x01;
+
+	/**
+	 * Container can accept new elements
+	 *
+	 * @var number
+	 */
+	const EXTENDABLE = 0x03;
+
+	/**
+	 * Elements can be removed from container
+	 *
+	 * @var number
+	 */
+	const SHRINKABLE = 0x05;
+
+	/**
+	 * Container elements can be accessed using random access method or bracket operator
+	 *
+	 * @var number
+	 */
+	const RANDOM_ACCESS = 0x08;
+
+	/**
+	 * Container can is traversable
+	 *
+	 * @var number
+	 */
+	const TRAVERSABLE = 0x10;
+
+	/**
+	 * Number of elements contained is available
+	 *
+	 * @var number
+	 */
+	const COUNTABLE = 0x20;
 
 	/**
 	 * Behavior of the Container::removeKey method.
@@ -82,6 +126,71 @@ class Container
 	const IMPLODE_VALUES = 0x02;
 
 	/**
+	 * Get the kind of operation supported by a given container
+	 *
+	 * @param mixed $container
+	 *        	Container
+	 *
+	 * @return number A combination of the following flags
+	 *         <ul>
+	 *         <li>Container::RANDOM_ACCESS</li>
+	 *         <li>Container::TRAVERSABLE</li>
+	 *         <li>Container::MODIFIABLE</li>
+	 *         <li>Container::EXTENDABLE</li>
+	 *         <li>Container::SHRINKABLE</li>
+	 *         <ul>
+	 */
+	public static function getContainerProperties($container)
+	{
+		$property = 0;
+		if (\is_array($container))
+			$property |= self::RANDOM_ACCESS | self::TRAVERSABLE | self::EXTENDABLE |
+				self::SHRINKABLE | self::COUNTABLE;
+		if ($container instanceof \ArrayAccess)
+			$property |= self::RANDOM_ACCESS | self::EXTENDABLE | self::SHRINKABLE;
+		if ($container instanceof ContainerInterface)
+			$property |= self::RANDOM_ACCESS;
+		if ($container instanceof \Traversable)
+			$property |= self::TRAVERSABLE;
+		if ($container instanceof \Countable)
+			$property |= self::COUNTABLE;
+		return $property;
+	}
+
+	/**
+	 * Indicates if the parameter is an array or an object which
+	 * implements ArrayAccess interface (PHP 5)
+	 *
+	 * @param mixed $container
+	 */
+	public static function isArray($container)
+	{
+		$p = self::getContainerProperties($container);
+		$e = (self::RANDOM_ACCESS);
+		return (($p & $e) == $e);
+	}
+
+	/**
+	 *
+	 * Indicates if the parameter is an array or an object which
+	 *
+	 * @param boolean $acceptAnyObject
+	 *        	Any class instance is considered as traversable
+	 *
+	 * @return boolean @c true if@c $container is traversable (i.e usable in a roreach statement)
+	 */
+	public static function isTraversable($container, $acceptAnyObject = false)
+	{
+		$p = self::getContainerProperties($container);
+		$e = (self::TRAVERSABLE);
+
+		if (\is_object($container) && $acceptAnyObject)
+			$p |= self::TRAVERSABLE;
+
+		return (($p & $e) == $e);
+	}
+
+	/**
 	 * Remove an element of a container
 	 *
 	 * @param array|\ArrayAccess|\Traversable $container
@@ -98,8 +207,8 @@ class Container
 	 *        	</ul>
 	 * @throws InvalidContainerException
 	 * @throws \InvalidArgumentException
-	 * @return \ArrayAccess|boolean|\ArrayAccess[]|\Traversable[] The input array if $mode is Container::REMOVE_INPLACE,
-	 *         or a new container otherwise
+	 * @return mixed The input When $mode is Container::REMOVE_INPLACE, return a boolean indicating if th input array was modified.
+	 *         Otherwise a new container otherwise
 	 */
 	public static function removeKey(&$container, $key, $mode = self::REMOVE_COPY)
 	{
@@ -110,9 +219,10 @@ class Container
 				if ($container->offsetExists($key))
 				{
 					$container->offsetUnset($key);
+					return true;
 				}
 
-				return $container;
+				return false;
 			}
 			elseif (\is_array($container))
 			{
@@ -122,7 +232,7 @@ class Container
 					return true;
 				}
 
-				return $container;
+				return false;
 			}
 
 			throw new InvalidContainerException($container, __METHOD__ . ' (inplace)');
@@ -159,34 +269,6 @@ class Container
 	}
 
 	/**
-	 * Indicates if the parameter is an array or an object which
-	 * implements ArrayAccess interface (PHP 5)
-	 *
-	 * @param mixed $container
-	 */
-	public static function isArray($container)
-	{
-		return (\is_array($container) || ($container instanceof \ArrayAccess));
-	}
-
-	/**
-	 *
-	 * Indicates if the parameter is an array or an object which
-	 *
-	 * @param boolean $acceptAnyObject
-	 *        	Any class instance is considered as traversable
-	 *
-	 * @return boolean @c true if@c $container is traversable (i.e usable in a roreach statement)
-	 */
-	public static function isTraversable($container, $acceptAnyObject = false)
-	{
-		if (\is_array($container))
-			return true;
-
-		return ($acceptAnyObject ? \is_object($container) : ($container instanceof \Traversable));
-	}
-
-	/**
 	 * Transform any type to a plain PHP array
 	 *
 	 * @param mixed $anything
@@ -201,26 +283,18 @@ class Container
 		{
 			return $anything;
 		}
-		elseif (is_object($anything))
+		elseif ($anything instanceof \ArrayObject || $anything instanceof ArrayRepresentation)
 		{
-			if ($anything instanceof DataTree)
+			return $anything->getArrayCopy();
+		}
+		elseif (self::isTraversable($anything, true))
+		{
+			$a = [];
+			foreach ($anything as $k => $v)
 			{
-				return $anything->toArray();
+				$a[$k] = $v;
 			}
-			elseif ($anything instanceof \ArrayObject)
-			{
-				return $anything->getArrayCopy();
-			}
-			else
-			{
-				$a = [];
-				foreach ($anything as $k => $v)
-				{
-					$a[$k] = $v;
-				}
-
-				return $a;
-			}
+			return $a;
 		}
 
 		if ($singleElementKey !== null)
@@ -237,36 +311,31 @@ class Container
 	 * @param array|\ArrayAccess|\Traversable $container
 	 * @throws InvalidContainerException
 	 * @return boolean @true if at least one of $container keys is not a integer
-	 *         or if the array keys are not consecutive values
+	 *         or if the array keys are not consecutive values. An empty container is considered as associative
 	 */
 	public static function isAssociative($container)
 	{
-		if (!(\is_array($container) || ($container instanceof \Traversable)))
+		if (!self::isTraversable($container, true))
 		{
 			throw new InvalidContainerException($container, __METHOD__);
 		}
 
-		$itemCount = self::count($container);
 		$index = 0;
 
 		foreach ($container as $key => $value)
 		{
-			if (is_numeric($key))
+			if (\is_numeric($key))
 			{
-				if ($index != intval($key))
-				{
+				if ($index != \intval($key))
 					return true;
-				}
 			}
 			else
-			{
 				return true;
-			}
 
 			$index++;
 		}
 
-		return false;
+		return ($index == 0);
 	}
 
 	/**
@@ -329,13 +398,11 @@ class Container
 	public static function keyExists($container, $key)
 	{
 		if (\is_array($container))
-		{
 			return (\array_key_exists($key, $container));
-		}
 		elseif ($container instanceof \ArrayAccess)
-		{
 			return $container->offsetExists($key);
-		}
+		elseif ($container instanceof ContainerInterface)
+			return $container->has($key);
 		elseif ($container instanceof \Traversable)
 		{
 			foreach ($container as $k => $_)
@@ -412,14 +479,11 @@ class Container
 	public static function keyValue($container, $key, $defaultValue = null)
 	{
 		if (\is_array($container))
-		{
 			return (\array_key_exists($key, $container)) ? $container[$key] : $defaultValue;
-		}
-
-		if ($container instanceof \ArrayAccess)
-		{
+		elseif ($container instanceof \ArrayAccess)
 			return ($container->offsetExists($key) ? $container->offsetGet($key) : $defaultValue);
-		}
+		elseif ($container instanceof ContainerInterface)
+			return ($container->has($key) ? $container->get($key) : $defaultValue);
 		elseif ($container instanceof \Traversable)
 		{
 			foreach ($container as $k => $value)
