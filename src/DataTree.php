@@ -127,6 +127,16 @@ class DataTree implements \ArrayAccess, \Serializable, \IteratorAggregate, \Coun
 	}
 
 	/**
+	 * Indicates if a setting key exists
+	 *
+	 * @param string $key
+	 */
+	public function has($key)
+	{
+		return $this->offsetExists($key);
+	}
+
+	/**
 	 * Get a value associated to a key
 	 *
 	 * @param mixed $key
@@ -141,6 +151,30 @@ class DataTree implements \ArrayAccess, \Serializable, \IteratorAggregate, \Coun
 		}
 
 		return null;
+	}
+
+	/**
+	 * Get a value associated to a key
+	 *
+	 * This method follow the PSR-11 implementation requirements.
+	 * It is proposed as an interoperability effort.
+	 * However, the behavior of this method differs from the regular behavior of DataTree.
+	 *
+	 * @param unknown $key
+	 *        	Key. According to PSR-11, @c $key MUST be a string
+	 *
+	 * @throws DataTreeElementNotFoundException
+	 * @return The setting value or <code>NULL</code> if the key does not exists
+	 *
+	 * @see https://www.php-fig.org/psr/psr-11/
+	 */
+	public function get($key)
+	{
+		if (!\is_string($key))
+			$key = TypeConversion::toString($key);
+		if (!$this->offsetExists($key))
+			throw new DataTreeElementNotFoundException($this, $key);
+		return $this->offsetGet($key);
 	}
 
 	/**
