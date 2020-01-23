@@ -22,9 +22,6 @@
 			"NoreSources\\": "src/"
 		}
 	},
-	"scripts": {
-		"tests": "@php  ./vendor/bin/phpunit --color=never --bootstrap tests/bootstrap.php tests"
-	},
 	"require": {
 		"php": ">= 5.5",
 		"ext-json": "*",
