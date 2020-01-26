@@ -117,7 +117,7 @@ class DataTree implements \ArrayAccess, \Serializable, \IteratorAggregate, \Coun
 	// ArrayAccess ////////////////////
 
 	/**
-	 * Indicates if a setting key exists
+	 * Indicates if a element key exists
 	 *
 	 * @param string $key
 	 */
@@ -127,7 +127,7 @@ class DataTree implements \ArrayAccess, \Serializable, \IteratorAggregate, \Coun
 	}
 
 	/**
-	 * Indicates if a setting key exists
+	 * Indicates if a element key exists
 	 *
 	 * @param string $key
 	 */
@@ -141,7 +141,7 @@ class DataTree implements \ArrayAccess, \Serializable, \IteratorAggregate, \Coun
 	 *
 	 * @param mixed $key
 	 *        	Key
-	 * @return The setting value or <code>NULL</code> if the key does not exists
+	 * @return The element value or <code>NULL</code> if the key does not exists
 	 */
 	public function offsetGet($key)
 	{
@@ -164,7 +164,7 @@ class DataTree implements \ArrayAccess, \Serializable, \IteratorAggregate, \Coun
 	 *        	Key. According to PSR-11, @c $key MUST be a string
 	 *
 	 * @throws DataTreeElementNotFoundException
-	 * @return The setting value or <code>NULL</code> if the key does not exists
+	 * @return The element value or <code>NULL</code> if the key does not exists
 	 *
 	 * @see https://www.php-fig.org/psr/psr-11/
 	 */
@@ -178,7 +178,7 @@ class DataTree implements \ArrayAccess, \Serializable, \IteratorAggregate, \Coun
 	}
 
 	/**
-	 * Set a setting value
+	 * Set a element value
 	 *
 	 * @param integer $key
 	 *        	Setting key
@@ -239,7 +239,7 @@ class DataTree implements \ArrayAccess, \Serializable, \IteratorAggregate, \Coun
 	}
 
 	/**
-	 * Unset a setting Key/Value pair
+	 * Unset a element Key/Value pair
 	 *
 	 * @param mixed $key
 	 *        	Setting key
@@ -286,7 +286,7 @@ class DataTree implements \ArrayAccess, \Serializable, \IteratorAggregate, \Coun
 	}
 
 	/**
-	 * Load setting table from JSON
+	 * Load element table from JSON
 	 *
 	 * @param string $serialized
 	 *        	A JSON string
@@ -319,7 +319,7 @@ class DataTree implements \ArrayAccess, \Serializable, \IteratorAggregate, \Coun
 	}
 
 	/**
-	 * Return the setting value or the given default value if the setting is not present
+	 * Return the element value or the given default value if the setting is not present
 	 *
 	 * @param mixed $key
 	 *        	String key or array of string key representing the setting subpath
