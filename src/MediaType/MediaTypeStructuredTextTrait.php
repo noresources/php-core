@@ -13,7 +13,7 @@ namespace NoreSources\MediaType;
 trait MediaTypeStructuredTextTrait
 {
 
-	public function getStructuredSyntax()
+	public function getStructuredSyntax($registeredOnly = false)
 	{
 		if (!($this->getSubType() instanceof MediaSubType))
 			return null;
@@ -25,8 +25,18 @@ trait MediaTypeStructuredTextTrait
 		if ($this->getSubType()->getFacetCount() == 1)
 		{
 			$facet = $this->getSubType()->getFacet(0);
-			if ((strtolower($this->getMainType()) == 'text') ||
-				StructuredSyntaxSuffixRegistry::isRegistered($facet))
+			if (\strtolower($this->getMainType()) == 'text')
+			{
+				if ($registeredOnly && !StructuredSyntaxSuffixRegistry::isRegistered($facet))
+					return null;
+
+				return $facet;
+			}
+
+			/*
+			 * Other types such as application/json
+			 */
+			if (StructuredSyntaxSuffixRegistry::isRegistered($facet))
 				return $facet;
 		}
 

@@ -43,21 +43,22 @@ class StructuredSyntaxSuffixRegistry
 		if (!\is_array(self::$suffixes))
 		{
 			self::$suffixes = [ /*
-			                      Auto-generated code --<<sufixes>>--*/'xml' => 'Extensible Markup Language (XML)'
-, 'json' => 'JavaScript Object Notation (JSON)'
-, 'ber' => 'Basic Encoding Rules (BER) message transfer syntax'
-, 'cbor' => 'Concise Binary Object Representation (CBOR)'
-, 'der' => 'Distinguished Encoding Rules (DER) message transfer syntax'
-, 'fastinfoset' => 'Fast Infoset document format'
-, 'wbxml' => 'WAP Binary XML (WBXML) document format'
-, 'zip' => 'ZIP file storage and transfer format'
-, 'tlv' => 'Type Length Value'
-, 'json-seq' => 'JSON Text Sequence'
-, 'sqlite3' => 'SQLite3 database'
-, 'jwt' => 'JSON Web Token (JWT)'
-, 'gzip' => 'gzip file storage and transfer format'
-, 'cbor-seq' => 'CBOR Sequence'
-/*--<</sufixes>>--
+			                      Auto-generated code --<<sufixes>>--*/
+				'ber' => 'Basic Encoding Rules (BER) message transfer syntax',
+				'cbor' => 'Concise Binary Object Representation (CBOR)',
+				'cbor-seq' => 'CBOR Sequence',
+				'der' => 'Distinguished Encoding Rules (DER) message transfer syntax',
+				'fastinfoset' => 'Fast Infoset document format',
+				'gzip' => 'gzip file storage and transfer format',
+				'json' => 'JavaScript Object Notation (JSON)',
+				'json-seq' => 'JSON Text Sequence',
+				'jwt' => 'JSON Web Token (JWT)',
+				'sqlite3' => 'SQLite3 database',
+				'tlv' => 'Type Length Value',
+				'wbxml' => 'WAP Binary XML (WBXML) document format',
+				'xml' => 'Extensible Markup Language (XML)',
+				'zip' => 'ZIP file storage and transfer format'
+				/*--<</sufixes>>--
 			 */
 			];
 		}

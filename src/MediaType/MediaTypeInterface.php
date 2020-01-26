@@ -30,12 +30,14 @@ interface MediaTypeInterface
 	/**
 	 * Get the subtype structured syntax name if any.
 	 *
-	 * If the subtype does not specify a structured syntax name and if the media main type is "test",
-	 * the sybtype name is returned.
+	 * @param boolean $registeredOnly
+	 *        	When the structured syntax suffix is not present. The subtype may be returned.
+	 *        	If @c $registeredOnly is @c true. Only the subtype will be returned
+	 *        	only if it correspond to a registered suffix.
 	 *
 	 * @return string|array|string|NULL
 	 */
-	function getStructuredSyntax();
+	function getStructuredSyntax($registeredOnly = false);
 
 	/**
 	 * Media Type parameters
