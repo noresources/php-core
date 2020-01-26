@@ -25,10 +25,8 @@ trait MediaTypeStructuredTextTrait
 		if ($this->getSubType()->getFacetCount() == 1)
 		{
 			$facet = $this->getSubType()->getFacet(0);
-			if ((strtolower($this->getMainType()) == 'text') || \in_array($facet, [
-				'json',
-				'xml'
-			]))
+			if ((strtolower($this->getMainType()) == 'text') ||
+				StructuredSyntaxSuffixRegistry::isRegistered($facet))
 				return $facet;
 		}
 
