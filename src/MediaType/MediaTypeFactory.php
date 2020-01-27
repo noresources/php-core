@@ -46,7 +46,14 @@ class MediaTypeFactory
 	 */
 	public static function fromMedia($media)
 	{
-		$type = @mime_content_type($media);
+		$type = null;
+		if (\is_file($media) && \is_readable($media))
+		{
+			$finfo = new \finfo(FILEINFO_MIME_TYPE);
+			$type = $finfo->file($media);
+		}
+		else
+			$type = @mime_content_type($media);
 
 		if ($type === false)
 			throw \Exception('Unable to recognize media type');
@@ -83,6 +90,7 @@ class MediaTypeFactory
 				'json' => 'application/json',
 				'xml' => 'text/xml',
 				'yaml' => 'text/yaml',
+				'yml' => 'text/yaml',
 
 				// Fonts
 				'aat' => 'text/sfnt',
