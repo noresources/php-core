@@ -10,11 +10,6 @@
  */
 namespace NoreSources;
 
-use NoreSources\MediaType\MediaType;
-use NoreSources\MediaType\MediaSubType;
-use NoreSources\MediaType\MediaTypeFactory;
-use NoreSources\MediaType\MediaTypeStructuredTextTrait;
-
 /**
  * Serializable data tree structure
  */
@@ -425,7 +420,7 @@ class DataTree implements \ArrayAccess, \Serializable, \IteratorAggregate, \Coun
 	 *        	File name
 	 * @param integer $mode
 	 *        	Control interaction with existing content
-	 * @param MediaType|string|null $mediaType
+	 * @param string|null $mediaType
 	 *        	Specify file media type. If @c null, media type is automatically detected
 	 * @throws \InvalidArgumentException
 	 * @return DataTree
@@ -435,20 +430,21 @@ class DataTree implements \ArrayAccess, \Serializable, \IteratorAggregate, \Coun
 		if (!\file_exists($filename))
 			throw new \InvalidArgumentException($filename . ' not found');
 
-		$extension = \pathinfo($filename, PATHINFO_EXTENSION);
-		$type = null;
-		if ($mediaType === null)
-			$type = MediaTypeFactory::fromMedia($filename);
-		elseif (\is_string($type))
-			$type = MediaType::fromString($type);
+		$extension = \strtolower(\pathinfo($filename, PATHINFO_EXTENSION));
 
-		if (!($type instanceof MediaType))
-			throw new \InvalidArgumentException(
-				'Invalid mediaType argument (' . TypeDescription::getName($mediaType) . ')');
+		$type = TypeConversion::toString($mediaType);
+		if (!(\is_string($type) && \strlen($type)))
+		{
+			if (\function_exists('mime_content_type'))
+				$type = @mime_content_type($filename);
+			elseif (\class_exists('finfo'))
+			{
+				$finfo = new \finfo(FILEINFO_MIME_TYPE);
+				$type = $finfo->file($media);
+			}
+		}
 
-		$structuredText = $type->getStructuredSyntax();
-
-		if ($structuredText == 'x-php')
+		if ($type == 'text/x-php')
 		{
 			$result = require ($filename);
 			if (Container::isTraversable($result))
@@ -456,18 +452,11 @@ class DataTree implements \ArrayAccess, \Serializable, \IteratorAggregate, \Coun
 			return $this;
 		}
 
-		if (\strval($type) == 'text/plain')
-		{
-			if ($extension == 'ini')
-				$data = self::dataFromIniFile($filename);
-			elseif ($extension == 'yaml' || $extension == 'yml')
-				$data = self::dataFromYaml(file_get_contents($filename));
-			else
-				throw new \UnexpectedValueException($type . ' is not supported');
-		}
-		elseif ($structuredText == 'json')
+		if ($extension == 'ini')
+			$data = self::dataFromIniFile($filename);
+		elseif (($extension == 'json') || \preg_match(',(/|\+)json$,', $type))
 			$data = self::dataFromJson(file_get_contents($filename));
-		elseif ($structuredText == 'yaml')
+		elseif (($extension == 'yaml') || ($extension == 'yml'))
 			$data = self::dataFromYaml(file_get_contents($filename));
 		else
 			throw new \UnexpectedValueException($type . ' is not supported');
