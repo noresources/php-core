@@ -10,6 +10,11 @@
  */
 namespace NoreSources\MediaType;
 
+/**
+ * Media Type and Media Range factory
+ *
+ * Constructs Media Type and Media Range from various ways.
+ */
 class MediaTypeFactory
 {
 
@@ -62,54 +67,13 @@ class MediaTypeFactory
 		{
 			if (\is_file($media))
 			{
-				$x = self::mediaTypeStringFroomFileExtension(pathinfo($media, PATHINFO_EXTENSION));
-				if ($x !== false)
-					$type = $x;
+				$byExtension = MediaTypeFileExtensionRegistry::mediaTypeFromExtension(
+					pathinfo($media, PATHINFO_EXTENSION));
+				if ($byExtension instanceof MediaTypeInterface)
+					return $byExtension;
 			}
 		}
 
 		return MediaType::fromString($type);
 	}
-
-	/**
-	 * Get Media type string from file extension
-	 *
-	 * @param string $extension
-	 *        	File extension
-	 * @return string if extension is recognized, @c false otherwise
-	 */
-	public static function mediaTypeStringFroomFileExtension($extension)
-	{
-		if (!\is_array(self::$extensions))
-			self::$extensions = [
-				// Text files
-				'css' => 'text/css',
-				'html' => 'text/html',
-				'htm' => 'text/html',
-				'js' => 'text/javascript',
-				'json' => 'application/json',
-				'xml' => 'text/xml',
-				'yaml' => 'text/yaml',
-				'yml' => 'text/yaml',
-
-				// Fonts
-				'aat' => 'text/sfnt',
-				'cff' => 'text/sfnt',
-				'otf' => 'font/otf',
-				'sil' => 'text/sfnt',
-				'ttf' => 'font/ttf'
-			];
-
-		$extension = strtolower($extension);
-		if (\array_key_exists($extension, self::$extensions))
-			return self::$extensions[$extension];
-
-		return false;
-	}
-
-	/**
-	 *
-	 * @var array<string, string>
-	 */
-	private static $extensions;
 }
