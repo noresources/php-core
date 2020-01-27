@@ -13,6 +13,7 @@ namespace NoreSources;
 use NoreSources\MediaType\MediaType;
 use NoreSources\MediaType\MediaSubType;
 use NoreSources\MediaType\MediaTypeFactory;
+use NoreSources\MediaType\MediaTypeStructuredTextTrait;
 
 /**
  * Serializable data tree structure
@@ -401,8 +402,8 @@ class DataTree implements \ArrayAccess, \Serializable, \IteratorAggregate, \Coun
 	 */
 	public function setContent($data, $mode = self::REPLACE)
 	{
-		if (!\is_array($data))
-			throw new \ErrorException('Invalid content. Array expected');
+		if (!Container::isTraversable($data))
+			throw new \ErrorException('Invalid content. Traversable type expected');
 
 		if (($mode & self::REPLACE) == self::REPLACE)
 			$this->elements->exchangeArray([]);
@@ -434,6 +435,7 @@ class DataTree implements \ArrayAccess, \Serializable, \IteratorAggregate, \Coun
 		if (!\file_exists($filename))
 			throw new \InvalidArgumentException($filename . ' not found');
 
+		$extension = \pathinfo($filename, PATHINFO_EXTENSION);
 		$type = null;
 		if ($mediaType === null)
 			$type = MediaTypeFactory::fromMedia($filename);
@@ -444,13 +446,29 @@ class DataTree implements \ArrayAccess, \Serializable, \IteratorAggregate, \Coun
 			throw new \InvalidArgumentException(
 				'Invalid mediaType argument (' . TypeDescription::getName($mediaType) . ')');
 
-		$data = file_get_contents($filename);
-
 		$structuredText = $type->getStructuredSyntax();
-		if ($structuredText == 'json')
-			$data = self::dataFromJson($data);
+
+		if ($structuredText == 'x-php')
+		{
+			$result = require ($filename);
+			if (Container::isTraversable($result))
+				return $this->setContent($result, $mode);
+			return $this;
+		}
+
+		if (\strval($type) == 'text/plain')
+		{
+			if ($extension == 'ini')
+				$data = self::dataFromIniFile($filename);
+			elseif ($extension == 'yaml' || $extension == 'yml')
+				$data = self::dataFromYaml(file_get_contents($filename));
+			else
+				throw new \UnexpectedValueException($type . ' is not supported');
+		}
+		elseif ($structuredText == 'json')
+			$data = self::dataFromJson(file_get_contents($filename));
 		elseif ($structuredText == 'yaml')
-			$data = self::dataFromYaml($data);
+			$data = self::dataFromYaml(file_get_contents($filename));
 		else
 			throw new \UnexpectedValueException($type . ' is not supported');
 
@@ -474,14 +492,23 @@ class DataTree implements \ArrayAccess, \Serializable, \IteratorAggregate, \Coun
 		}
 	}
 
+	private static function dataFromIniFile($filename)
+	{
+		$data = @parse_ini_file($filename, true);
+		if ($data === false)
+		{
+			$error = \error_get_last();
+			throw new \ErrorException($error['message'], $error['type']);
+		}
+		return $data;
+	}
+
 	private static function dataFromJson($text)
 	{
 		$data = @json_decode($text, true);
 		$code = json_last_error();
 		if ($code != JSON_ERROR_NONE)
-		{
 			throw new \ErrorException(json_last_error_msg(), $code);
-		}
 
 		if (!\is_array($data))
 			throw new \ErrorException('Expect object or array. Got ',

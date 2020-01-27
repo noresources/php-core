@@ -70,6 +70,14 @@ final class DataTreeTest extends \PHPUnit\Framework\TestCase
 		$this->derived->assertDerivedFile($data, __METHOD__, null, 'json');
 	}
 
+	public function testLoadPhp()
+	{
+		$tree = new DataTree();
+		$tree->load(__DIR__ . '/data/a.php');
+		$data = json_encode($tree, JSON_PRETTY_PRINT);
+		$this->derived->assertDerivedFile($data, __METHOD__, null, 'json');
+	}
+
 	public function testLoadYaml()
 	{
 		$tree = new DataTree();
