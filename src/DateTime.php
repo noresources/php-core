@@ -11,6 +11,9 @@
  */
 namespace NoreSources;
 
+/**
+ * Extension of the DateTime class
+ */
 class DateTime extends \DateTime implements IntegerRepresentation, FloatRepresentation
 {
 
