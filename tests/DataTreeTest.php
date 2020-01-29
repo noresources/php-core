@@ -10,13 +10,15 @@
  */
 namespace NoreSources;
 
+use NoreSources\Test\DerivedFileManager;
+
 final class DataTreeTest extends \PHPUnit\Framework\TestCase
 {
 
 	public function __construct($name = null, array $data = [], $dataName = '')
 	{
 		parent::__construct($name, $data, $dataName);
-		$this->derived = new DerivedFileManager();
+		$this->derived = new DerivedFileManager(__DIR__);
 	}
 
 	public function testFromArray()
