@@ -1,11 +1,11 @@
 ns-php/core
 ===========
-A set of basic utility components for PHP including
+A set of utility components for PHP including:
 
-* Type description
-* Type conversion
-* Interfaces to describe object which can be represented/converted to a POD type
-* Containers
+* Type description.
+* Type conversion.
+* Interfaces to describe object which can be represented/converted to a POD type.
+* Containers.
 
 
 ## Installation
