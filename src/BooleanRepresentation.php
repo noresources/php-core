@@ -11,14 +11,15 @@
 namespace NoreSources;
 
 /**
- * Object have a boolean representation
+ * A class implementing BooleanRepresentation provides
+ * a boolean evaluation of a class instance
  */
 interface BooleanRepresentation
 {
 
 	/**
 	 *
-	 * @return boolean Boolean representation of the class instance
+	 * @return boolean evaluation representation of the class instance
 	 */
 	function getBooleanValue();
 }

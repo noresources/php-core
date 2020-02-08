@@ -11,7 +11,9 @@
 namespace NoreSources;
 
 /**
- * Object have a string representation.
+ * A class implementing StringRepresentation provides a
+ * string representation of a class instance
+ *
  * This interface is a syntaxic sugar to indicates the object redefines the __toString() magic method
  */
 interface StringRepresentation

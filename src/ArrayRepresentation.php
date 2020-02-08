@@ -11,7 +11,8 @@
 namespace NoreSources;
 
 /**
- * Object can be converted to array
+ * A class implementing ArrayRepresentation provides
+ * an array representation of a class instance.
  */
 interface ArrayRepresentation
 {

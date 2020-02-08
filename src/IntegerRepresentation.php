@@ -11,7 +11,8 @@
 namespace NoreSources;
 
 /*
- * Object have a integer representation
+ * A class implementing IntegerRepresentation provides a
+ * integer representation of a class instance
  */
 interface IntegerRepresentation
 {

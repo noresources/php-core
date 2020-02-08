@@ -11,7 +11,8 @@
 namespace NoreSources;
 
 /**
- * Object have a float representation
+ * A class implementing FloatRepresentation provides
+ * a floating point number representation of a class instance
  */
 interface FloatRepresentation
 {
