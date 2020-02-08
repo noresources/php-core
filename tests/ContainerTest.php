@@ -394,4 +394,80 @@ final class ContainerTest extends \PHPUnit\Framework\TestCase
 		Container::removeKey($source, 2, Container::REMOVE_INPLACE);
 		$this->assertEquals($target, $source);
 	}
+
+	public function testAssoc()
+	{
+		$this->assertTrue(Container::isIndexed([]), 'Empty container is indexed');
+		$this->assertTrue(Container::isAssociative([]), 'Empty container is associative');
+
+		$indexed = [
+			'zero',
+			'one',
+			'two'
+		];
+		$explicitIndexes = [
+			0 => 'zero',
+			1 => 'one',
+			2 => 'two'
+		];
+		$numericStringIndexes = [
+			"0" => 'zero',
+			"1" => 'one',
+			"2" => 'two'
+		];
+
+		$unordered = [
+			1 => 'one',
+			0 => 'zero',
+			2 => 'two'
+		];
+
+		$this->assertTrue(Container::isIndexed($indexed), 'Indexed is indexed');
+		$this->assertTrue(Container::isIndexed($indexed, true), 'Indexed is indexed (strict)');
+
+		$this->assertTrue(Container::isIndexed($explicitIndexes), 'Explicitely indexed is indexed');
+		$this->assertTrue(Container::isIndexed($explicitIndexes, true),
+			'Explicitely indexed is indexed (strict)');
+
+		$this->assertTrue(Container::isIndexed($numericStringIndexes),
+			'numeric string indexes is indexed');
+		$this->assertTrue(Container::isIndexed($numericStringIndexes, true),
+			'numeric string indexes (strict) is still indexed due to PHP auto conversion');
+
+		$this->assertFalse(Container::isIndexed($unordered), 'Unordered is not indexed');
+		$this->assertFalse(Container::isIndexed($unordered, true),
+			'Unordered is not indexed (strict)');
+
+		$this->assertFalse(Container::isAssociative($indexed), 'Indexed is not associative');
+		$this->assertFalse(Container::isAssociative($indexed, true),
+			'Indexed is not associative (strict)');
+
+		$this->assertFalse(Container::isAssociative($explicitIndexes),
+			'Explicitely indexed is not associative');
+		$this->assertFalse(Container::isAssociative($explicitIndexes, true),
+			'Explicitely indexed is not associative (strict)');
+
+		$this->assertTrue(Container::isAssociative($unordered), 'Unordered is associative');
+		$this->assertTrue(Container::isAssociative($unordered, true),
+			'Unordered is associative (strict)');
+
+		$associative = [
+			'one' => 'Un',
+			'two' => 'deux',
+			'three' => 'trois'
+		];
+
+		$mixed = [
+			'zero' => 'zero',
+			1 => 'Un',
+			'two' => 'deux',
+			3 => 'trois'
+		];
+
+		$this->assertFalse(Container::isIndexed($associative), 'Associative is not indexed');
+		$this->assertTrue(Container::isAssociative($associative));
+
+		$this->assertFalse(Container::isIndexed($mixed), 'mixed is not indexed');
+		$this->assertTrue(Container::isAssociative($mixed), 'mixed is associative');
+	}
 }

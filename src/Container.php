@@ -13,26 +13,6 @@ namespace NoreSources;
 use Psr\Container\ContainerInterface;
 
 /**
- * Exception raise when the object given to Container member class is not a valid container
- */
-class InvalidContainerException extends \InvalidArgumentException
-{
-
-	/**
-	 *
-	 * @param mixed $invalidContainer
-	 * @param string $forMethod
-	 *        	Container method name
-	 */
-	public function __construct($invalidContainer, $forMethod = null)
-	{
-		parent::__construct(
-			TypeDescription::getName($invalidContainer) . ' is not a valid container' .
-			(\is_string($forMethod) ? ' for method ' . $forMethod : ''));
-	}
-}
-
-/**
  * Container utility class
  */
 class Container
@@ -306,36 +286,110 @@ class Container
 	}
 
 	/**
+	 * Indicates if the given container could be considered as
+	 * an indexed array
+	 *
+	 * An indexed array is a container where keys are a sequence of integers
+	 * starting from 0 to n-1.
+	 * (where n is the number of elements of the container)
+	 *
+	 * An empty container is always considered as an indexed array
+	 *
+	 * Complexity : 𝛰(n)
+	 *
+	 * @param mixed $container
+	 *        	Any traversable container
+	 *
+	 *
+	 * @param boolean $strict
+	 *        	Only accept pure integer type as valid key.
+	 *        	Otherwise, a string key containing only digits is accepted.
+	 *
+	 * @return boolean
+	 *        	@c true if the container keys is a non-sparse sequence of integer
+	 *        starting from 0 to n-1 (where n is the number of elements of the container).
+	 */
+	public static function isIndexed($container, $strict = false)
+	{
+		if (!self::isTraversable($container, true))
+			throw new InvalidContainerException($container, __METHOD__);
+
+		$i = 0;
+		if ($strict)
+		{
+			foreach ($container as $key => $value)
+			{
+				if (!(\is_integer($key)))
+					return false;
+
+				if ($i != $key)
+					return false;
+
+				$i++;
+			}
+		}
+		else
+		{
+			foreach ($container as $key => $value)
+			{
+				if (!(\is_integer($key) || \ctype_digit($key)))
+					return false;
+				if ($i != \intval($key))
+					return false;
+				$i++;
+			}
+		}
+
+		return true;
+	}
+
+	/**
 	 * Indicates if the given array is an associative array
 	 *
+	 * An empty container is always considered as associative
+	 *
+	 * Complexity : 𝛰(n)
+	 *
 	 * @param array|\ArrayAccess|\Traversable $container
+	 *        	Any traversable container
+	 * @param boolean $strict
+	 *        	If @c true, only consider
 	 * @throws InvalidContainerException
 	 * @return boolean @true if at least one of $container keys is not a integer
 	 *         or if the array keys are not consecutive values. An empty container is considered as associative
 	 */
-	public static function isAssociative($container)
+	public static function isAssociative($container, $strict = false)
 	{
 		if (!self::isTraversable($container, true))
-		{
 			throw new InvalidContainerException($container, __METHOD__);
-		}
 
-		$index = 0;
-
-		foreach ($container as $key => $value)
+		$i = 0;
+		if ($strict)
 		{
-			if (\is_numeric($key))
+			foreach ($container as $key => $value)
 			{
-				if ($index != \intval($key))
+				if (!\is_integer($key))
 					return true;
-			}
-			else
-				return true;
 
-			$index++;
+				if ($i != $key)
+					return true;
+
+				$i++;
+			}
+		}
+		else
+		{
+			foreach ($container as $key => $value)
+			{
+				if (!(\is_integer($key) || \ctype_digit($key)))
+					return true;
+				if ($i != \intval($key))
+					return true;
+				$i++;
+			}
 		}
 
-		return ($index == 0);
+		return ($i == 0);
 	}
 
 	/**
