@@ -36,6 +36,10 @@ class Text
 				$hex = '0' . $hex;
 			return $hex;
 		}
+		elseif (\is_bool($value))
+			return (($value) ? '01' : '00');
+		elseif (\is_null($value))
+			return '00';
 		elseif (\is_string($value))
 		{
 			$f = '%02' . ($upperCase ? 'X' : 'x');
