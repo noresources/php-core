@@ -11,7 +11,7 @@
 namespace NoreSources;
 
 /**
- * Singleton pattern train
+ * Singleton pattern trait
  */
 trait SingletonTrait
 {
@@ -33,5 +33,10 @@ trait SingletonTrait
 		return self::$singletonInstance;
 	}
 
+	/**
+	 * The class singleton instance
+	 *
+	 * @var object
+	 */
 	private static $singletonInstance;
 }

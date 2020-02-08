@@ -14,175 +14,101 @@ use Psr\Log\LogLevel;
 use Psr\Log\LoggerInterface;
 
 /**
- *
- * @deprecated This is a transitional class for earlier framework version
- *
+ * Multi-logger reporter
  */
 class Reporter
 {
 
+	use StaticallyCallableSingletonTrait;
+
 	/**
-	 * Set Reporter interface implementation
+	 * Add a replace a logger.
 	 *
-	 * @param ReporterInterface $impl
+	 * This method is also callable statically. In this case, the class singleton will be used.
+	 *
+	 * @param string $key
+	 *        	Logger identifier
+	 * @param LoggerInterface $logger
+	 *
 	 */
-	public static function setImplementation(&$impl)
+	public function registerLogger($key, LoggerInterface $logger)
 	{
-		if ($impl instanceof LoggerInterface || $impl instanceof ReporterInterface)
-			self::$loggers = [
-				$impl
-			];
+		if (isset($this))
+			$this->loggers[$key] = $logger;
 		else
-			throw new \InvalidArgumentException(
-				LoggerInterface::class . ' or ' . ReporterInterface::class . ' expected. Got ' .
-				TypeDescription::getName($impl));
+			self::getInstance()->registerLogger($key, $logger);
 	}
 
 	/**
-	 * Add debug message
+	 * Remove a logger by its key
 	 *
-	 * @param mixed $context
-	 *        	Object that call the reporter
-	 * @param string $message
-	 *        	Message
-	 * @param string $file
-	 *        	File
-	 * @param integer $line
-	 *        	Line number in @param $file
+	 * This method is also callable statically. In this case, the class singleton will be used.
+	 *
+	 * @param string $key
+	 *        	Logger identifier
 	 */
-	public static function debug($context, $message, $file = null, $line = null)
+	public function unregisterLogger($key)
 	{
-		self::addMessage(LogLevel::DEBUG, $context, $message, $file, $line);
-		return true;
+		if (isset($this))
+			Container::removeKey($this->loggers, $key, Container::REMOVE_INPLACE);
+		else
+			self::getInstance()->unregisterLogger($key, $logger);
 	}
 
 	/**
-	 * Add notice
+	 * Invoke registered loggers corresponding method
 	 *
-	 * @param mixed $context
-	 *        	Object that call the reporter
-	 * @param string $message
-	 *        	Message
-	 * @param string $file
-	 *        	File
-	 * @param integer $line
-	 *        	Line number in @param $file
+	 * @method void emergency ($message, $context)
+	 * @method void alert ($message, $context)
+	 * @method void critical ($message, $context)
+	 * @method void error ($message, $context)
+	 * @method void warning ($message, $context)
+	 * @method void notice ($message, $context)
+	 * @method void info ($message, $context)
+	 * @method void debug ($message, $context)
+	 *
+	 * @param string $method
+	 *        	Loggers method ton invoke
+	 * @param array $args
+	 *        	Loggers method arguments
+	 *
+	 * @throws \BadMethodCallException
 	 */
-	public static function notice($context, $message, $file = null, $line = null)
+	public function __call($method, $args)
 	{
-		self::addMessage(LogLevel::NOTICE, $context, $message, $file, $line);
-		return true;
-	}
+		if (!\in_array($method,
+			[
+				'emergency',
+				'alert',
+				'critical',
+				'error',
+				'warning',
+				'notice',
+				'info',
+				'debug'
+			]))
+			throw new \BadMethodCallException(
+				$method . ' is not a valid method of ' . static::class);
 
-	/**
-	 * Add warning
-	 *
-	 * @param mixed $context
-	 *        	Object that call the reporter
-	 * @param string $message
-	 *        	Message
-	 * @param string $file
-	 *        	File
-	 * @param integer $line
-	 *        	Line number in @param $file
-	 */
-	public static function warning($context, $message, $file = null, $line = null)
-	{
-		self::addMessage(LogLevel::WARNING, $context, $message, $file, $line);
-		return true;
-	}
-
-	/**
-	 * Add error
-	 *
-	 * @param mixed $context
-	 *        	Object that call the reporter
-	 * @param string $message
-	 *        	Message
-	 * @param string $file
-	 *        	File
-	 * @param integer $line
-	 *        	Line number in @param $file
-	 */
-	public static function error($context, $message, $file = null, $line = null)
-	{
-		self::addMessage(LogLevel::ERROR, $context, $message, $file, $line);
-		return false;
-	}
-
-	/**
-	 * Raise a fatal error
-	 *
-	 * @param mixed $context
-	 *        	Object that call the reporter
-	 * @param string $message
-	 *        	Message
-	 * @param string $file
-	 *        	File
-	 * @param integer $line
-	 *        	Line number in @param $file
-	 */
-	public static function fatalError($context, $message, $file = null, $line = null)
-	{
-		self::addMessage(LogLevel::EMERGENCY, $context, $message, $file, $line);
-		foreach (self::$loggers as $ogger)
+		foreach ($this->loggers as $logger)
 		{
-			if ($logger instanceof ReporterInterface)
-				$logger->handleFatalError();
-		}
-		die('');
-	}
-
-	const kMessageDebug = 0x1;
-
-	const kMessageNotice = 0x2;
-
-	const kMessageWarning = 0x4;
-
-	const kMessageError = 0x8;
-
-	const kMessageFatalError = 0x10;
-
-	const kMessageAll = 0xFF;
-
-	private static function addMessage($level, $object, $message, $file = null, $line = null)
-	{
-		foreach (self::$loggers as $ogger)
-		{
-			if ($logger instanceof LoggerInterface)
-				$logger->log($level, $message);
-			elseif ($logger instanceof ReporterInterface)
-				$logger->addMessage(self::$log2ReporterLevel[$level], $object, $message, $file,
-					$line);
+			\call_user_func_array([
+				$logger,
+				$method
+			], $args);
 		}
 	}
 
-	public static function initialize()
+	public function __construct()
 	{
-		if (!\is_array(self::$loggers))
-			self::$loggers = [];
-
-		if (!\is_array(self::log2ReporterLevel))
-			self::log2ReporterLevel
-		[
-				LogLevel::ALERT => self::kMessageError,
-				LogLevel::CRITICAL => self::kMessageError,
-				LogLevel::DEBUG => self::kMessageDebug,
-				LogLevel::EMERGENCY => self::kMessageFatalError,
-				LogLevel::ERROR => self::kMessageError,
-				LogLevel::INFO => self::kMessageDebug,
-				LogLevel::NOTICE => self::kMessageNotice,
-				LogLevel::WARNING => self::kMessageWarning
-			]
+		if (!\is_array($this->loggers))
+			$this->loggers = [];
 	}
 
 	/**
 	 *
 	 * @var LoggerInterface[]
 	 */
-	private static $loggers;
-
-	private static $log2ReporterLevel;
+	private $loggers;
 }
 
-Reporter::initialize();
