@@ -1,0 +1,33 @@
+{
+	"name": "noresources/ns-php-core",
+	"description": "Utility class library for PHP",
+	"type": "library",
+	"keywords": [
+		"Utility"
+	],
+	"license": "MIT",
+	"authors": [
+		{
+			"name": "Renaud Guillard",
+			"email": "dev@nore.fr",
+			"role": "lead"
+		}
+	],
+	"autoload": {
+		"classmap": [
+			"."
+		],
+		"exclude-from-classmap": [
+			"core.autoload.inc.php"
+		]
+	},
+	"require": {
+		"php": ">= 5.3",
+		"ext-json": "*"
+	},
+	"extra": {
+		"branch-alias": {
+			"dev-1.0.x": "1.0.x-dev"
+		}
+	}
+}
