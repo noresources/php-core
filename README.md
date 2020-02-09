@@ -1,11 +1,15 @@
 ns-php/core
 ===========
-A set of utility components for PHP
+A set of utility components for PHP including:
 
-THIS BRANCH IS ONLY MAINTAINED FOR LEGACY PROJECTS (do not use)
+* Type description.
+* Type conversion.
+* Interfaces to describe object which can be represented/converted to a POD type.
+* Containers.
+
 
 ## Installation
 
 ```bash
-composer require noresources/ns-php-core ~1.1
+composer require noresources/ns-php-core ~2.0
 ```

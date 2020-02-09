@@ -1,0 +1,13 @@
+{
+    "a": "value of a",
+    "c": {
+        "key-a": "A field from a",
+        "key-b": "A key from b"
+    },
+    "indexed-array": [
+        "one",
+        "two",
+        "three"
+    ],
+    "b": "value of b"
+}
