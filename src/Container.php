@@ -600,28 +600,28 @@ class Container
 	/**
 	 * String to prepend before each array element.
 	 *
-	 * @var unknown
+	 * @var string
 	 */
 	const IMPLODE_BEFORE = 'before';
 
 	/**
 	 * String to append after each array element.
 	 *
-	 * @var unknown
+	 * @var string
 	 */
 	const IMPLODE_AFTER = 'after';
 
 	/**
 	 * String to insert between two elements of the array.
 	 *
-	 * @var unknown
+	 * @var string
 	 */
 	const IMPLODE_BETWEEN = 'between';
 
 	/**
 	 * String to insert between the penultimate and last element of the array.
 	 *
-	 * @var unknown
+	 * @var string
 	 */
 	const IMPLODE_BETWEEN_LAST = 'last';
 

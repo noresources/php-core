@@ -14,7 +14,8 @@ namespace NoreSources;
 /**
  * Extension of the DateTime class
  */
-class DateTime extends \DateTime implements IntegerRepresentation, FloatRepresentation
+class DateTime extends \DateTime implements IntegerRepresentation, FloatRepresentation,
+	StringRepresentation, ArrayRepresentation
 {
 
 	/**
@@ -25,6 +26,31 @@ class DateTime extends \DateTime implements IntegerRepresentation, FloatRepresen
 	public function __construct($time = null, \DateTimeZone $timezone = null)
 	{
 		parent::__construct($time, $timezone);
+	}
+
+	/**
+	 *
+	 * @return string ISO 8601 timestamp
+	 */
+	public function __toString()
+	{
+		return $this->format(self::ISO8601);
+	}
+
+	public function getArrayCopy()
+	{
+		$tz = $this->getTimezone()->getName();
+		$type = 2;
+		if (\preg_match('/(\+|-)[0-9]{2}(,?[0-9]{2})/', $tz))
+			$type = 1;
+		elseif (\preg_match(',[a-zA-Z]+/[a-zA-Z]+,', $tz))
+			$type = 3;
+
+		return [
+			'date' => $this->format('Y-m-d H:i:s.u'),
+			'timezone_type' => 1,
+			'timezone' => $tz
+		];
 	}
 
 	/**
