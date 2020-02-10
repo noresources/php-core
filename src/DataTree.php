@@ -156,7 +156,7 @@ class DataTree implements \ArrayAccess, \Serializable, \IteratorAggregate, \Coun
 	 * It is proposed as an interoperability effort.
 	 * However, the behavior of this method differs from the regular behavior of DataTree.
 	 *
-	 * @param unknown $key
+	 * @param string $key
 	 *        	Key. According to PSR-11, @c $key MUST be a string
 	 *
 	 * @throws DataTreeElementNotFoundException
@@ -195,7 +195,7 @@ class DataTree implements \ArrayAccess, \Serializable, \IteratorAggregate, \Coun
 	 *        	Element key
 	 * @param mixed $value
 	 *        	Element value
-	 * @param unknown $mode
+	 * @param string $mode
 	 *        	Fusion mode
 	 * @throws \Exception
 	 */

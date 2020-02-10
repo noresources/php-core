@@ -26,7 +26,7 @@ class DataTreeElementNotFoundException extends \InvalidArgumentException impleme
 	/**
 	 *
 	 * @param DataTree $tree
-	 * @param unknown $key
+	 * @param string $key
 	 */
 	public function __construct(DataTree $tree, $key)
 	{

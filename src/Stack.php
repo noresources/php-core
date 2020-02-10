@@ -18,11 +18,20 @@ class Stack implements \Countable
 		$this->stackElements = [];
 	}
 
+	/**
+	 *
+	 * @return integer Number of elements in the stack
+	 */
 	public function count()
 	{
 		return \count($this->stackElements);
 	}
 
+	/**
+	 * Indicates if the stack is empty
+	 *
+	 * @return boolean @c true if the stack does not contain any element
+	 */
 	public function isEmpty()
 	{
 		return (\count($this->stackElements) == 0);
