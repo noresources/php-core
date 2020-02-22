@@ -101,9 +101,9 @@ final class SemanticPostfixedData extends \ArrayObject
 	 * @param SemanticPostfixedData $data
 	 * @return number An integer value
 	 *         <ul>
-	 *         <li>&lt; 0 if Object have lower precedence than @c $data</li>
-	 *         <li>0 if Object have the same precedence than @c $data</li>
-	 *         <li>&gt;0 0 if Object have higher precedence than @c $data</li>
+	 *         <li>&lt; 0 if Object have lower precedence than $data</li>
+	 *         <li>0 if Object have the same precedence than $data</li>
+	 *         <li>&gt;0 0 if Object have higher precedence than $data</li>
 	 *         </ul>
 	 */
 	public function compare(SemanticPostfixedData $data)
@@ -313,6 +313,60 @@ class SemanticVersion implements StringRepresentation, IntegerRepresentation
 		return $s;
 	}
 
+	public function slice($from, $to)
+	{
+		$map = [
+			self::MAJOR => 0,
+			self::MINOR => 1,
+			self::PATCH => 2,
+			self::PRE_RELEASE => 3,
+			self::METADATA => 4
+		];
+
+		if (\is_string($from))
+			$from = Container::keyValue($map, $from, 0);
+		if (\is_string($to))
+			$to = Container::keyValue($map, $to, 4);
+
+		$parts = [
+			[
+				$this->major
+			],
+			[
+				$this->minor,
+				'.'
+			],
+			[
+				$this->patch,
+				'.'
+			],
+			[
+				\strval($this->prerelease),
+				'-'
+			],
+			[
+				$this->metadata,
+				'+'
+			]
+		];
+
+		$s = '';
+		$j = $from;
+		for ($i = $from; $i <= $to; $i++)
+		{
+			$part = TypeConversion::toString($parts[$i][0]);
+			if (\strlen($part) == 0)
+				continue;
+
+			if ($j != $from)
+				$s .= $parts[$i][1];
+			$s .= $part;
+			$j++;
+		}
+
+		return $s;
+	}
+
 	public function getIntegerValue()
 	{
 		return ($this->patch + $this->minor * 100 + $this->major * 10000);
@@ -453,9 +507,9 @@ class SemanticVersion implements StringRepresentation, IntegerRepresentation
 	 * @param mixed $a
 	 * @param mixed $b
 	 * @return number <ul>
-	 *         <li>&lt; 0 if @c $a have lower precedence than @c $b/li>
-	 *         <li>0 if @c $a have the same precedence than @c $b/li>
-	 *         <li>&gt;0 0 if @c $a have higher precedence than @c $b/li>
+	 *         <li>&lt; 0 if $a have lower precedence than $b/li>
+	 *         <li>0 if $a have the same precedence than $b/li>
+	 *         <li>&gt;0 0 if $a have higher precedence than $b/li>
 	 *         </ul>
 	 */
 	public static function compareVersions($a, $b)
