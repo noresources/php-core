@@ -157,7 +157,7 @@ class DataTree implements \ArrayAccess, \Serializable, \IteratorAggregate, \Coun
 	 * However, the behavior of this method differs from the regular behavior of DataTree.
 	 *
 	 * @param string $key
-	 *        	Key. According to PSR-11, @c $key MUST be a string
+	 *        	Key. According to PSR-11, $key MUST be a string
 	 *
 	 * @throws DataTreeElementNotFoundException
 	 * @return The element value or <code>NULL</code> if the key does not exists
@@ -421,7 +421,7 @@ class DataTree implements \ArrayAccess, \Serializable, \IteratorAggregate, \Coun
 	 * @param integer $mode
 	 *        	Control interaction with existing content
 	 * @param string|null $mediaType
-	 *        	Specify file media type. If @c null, media type is automatically detected
+	 *        	Specify file media type. If null, media type is automatically detected
 	 * @throws \InvalidArgumentException
 	 * @return DataTree
 	 */
@@ -432,19 +432,18 @@ class DataTree implements \ArrayAccess, \Serializable, \IteratorAggregate, \Coun
 
 		$extension = \strtolower(\pathinfo($filename, PATHINFO_EXTENSION));
 
-		$type = TypeConversion::toString($mediaType);
-		if (!(\is_string($type) && \strlen($type)))
+		if (!(\is_string($mediaType) && \strlen($mediaType)))
 		{
 			if (\function_exists('mime_content_type'))
-				$type = @mime_content_type($filename);
+				$mediaType = @mime_content_type($filename);
 			elseif (\class_exists('finfo'))
 			{
 				$finfo = new \finfo(FILEINFO_MIME_TYPE);
-				$type = $finfo->file($media);
+				$mediaType = $finfo->file($filename);
 			}
 		}
-
-		if ($type == 'text/x-php')
+		
+		if ($mediaType == 'text/x-php' || $extension == 'php')
 		{
 			$result = require ($filename);
 			if (Container::isTraversable($result))
@@ -454,12 +453,12 @@ class DataTree implements \ArrayAccess, \Serializable, \IteratorAggregate, \Coun
 
 		if ($extension == 'ini')
 			$data = self::dataFromIniFile($filename);
-		elseif (($extension == 'json') || \preg_match(',(/|\+)json$,', $type))
+			elseif (($extension == 'json') || \preg_match(',(/|\+)json$,', $mediaType))
 			$data = self::dataFromJson(file_get_contents($filename));
 		elseif (($extension == 'yaml') || ($extension == 'yml'))
 			$data = self::dataFromYaml(file_get_contents($filename));
 		else
-			throw new \UnexpectedValueException($type . ' is not supported');
+			throw new \UnexpectedValueException($extension . ' is not supported');
 
 		return $this->setContent($data, $mode);
 	}
