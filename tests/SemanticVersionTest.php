@@ -102,4 +102,62 @@ final class SemanticVersionTest extends \PHPUnit\Framework\TestCase
 				'Integer conversion of ' . $version);
 		}
 	}
+
+	public function testSlice()
+	{
+		$tests = [
+			'Major and minor' => [
+				'version' => '1.2.3',
+				'args' => [
+					0,
+					1
+				],
+				'slice' => '1.2'
+			],
+			'Major and minor (names)' => [
+				'version' => '1.2.3',
+				'args' => [
+					SemanticVersion::MAJOR,
+					SemanticVersion::MINOR
+				],
+				'slice' => '1.2'
+			],
+			'Full' => [
+				'version' => '1.2.3+meta',
+				'args' => [
+					SemanticVersion::MAJOR,
+					SemanticVersion::METADATA
+				],
+				'slice' => '1.2.3+meta'
+			],
+			'Pre-release and meta' => [
+				'version' => '7.2.12+meta',
+				'args' => [
+					SemanticVersion::PRE_RELEASE,
+					SemanticVersion::METADATA
+				],
+				'slice' => 'meta'
+			],
+			'Pre-release and meta' => [
+				'version' => '7.2.12-alpha+meta',
+				'args' => [
+					SemanticVersion::PRE_RELEASE,
+					SemanticVersion::METADATA
+				],
+				'slice' => 'alpha+meta'
+			]
+		];
+
+		foreach ($tests as $label => $test)
+		{
+			$test = (object) $test;
+			$sv = new SemanticVersion($test->version);
+			$slice = \call_user_func_array([
+				$sv,
+				'slice'
+			], $test->args);
+
+			$this->assertEquals($test->slice, $slice, $label);
+		}
+	}
 }
