@@ -30,7 +30,7 @@ class Stack implements \Countable
 	/**
 	 * Indicates if the stack is empty
 	 *
-	 * @return boolean @c true if the stack does not contain any element
+	 * @return boolean true if the stack does not contain any element
 	 */
 	public function isEmpty()
 	{
