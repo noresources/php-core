@@ -10,9 +10,6 @@
  */
 namespace NoreSources;
 
-use phpDocumentor\Reflection\Types\Integer;
-use phpDocumentor\Reflection\Types\Boolean;
-
 /**
  * Type conversion exception
  */
@@ -103,13 +100,13 @@ class TypeConversion
 		$message = null;
 		if (\is_float($value))
 		{
-			$d = new \DateTime();
-			$d->setTimestamp(jdtounix($value));
+			$d = new DateTime('now', DateTime::getUTCTimezone());
+			$d->setJulianDay($value);
 			return $d;
 		}
 		elseif (\is_int($value))
 		{
-			$d = new \DateTime();
+			$d = new DateTime('now', DateTime::getUTCTimezone());
 			$d->setTimestamp($value);
 			return $d;
 		}
@@ -195,7 +192,7 @@ class TypeConversion
 			return $value->getFloatValue();
 
 		if ($value instanceof \DateTime)
-			return unixtojd($value->getTimestamp());
+			return DateTime::toJulianDay($value);
 		elseif (\is_bool($value))
 			return ($value ? 1. : 0.);
 		elseif (\is_null($value))
@@ -218,14 +215,20 @@ class TypeConversion
 	 * Convert value to string
 	 *
 	 * @param mixed $value
-	 *        	Value to convert
+	 *        	Value to convert to string
 	 * @param callable $fallback
-	 *        	A cacallback to invoke if the method is nuable to convert the value e
+	 *        	This callable will be invoked if there is no straigntforward conversion.
+	 *        	The callable must accept one argument (the value) and return a string or
+	 *        	FALSE if it is unable to convert the value to string.
 	 * @throws TypeConversionException
 	 * @return string
 	 */
 	public static function toString($value, $fallback = null)
 	{
+		if (\is_string($value))
+			return $value;
+		elseif (\is_numeric($value))
+			return \strval($value);
 		if ($value instanceof \DateTime)
 			return $value->format(\DateTIme::ISO8601);
 
@@ -237,12 +240,15 @@ class TypeConversion
 			throw new TypeConversionException($value, __METHOD__);
 		}
 
-		$s = @strval($value);
-		if (\is_string($s))
+		$s = @\strval($value);
+		if ($s !== false)
 			return $s;
 
 		if (\is_callable($fallback))
-			return call_user_func($fallback, $value);
+			$s = \call_user_func($fallback, $value);
+
+		if ($s !== false)
+			return $s;
 
 		throw new TypeConversionException($value, __METHOD__);
 	}
@@ -262,13 +268,13 @@ class TypeConversion
 	}
 
 	/**
-	 * Convert any value to @c NULL
+	 * Convert any value to NULL
 	 *
 	 * @param mixed $value
 	 *        	Value to convert
 	 * @return NULL, obviously...
 	 */
-	public static function toNull($value)
+	private static function toNull($value)
 	{
 		return null;
 	}
