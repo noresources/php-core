@@ -19,7 +19,12 @@ class Container
 {
 
 	/**
-	 * Container is modifiable
+	 *
+	 * Container is modifiable.
+	 *
+	 * Container property flag.
+	 *
+	 * @used-by Container::getContainerProperties()
 	 *
 	 * @var number
 	 */
@@ -28,6 +33,9 @@ class Container
 	/**
 	 * Container can accept new elements
 	 *
+	 * Container property flag.
+	 *
+	 * @used-by Container::getContainerProperties()
 	 * @var number
 	 */
 	const EXTENDABLE = 0x03;
@@ -35,6 +43,7 @@ class Container
 	/**
 	 * Elements can be removed from container
 	 *
+	 * @used-by Container::getContainerProperties()
 	 * @var number
 	 */
 	const SHRINKABLE = 0x05;
@@ -42,6 +51,9 @@ class Container
 	/**
 	 * Container elements can be accessed using random access method or bracket operator
 	 *
+	 * Container property flag.
+	 *
+	 * @used-by Container::getContainerProperties()
 	 * @var number
 	 */
 	const RANDOM_ACCESS = 0x08;
@@ -49,6 +61,9 @@ class Container
 	/**
 	 * Container can is traversable
 	 *
+	 * Container property flag.
+	 *
+	 * @used-by Container::getContainerProperties()
 	 * @var number
 	 */
 	const TRAVERSABLE = 0x10;
@@ -56,6 +71,9 @@ class Container
 	/**
 	 * Number of elements contained is available
 	 *
+	 * Container property flag.
+	 *
+	 * @used-by Container::getContainerProperties()
 	 * @var number
 	 */
 	const COUNTABLE = 0x20;
@@ -119,6 +137,7 @@ class Container
 	 *         <li>Container::EXTENDABLE</li>
 	 *         <li>Container::SHRINKABLE</li>
 	 *         <ul>
+	 *
 	 */
 	public static function getContainerProperties($container)
 	{
@@ -157,7 +176,7 @@ class Container
 	 * @param boolean $acceptAnyObject
 	 *        	Any class instance is considered as traversable
 	 *
-	 * @return boolean @c true if@c $container is traversable (i.e usable in a roreach statement)
+	 * @return boolean true if$container is traversable (i.e usable in a roreach statement)
 	 */
 	public static function isTraversable($container, $acceptAnyObject = false)
 	{
@@ -255,7 +274,7 @@ class Container
 	 * @param number $singleElementKey
 	 *        	Key used to create a single element array when is not something that could be
 	 *        	converted to an array
-	 * @return array or @c null if @c $anything cannont be converted to array and @c $singleElementKey is @c null
+	 * @return array or null if $anything cannont be converted to array and $singleElementKey is null
 	 */
 	public static function createArray($anything, $singleElementKey = 0)
 	{
@@ -306,7 +325,7 @@ class Container
 	 *        	Otherwise, a string key containing only digits is accepted.
 	 *
 	 * @return boolean
-	 *        	@c true if the container keys is a non-sparse sequence of integer
+	 *        	true if the container keys is a non-sparse sequence of integer
 	 *        starting from 0 to n-1 (where n is the number of elements of the container).
 	 */
 	public static function isIndexed($container, $strict = false)
@@ -353,7 +372,7 @@ class Container
 	 * @param array|\ArrayAccess|\Traversable $container
 	 *        	Any traversable container
 	 * @param boolean $strict
-	 *        	If @c true, only consider
+	 *        	If true, only consider
 	 * @throws InvalidContainerException
 	 * @return boolean @true if at least one of $container keys is not a integer
 	 *         or if the array keys are not consecutive values. An empty container is considered as associative
@@ -480,13 +499,13 @@ class Container
 	 *
 	 * @param array|\ArrayAccess|\Traversable $container
 	 * @param mixed $value
-	 *        	Value to check in @c $container
+	 *        	Value to check in $container
 	 * @param boolean $strict
-	 *        	If @c true, use the strict equal (===) operator
+	 *        	If true, use the strict equal (===) operator
 	 *
 	 * @throws InvalidContainerException
 	 *
-	 * @return boolean @c true if @c $value appears in @c $container
+	 * @return boolean true if $value appears in $container
 	 */
 	public static function valueExists($container, $value, $strict = false)
 	{
