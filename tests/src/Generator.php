@@ -40,6 +40,8 @@ class Generator
 			2123
 		]);
 
+		$timezone = Container::keyValue($options, 'timezone', null);
+
 		$dt = null;
 		if ($fromType == self::TYPE_INTEGER)
 		{
@@ -96,8 +98,9 @@ class Generator
 			$dt->add($interval);
 		}
 
-		$tz = new \DateTimeZone($zones[rand(0, \count($zones) - 1)]);
-		$dt->setTimezone($tz);
+		if (!($timezone instanceof \DateTimeZone))
+			$timezone = new \DateTimeZone($zones[rand(0, \count($zones) - 1)]);
+		$dt->setTimezone($timezone);
 
 		return $dt;
 	}
