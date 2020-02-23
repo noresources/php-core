@@ -164,8 +164,10 @@ class DateTime extends \DateTime implements IntegerRepresentation, FloatRepresen
 			$this->setDate(-4713, 11, 24);
 			$this->setTime(12, 0, 0);
 
-			$interval = 'P' . $jdn . 'DT' . $s . 'S';
+			$interval = 'P' . abs($jdn) . 'DT' . $s . 'S';
 			$interval = new \DateInterval($interval);
+			if ($jdn < 0)
+				$interval->invert = true;
 			$this->add($interval);
 		}
 		else // Using Richards algotithm
