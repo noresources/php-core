@@ -10,6 +10,7 @@
  */
 namespace NoreSources\Test;
 
+use NoreSources\Container;
 use NoreSources\DateTime;
 
 class Generator
@@ -22,19 +23,30 @@ class Generator
 	const TYPE_FLOAT = 2;
 
 	/**
+	 * Generate a random date
 	 *
-	 * @param unknown $fromType
+	 * @param array $options
+	 *        	* fromType (int) : generate date time from integer, float or string timestamp
+	 *        	* yearRange (array): Year range
+	 *
 	 * @return NULL|\NoreSources\DateTime
 	 */
-	public static function randomDateTime($fromType = self::TYPE_STRING)
+	public static function randomDateTime($options = array())
 	{
+		$fromType = Container::keyValue($options, 'fromType',
+			rand(self::TYPE_STRING, self::TYPE_FLOAT));
+		$yearRange = Container::keyValue($options, 'yearRange', [
+			-400, // Death of Socrates
+			2123
+		]);
+
 		$dt = null;
 		if ($fromType == self::TYPE_INTEGER)
 		{
 			$s = (rand(0, 20) != 0) ? 1 : -1;
 			$dt = new DateTime(rand() * $s);
 		}
-		elseif ($fromType = self::TYPE_FLOAT)
+		elseif ($fromType == self::TYPE_FLOAT)
 		{
 			$s = (rand(0, 10) != 0) ? 1 : -1;
 			$i = rand(1, 365) * rand(0, 16000);
@@ -46,7 +58,7 @@ class Generator
 		}
 		else
 		{
-			$y = rand(0, 4000) * ((rand(0, 10) != 0) ? 1 : -1);
+			$y = rand($yearRange[0], $yearRange[1]);
 			$m = rand(1, 12);
 			$d = rand(1, 28);
 			$h = rand(0, 23);
@@ -66,6 +78,23 @@ class Generator
 			'Asia/Tokyo',
 			'Indian/Mayotte'
 		];
+
+		$y = \intval($dt->format('Y'));
+		$range = $yearRange[1] - $yearRange[0];
+		if ($y < $yearRange[0])
+		{
+			$offset = \abs($yearRange[0] - $y) + rand(0, $range / 2);
+			$interval = new \DateInterval('P' . $offset . 'Y');
+			$dt->add($interval);
+		}
+
+		if ($y > $yearRange[1])
+		{
+			$offset = $y - $yearRange[1] + rand(0, $range / 2);
+			$interval = new \DateInterval('P' . $offset . 'Y');
+			$interval->invert = true;
+			$dt->add($interval);
+		}
 
 		$tz = new \DateTimeZone($zones[rand(0, \count($zones) - 1)]);
 		$dt->setTimezone($tz);
