@@ -324,9 +324,8 @@ class Container
 	 *        	Only accept pure integer type as valid key.
 	 *        	Otherwise, a string key containing only digits is accepted.
 	 *
-	 * @return boolean
-	 *        	true if the container keys is a non-sparse sequence of integer
-	 *        starting from 0 to n-1 (where n is the number of elements of the container).
+	 * @return boolean true if the container keys is a non-sparse sequence of integer
+	 *         starting from 0 to n-1 (where n is the number of elements of the container).
 	 */
 	public static function isIndexed($container, $strict = false)
 	{
@@ -784,6 +783,29 @@ class Container
 		}
 
 		return self::implodeParts($parts, $b, $i, $p, $a);
+	}
+
+	/**
+	 *
+	 * @param array|\Traversable $container
+	 * @param callable $callable
+	 *        	Filter callable invoked for each element o.f $container.
+	 *        	The prototype must be function ($key, $value) : boolean
+	 * @return array Filtered container
+	 */
+	public static function filter($container, $callable)
+	{
+		if (!self::isTraversable($container, true))
+			throw new InvalidContainerException($container, __METHOD__);
+
+		$result = [];
+		foreach ($container as $key => $value)
+		{
+			if (\call_user_func($callable, $key, $value))
+				$result[$key] = $value;
+		}
+
+		return $result;
 	}
 
 	private static function implodeParts($parts, $b, $i, $p, $a)
