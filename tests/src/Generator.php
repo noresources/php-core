@@ -36,7 +36,8 @@ class Generator
 		$fromType = Container::keyValue($options, 'fromType',
 			rand(self::TYPE_STRING, self::TYPE_FLOAT));
 		$yearRange = Container::keyValue($options, 'yearRange', [
-			-400, // Death of Socrates
+			// -400, // Death of Socrates
+			0,
 			2123
 		]);
 

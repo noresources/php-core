@@ -19,7 +19,9 @@ final class GeneratorTest extends \PHPUnit\Framework\TestCase
 	{
 		for ($i = 0; $i < 10; $i++)
 		{
-			$v = Generator::randomDateTime(rand(Generator::TYPE_STRING, Generator::TYPE_FLOAT));
+			$v = Generator::randomDateTime([
+				'fromType' => rand(Generator::TYPE_STRING, Generator::TYPE_FLOAT)
+				]);
 			$this->assertInstanceOf(DateTIme::class, $v);
 		}
 	}
