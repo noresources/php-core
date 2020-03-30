@@ -87,7 +87,7 @@ class DerivedFileManager extends \PHPUnit\Framework\TestCase
 				$this->assertFileExists($reference, $label . 'Reference file exists');
 			}
 		}
-		
+
 		return $reference;
 	}
 
@@ -177,8 +177,9 @@ class DerivedFileManager extends \PHPUnit\Framework\TestCase
 	 * @var array
 	 */
 	private $derivedDataFiles;
-	
+
 	/**
+	 *
 	 * @var string
 	 */
 	private $basePath;

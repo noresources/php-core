@@ -82,6 +82,12 @@ final class DataTreeTest extends \PHPUnit\Framework\TestCase
 
 	public function testLoadYaml()
 	{
+		if (!\extension_loaded('yaml'))
+		{
+			$this->assertTrue(true, 'YAML extension not available');
+			return;
+		}
+
 		$tree = new DataTree();
 		$tree->load(__DIR__ . '/data/a.yaml');
 		$data = json_encode($tree, JSON_PRETTY_PRINT);
