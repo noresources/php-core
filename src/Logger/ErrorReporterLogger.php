@@ -8,8 +8,9 @@
  *
  * @package Core
  */
-namespace NoreSources;
+namespace NoreSources\Logger;
 
+use NoreSources\SingletonTrait;
 use Psr\Log\LogLevel;
 use Psr\Log\LoggerInterface;
 use Psr\Log\LoggerTrait;
