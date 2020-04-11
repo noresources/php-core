@@ -17,6 +17,15 @@ trait StaticallyCallableSingletonTrait
 {
 	use SingletonTrait;
 
+	/**
+	 * Attempt to invoke non-static method
+	 *
+	 * @param string $method
+	 *        	Method name
+	 * @param array $args
+	 *        	Method arguments
+	 * @return mixed
+	 */
 	public static function __callstatic($method, $args)
 	{
 		return \call_user_func_array([

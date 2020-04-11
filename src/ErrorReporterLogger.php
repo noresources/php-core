@@ -20,7 +20,7 @@ use Psr\Log\LoggerTrait;
 class ErrorReporterLogger implements LoggerInterface
 {
 	use LoggerTrait;
-	use StaticallyCallableSingletonTrait;
+	use SingletonTrait;
 
 	public function __construct()
 	{}

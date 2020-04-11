@@ -22,6 +22,15 @@ class TypeConversionException extends \Exception
 	 */
 	public $value;
 
+	/**
+	 *
+	 * @param mixed $value
+	 *        	Value was not converted
+	 * @param string $method
+	 *        	Failing method name
+	 * @param string $message
+	 *        	Failure description
+	 */
 	public function __construct($value, $method, $message = null)
 	{
 		parent::__construct(

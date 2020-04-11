@@ -10,6 +10,9 @@
  */
 namespace NoreSources;
 
+/**
+ * File system path utility class
+ */
 class Path
 {
 

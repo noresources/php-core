@@ -10,6 +10,9 @@
  */
 namespace NoreSources;
 
+/**
+ * Universal type description utility class
+ */
 class TypeDescription
 {
 

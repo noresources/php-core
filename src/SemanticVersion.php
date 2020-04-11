@@ -10,6 +10,9 @@
  */
 namespace NoreSources;
 
+/**
+ * Sematic version rule violation exception
+ */
 class SemanticVersionRuleException extends \ErrorException
 {
 
@@ -46,11 +49,23 @@ final class SemanticPostfixedData extends \ArrayObject
 		$this->set($data);
 	}
 
+	/**
+	 * Dot separated part string
+	 *
+	 * @return string
+	 */
 	public function __toString()
 	{
 		return \implode('.', $this->getArrayCopy());
 	}
 
+	/**
+	 *
+	 * @param integer $offset
+	 *        	Part index
+	 * @param string $value
+	 *        	Part value
+	 */
 	public function offsetSet($offset, $value)
 	{
 		if (!(\is_numeric($offset) || \is_null($offset)))
@@ -62,6 +77,13 @@ final class SemanticPostfixedData extends \ArrayObject
 		parent::offsetSet($offset, $value);
 	}
 
+	/**
+	 * Set version part content
+	 *
+	 * @param array|string $data
+	 *        	Dot-separated string representation or array of parts
+	 * @throws \InvalidArgumentException
+	 */
 	public function set($data)
 	{
 		$this->exchangeArray([]);
@@ -235,6 +257,9 @@ class SemanticVersion implements StringRepresentation, IntegerRepresentation
 		$this->set($version, $numberFormDigitCount);
 	}
 
+	/**
+	 * Deep clone of pre-release and metadata internal object
+	 */
 	public function __clone()
 	{
 		$this->prerelease = clone $this->prerelease;
@@ -301,6 +326,11 @@ class SemanticVersion implements StringRepresentation, IntegerRepresentation
 		}
 	}
 
+	/**
+	 * String representation of the semantic version
+	 *
+	 * @return string
+	 */
 	public function __toString()
 	{
 		$s = $this->major . '.' . $this->minor . '.' . $this->patch;
@@ -313,6 +343,13 @@ class SemanticVersion implements StringRepresentation, IntegerRepresentation
 		return $s;
 	}
 
+	/**
+	 * Get a portion of the version string
+	 *
+	 * @param string|integer $from
+	 * @param string|integer $to
+	 * @return string
+	 */
 	public function slice($from, $to)
 	{
 		$map = [
@@ -367,6 +404,13 @@ class SemanticVersion implements StringRepresentation, IntegerRepresentation
 		return $s;
 	}
 
+	/**
+	 * Integer representation of the version.
+	 *
+	 * Computed as (MAJOR * 10000) + (MINOR * 100) + PATCH
+	 *
+	 * @return integer
+	 */
 	public function getIntegerValue()
 	{
 		return ($this->patch + $this->minor * 100 + $this->major * 10000);
@@ -540,6 +584,11 @@ class SemanticVersion implements StringRepresentation, IntegerRepresentation
 		return $a->prerelease->compare($b->prerelease);
 	}
 
+	/**
+	 * Semanic version format pattern
+	 *
+	 * @var string
+	 */
 	const PATTERN = '^([0-9]|[1-9][0-9]*)(\.([0-9]|[1-9][0-9]*)(\.([0-9]|[1-9][0-9]*))?)?(?:-([0-9a-z-]+(?:\.[0-9a-z-]+)*))?(\+([0-9a-z-]+(?:\.[0-9a-z-]+)*))?$';
 
 	const PATTERN_MODIFIERS = 'i';
