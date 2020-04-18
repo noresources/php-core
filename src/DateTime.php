@@ -12,7 +12,8 @@
 namespace NoreSources;
 
 /**
- * Extension of the DateTime class
+ * the <code>[NoreSources\DateTime](NoreSources/DateTime)</code> class extends the built-in <code>\DateTIme</code> class by adding more capabilities to be constructed ad exported to
+ * various data types.
  */
 class DateTime extends \DateTime implements IntegerRepresentation, FloatRepresentation,
 	StringRepresentation, ArrayRepresentation

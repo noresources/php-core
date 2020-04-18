@@ -18,29 +18,17 @@ class DataTree implements \ArrayAccess, \Serializable, \IteratorAggregate, \Coun
 {
 
 	/**
-	 * Do not allow to add new keys
+	 * Content fusion mode.
+	 *
+	 * Replace existing data with new content.
 	 *
 	 * @var integer
 	 */
-	const RESTRICTED_KEYS = 0x01;
-
-	/**
-	 * Do not allow to change any value
-	 *
-	 * @var integer
-	 */
-	const READ_ONLY = 0x02;
-
-	/**
-	 * Do not raise exception on set/get error
-	 *
-	 * @var integer
-	 */
-	const SILENT = 0x04;
-
 	const REPLACE = 0x01;
 
 	/**
+	 * Content fusion mode.
+	 *
 	 * Merge exising data with new content.
 	 * Append new key
 	 *
@@ -49,6 +37,8 @@ class DataTree implements \ArrayAccess, \Serializable, \IteratorAggregate, \Coun
 	const MERGE = 0x02;
 
 	/**
+	 * Content fusion mode.
+	 *
 	 * Merge existing content with new content.
 	 * Overwrite existing key values.
 	 *
@@ -195,7 +185,7 @@ class DataTree implements \ArrayAccess, \Serializable, \IteratorAggregate, \Coun
 	 *        	Element key
 	 * @param mixed $value
 	 *        	Element value
-	 * @param string $mode
+	 * @param integer $mode
 	 *        	Fusion mode
 	 * @throws \Exception
 	 */
@@ -221,9 +211,7 @@ class DataTree implements \ArrayAccess, \Serializable, \IteratorAggregate, \Coun
 			}
 
 			if (!($st instanceof DataTree))
-			{
 				$st = new DataTree();
-			}
 
 			foreach ($value as $k => $v)
 				$st->setElement($k, $v, $mode);
@@ -255,7 +243,10 @@ class DataTree implements \ArrayAccess, \Serializable, \IteratorAggregate, \Coun
 
 	// Countable ////////////////////
 
-	// Contable
+	/**
+	 *
+	 * @return Number of child element
+	 */
 	public function count()
 	{
 		return $this->elements->count();
@@ -333,19 +324,13 @@ class DataTree implements \ArrayAccess, \Serializable, \IteratorAggregate, \Coun
 			while ($i < $c)
 			{
 				if (!($t instanceof DataTree))
-				{
 					break;
-				}
 
 				$k = $key[$i];
 				if ($t->offsetExists($k))
-				{
 					$t = $t->offsetGet($k);
-				}
 				else
-				{
 					break;
-				}
 
 				$i++;
 			}
@@ -406,9 +391,7 @@ class DataTree implements \ArrayAccess, \Serializable, \IteratorAggregate, \Coun
 			$mode |= self::MERGE;
 
 		foreach ($data as $key => $value)
-		{
 			$this->setElement($key, $value, $mode);
-		}
 
 		return $this;
 	}
@@ -417,7 +400,17 @@ class DataTree implements \ArrayAccess, \Serializable, \IteratorAggregate, \Coun
 	 * Load a DataTree from a file
 	 *
 	 * @param string $filename
-	 *        	File name
+	 *        	File name. File format could be
+	 *        	<ul>
+	 *        	<li>JSON</li>
+	 *        	<li>YAML</li>
+	 *        	<li>Ini</li>
+	 *        	<li>php</li>
+	 *        	</ul>
+	 *
+	 *        	PHP files are loaded with the require() function and expect a Traversable return value.
+	 *
+	 *        	Several media type support depends on available PHP extensions.
 	 * @param integer $mode
 	 *        	Control interaction with existing content
 	 * @param string|null $mediaType
@@ -442,7 +435,7 @@ class DataTree implements \ArrayAccess, \Serializable, \IteratorAggregate, \Coun
 				$mediaType = $finfo->file($filename);
 			}
 		}
-		
+
 		if ($mediaType == 'text/x-php' || $extension == 'php')
 		{
 			$result = require ($filename);
@@ -453,7 +446,7 @@ class DataTree implements \ArrayAccess, \Serializable, \IteratorAggregate, \Coun
 
 		if ($extension == 'ini')
 			$data = self::dataFromIniFile($filename);
-			elseif (($extension == 'json') || \preg_match(',(/|\+)json$,', $mediaType))
+		elseif (($extension == 'json') || \preg_match(',(/|\+)json$,', $mediaType))
 			$data = self::dataFromJson(file_get_contents($filename));
 		elseif (($extension == 'yaml') || ($extension == 'yml'))
 			$data = self::dataFromYaml(file_get_contents($filename));
@@ -461,23 +454,6 @@ class DataTree implements \ArrayAccess, \Serializable, \IteratorAggregate, \Coun
 			throw new \UnexpectedValueException($extension . ' is not supported');
 
 		return $this->setContent($data, $mode);
-	}
-
-	/**
-	 *
-	 * @param callable $callable
-	 *        	A function to call when a key does not exists. The function will receive
-	 *        	the key and the DataTree in argument and must return a value
-	 */
-	public function setDefaultValueHandler($callable)
-	{
-		foreach ($this->elements as $k => &$v)
-		{
-			if ($v instanceof DataTree)
-			{
-				$v->setDefaultValueHandler($callable);
-			}
-		}
 	}
 
 	private static function dataFromIniFile($filename)
