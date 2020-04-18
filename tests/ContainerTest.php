@@ -105,6 +105,26 @@ class ContainerImpl implements ContainerInterface
 
 $hashReferenceImpl = new ArrayAccessImpl($hashReference);
 
+class TraversableImpl implements \IteratorAggregate
+{
+
+	public function __construct($array)
+	{
+		$this->array = new \ArrayObject($array);
+	}
+
+	public function getIterator()
+	{
+		return $this->array->getIterator();
+	}
+
+	/**
+	 *
+	 * @var \ArrayObject
+	 */
+	private $array;
+}
+
 final class ContainerTest extends \PHPUnit\Framework\TestCase
 {
 
@@ -268,6 +288,54 @@ final class ContainerTest extends \PHPUnit\Framework\TestCase
 				$this->assertEquals(InvalidContainerException::class, $result);
 			}
 		}
+	}
+
+	public function testGetKeysAndValues()
+	{
+		$expectedKeys = [
+			'one',
+			2,
+			'three',
+			4,
+			'five',
+			6,
+			'un'
+		];
+		$expectedValues = [
+			1,
+			'two',
+			3,
+			'four',
+			5,
+			'six',
+			1
+		];
+
+		$array = [];
+		for ($i = 0; $i < \count($expectedKeys); $i++)
+		{
+			$array[$expectedKeys[$i]] = $expectedValues[$i];
+		}
+
+		$arrayObject = new \ArrayObject($array);
+		$traversable = new TraversableImpl($array);
+		$container = new ContainerImpl($array);
+
+		$this->assertEquals($expectedKeys, Container::getKeys($array), 'Container::getKeys (array)');
+		$this->assertEquals($expectedKeys, Container::getKeys($arrayObject),
+			'Container::getKeys (ArrayObject)');
+		$this->assertEquals($expectedKeys, Container::getKeys($traversable),
+			'Container::getKeys (TraversableImpl)');
+
+		$this->assertEquals($expectedValues, Container::getValues($array),
+			'Container::getValue(array)');
+		$this->assertEquals($expectedValues, Container::getValues($arrayObject),
+			'Container::getValue(ArrayObject)');
+		$this->assertEquals($expectedValues, Container::getValues($traversable),
+			'Container::getValue(TraversableImpl)');
+
+		$this->expectException(InvalidContainerException::class);
+		Container::getKeys($container);
 	}
 
 	public function testImplodeValueBasic()

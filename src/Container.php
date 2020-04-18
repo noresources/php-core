@@ -31,11 +31,12 @@ class Container
 	const MODIFIABLE = 0x01;
 
 	/**
-	 * Container can accept new elements
+	 * Container can accept new elements.
 	 *
 	 * Container property flag.
 	 *
 	 * @used-by Container::getContainerProperties()
+	 *
 	 * @var number
 	 */
 	const EXTENDABLE = 0x03;
@@ -43,27 +44,32 @@ class Container
 	/**
 	 * Elements can be removed from container
 	 *
+	 * Container property flag.
+	 *
 	 * @used-by Container::getContainerProperties()
+	 *
 	 * @var number
 	 */
 	const SHRINKABLE = 0x05;
 
 	/**
-	 * Container elements can be accessed using random access method or bracket operator
+	 * Container elements can be accessed using random access method or bracket operator.
 	 *
 	 * Container property flag.
 	 *
 	 * @used-by Container::getContainerProperties()
+	 *
 	 * @var number
 	 */
 	const RANDOM_ACCESS = 0x08;
 
 	/**
-	 * Container can is traversable
+	 * Container can is traversable.
 	 *
 	 * Container property flag.
 	 *
 	 * @used-by Container::getContainerProperties()
+	 *
 	 * @var number
 	 */
 	const TRAVERSABLE = 0x10;
@@ -79,45 +85,46 @@ class Container
 	const COUNTABLE = 0x20;
 
 	/**
-	 * Behavior of the Container::removeKey method.
 	 * Replace element in-place.
+	 *
+	 * Behavior option of the Container::removeKey method.
 	 *
 	 * @var integer
 	 */
 	const REMOVE_INPLACE = 0x1;
 
 	/**
-	 * Behavior of the Container::removeKey method.
-	 *
 	 * Return a clone of the input container without the removed key
 	 * or an array
+	 *
+	 * Behavior option of the Container::removeKey method.
 	 *
 	 * @var integer
 	 */
 	const REMOVE_COPY = 0x2;
 
 	/**
-	 * Behavior of the Container::removeKey method.
-	 *
 	 * Return a clone of the input container without the removed key.
+	 *
+	 * Behavior option of the Container::removeKey method.
 	 *
 	 * @var integer
 	 */
 	const REMOVE_COPY_STRICT_TYPE = 0x6;
 
 	/**
-	 * Implode function callable argument selection.
-	 *
 	 * The container element key will be passed to the user-defined callable.
+	 *
+	 * Container::implode() function callable argument selection flag.
 	 *
 	 * @var integer
 	 */
 	const IMPLODE_KEYS = 0x01;
 
 	/**
-	 * Implode function callable argument selection.
-	 *
 	 * The container element value will be passed to the user-defined callable;
+	 *
+	 * Container::implode() function callable argument selection flag.
 	 *
 	 * @var integer
 	 */
@@ -129,7 +136,7 @@ class Container
 	 * @param mixed $container
 	 *        	Container
 	 *
-	 * @return number A combination of the following flags
+	 * @return integer A combination of the following flags
 	 *         <ul>
 	 *         <li>Container::RANDOM_ACCESS</li>
 	 *         <li>Container::TRAVERSABLE</li>
@@ -187,6 +194,66 @@ class Container
 			$p |= self::TRAVERSABLE;
 
 		return (($p & $e) == $e);
+	}
+
+	/**
+	 *
+	 * Get the list of keys of the given container
+	 *
+	 * @param mixed $container
+	 *        	Input container
+	 * @param boolean $acceptAnyObject
+	 *        	Any class instance is considered as traversable
+	 * @throws InvalidContainerException
+	 * @return array Numerically indexed array of keys used in $container
+	 */
+	public static function getKeys($container, $acceptAnyObject = false)
+	{
+		if (\is_array($container))
+			return \array_keys($container);
+
+		if (self::isTraversable($container, $acceptAnyObject))
+		{
+			$keys = [];
+			foreach ($container as $key => $value)
+				$keys[] = $key;
+			return $keys;
+		}
+
+		if ($container instanceof ArrayRepresentation)
+			return \array_keys($container->getArrayCopy());
+
+		throw new InvalidContainerException($container, __METHOD__);
+	}
+
+	/**
+	 * Get the list of values of the given container.
+	 *
+	 * @param mixed $container
+	 *        	Input container
+	 * @param boolean $acceptAnyObject
+	 *        	Any class instance is considered as traversable
+	 * @throws InvalidContainerException
+	 * @return mixed[] Numerically indexed array of values contained in $container
+	 */
+	public static function getValues($container, $acceptAnyObject = false)
+	{
+		if (\is_array($container))
+			return \array_values($container);
+
+		if (self::isTraversable($container, $acceptAnyObject))
+		{
+			$values = [];
+			foreach ($container as $value)
+				$values[] = $value;
+
+			return $values;
+		}
+
+		if ($container instanceof ArrayRepresentation)
+			return \array_values($container->getArrayCopy());
+
+		throw new InvalidContainerException($container, __METHOD__);
 	}
 
 	/**
@@ -416,7 +483,7 @@ class Container
 	 * @param mixed $container
 	 *        	Array, \Countable or \Traversable object
 	 * @throws InvalidContainerException
-	 * @return number Number of elements in $container
+	 * @return integer Number of elements in $container
 	 *
 	 */
 	public static function count($container)
