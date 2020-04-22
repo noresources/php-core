@@ -11,9 +11,7 @@
 namespace NoreSources;
 
 /**
- *
- * @author renaud
- *
+ * Stack container implementation
  */
 class Stack implements \Countable
 {

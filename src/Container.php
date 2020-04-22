@@ -273,7 +273,8 @@ class Container
 	 *        	</ul>
 	 * @throws InvalidContainerException
 	 * @throws \InvalidArgumentException
-	 * @return mixed The input When $mode is Container::REMOVE_INPLACE, return a boolean indicating if th input array was modified.
+	 * @return mixed The input container when $mode is Container::REMOVE_INPLACE,
+	 *         return a boolean indicating if the input array was modified.
 	 *         Otherwise a new container otherwise
 	 */
 	public static function removeKey(&$container, $key, $mode = self::REMOVE_COPY)
