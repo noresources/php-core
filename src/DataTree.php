@@ -148,10 +148,10 @@ class DataTree implements \ArrayAccess, \Serializable, \IteratorAggregate, \Coun
 	 *
 	 * @param string $key
 	 *        	Key. According to PSR-11, $key MUST be a string
-	 *
+	 *        	
 	 * @throws DataTreeElementNotFoundException
 	 * @return The element value or <code>NULL</code> if the key does not exists
-	 *
+	 *        
 	 * @see https://www.php-fig.org/psr/psr-11/
 	 */
 	public function get($key)
@@ -170,7 +170,7 @@ class DataTree implements \ArrayAccess, \Serializable, \IteratorAggregate, \Coun
 	 *        	Setting key
 	 * @param integer $value
 	 *        	Setting value
-	 *
+	 *        	
 	 * @throws \Exception
 	 */
 	public function offsetSet($key, $value)
@@ -407,9 +407,10 @@ class DataTree implements \ArrayAccess, \Serializable, \IteratorAggregate, \Coun
 	 *        	<li>Ini</li>
 	 *        	<li>php</li>
 	 *        	</ul>
-	 *
-	 *        	PHP files are loaded with the require() function and expect a Traversable return value.
-	 *
+	 *        	
+	 *        	PHP files are loaded with the require() function and expect a Traversable return
+	 *        	value.
+	 *        	
 	 *        	Several media type support depends on available PHP extensions.
 	 * @param integer $mode
 	 *        	Control interaction with existing content

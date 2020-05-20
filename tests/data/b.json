@@ -1,7 +1,11 @@
 {
 	"b": "value of b",
-	"c" : {
+	"c": {
 		"key-b": "A key from b"
 	},
-	"indexed-array": ["one", "two", "three"]
+	"indexed-array": [
+		"one",
+		"two",
+		"three"
+	]
 }

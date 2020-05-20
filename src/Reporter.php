@@ -66,12 +66,12 @@ class Reporter
 	 * @method void notice ($message, $context)
 	 * @method void info ($message, $context)
 	 * @method void debug ($message, $context)
-	 *
+	 *        
 	 * @param string $method
 	 *        	Loggers method ton invoke
 	 * @param array $args
 	 *        	Loggers method arguments
-	 *
+	 *        	
 	 * @throws \BadMethodCallException
 	 */
 	public function __call($method, $args)

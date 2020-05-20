@@ -10,8 +10,6 @@
  */
 namespace NoreSources;
 
-use Psr\Container\ContainerInterface;
-
 /**
  * Container utility class
  */
@@ -267,8 +265,10 @@ class Container
 	 *        	Remove mode.
 	 *        	<ul>
 	 *        	<li>Container::REMOVE_INPLACE: Remove element in-place</li>
-	 *        	<li>Container::REMOVE_COPY: Create a new container without the removed element</li>
-	 *        	<li>Container::REMOVE_COPY_STRICT_TYPE: Ensure the new container have the same type as the input
+	 *        	<li>Container::REMOVE_COPY: Create a new container without the removed
+	 *        	element</li>
+	 *        	<li>Container::REMOVE_COPY_STRICT_TYPE: Ensure the new container have the same
+	 *        	type as the input
 	 *        	container</li>
 	 *        	</ul>
 	 * @throws InvalidContainerException
@@ -342,7 +342,8 @@ class Container
 	 * @param number $singleElementKey
 	 *        	Key used to create a single element array when is not something that could be
 	 *        	converted to an array
-	 * @return array or null if $anything cannont be converted to array and $singleElementKey is null
+	 * @return array or null if $anything cannont be converted to array and $singleElementKey is
+	 *         null
 	 */
 	public static function createArray($anything, $singleElementKey = 0)
 	{
@@ -442,7 +443,8 @@ class Container
 	 *        	If true, only consider
 	 * @throws InvalidContainerException
 	 * @return boolean @true if at least one of $container keys is not a integer
-	 *         or if the array keys are not consecutive values. An empty container is considered as associative
+	 *         or if the array keys are not consecutive values. An empty container is considered as
+	 *         associative
 	 */
 	public static function isAssociative($container, $strict = false)
 	{

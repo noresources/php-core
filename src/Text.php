@@ -23,7 +23,8 @@ class Text
 	 * @param boolean $upperCase
 	 *        	Indicates if hexadecimal digit letters should be written uper case or not.
 	 * @throws \InvalidArgumentException
-	 * @return string|Hexadecimal representation of the input value. The output string length is always a multiple of 2.
+	 * @return string|Hexadecimal representation of the input value. The output string length is
+	 *         always a multiple of 2.
 	 */
 	public static function toHexadecimalString($value, $upperCase = false)
 	{

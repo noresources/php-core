@@ -423,7 +423,7 @@ class SemanticVersion implements StringRepresentation, IntegerRepresentation
 	 * @property-read integer $patch Patch level
 	 * @property-read string $prerelease Pre-release data
 	 * @property-read string $metadata Metadata
-	 *
+	 *               
 	 * @param string $member
 	 * @throws \InvalidArgumentException
 	 * @return number|string
@@ -454,7 +454,7 @@ class SemanticVersion implements StringRepresentation, IntegerRepresentation
 	 * @property-write integer $patch Patch level
 	 * @property-write string $prerelease Pre-release data
 	 * @property-write string $metadata Metadata
-	 *
+	 *                
 	 * @param string $member
 	 * @param mixed $value
 	 * @throws \InvalidArgumentException

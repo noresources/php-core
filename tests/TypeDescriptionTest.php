@@ -49,17 +49,24 @@ final class TypeDescriptionTest extends \PHPUnit\Framework\TestCase
 	{
 		$types = [
 			[
-				'args' => [ (new \DateTime('now')) ],
+				'args' => [
+					(new \DateTime('now'))
+				],
 				'namespaces' => []
 			],
 			[
-				'args' => [ new TypeDescription() ],
+				'args' => [
+					new TypeDescription()
+				],
 				'namespaces' => [
 					'NoreSources'
 				]
 			],
 			[
-				'args' => [ TypeDescription::class, true ],
+				'args' => [
+					TypeDescription::class,
+					true
+				],
 				'namespaces' => [
 					'NoreSources'
 				]
@@ -69,8 +76,11 @@ final class TypeDescriptionTest extends \PHPUnit\Framework\TestCase
 		foreach ($types as $test)
 		{
 			$name = $test['args'][0];
-			$name = (\is_object ($name) ? TypeDescription::getName ($name) : $name);
-			$ns = \call_user_func_array ([TypeDescription::class, 'getNamespaces'], $test['args']);
+			$name = (\is_object($name) ? TypeDescription::getName($name) : $name);
+			$ns = \call_user_func_array([
+				TypeDescription::class,
+				'getNamespaces'
+			], $test['args']);
 			$this->assertEquals('array', TypeDescription::getName($ns), 'Result is an array');
 			$this->assertCount(count($test['namespaces']), $ns,
 				'Number of namespace parts for ' . $name);

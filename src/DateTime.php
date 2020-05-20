@@ -12,7 +12,8 @@
 namespace NoreSources;
 
 /**
- * the <code>[NoreSources\DateTime](NoreSources/DateTime)</code> class extends the built-in <code>\DateTIme</code> class by adding more capabilities to be constructed ad exported to
+ * the <code>[NoreSources\DateTime](NoreSources/DateTime)</code> class extends the built-in
+ * <code>\DateTIme</code> class by adding more capabilities to be constructed ad exported to
  * various data types.
  */
 class DateTime extends \DateTime implements IntegerRepresentation, FloatRepresentation,
@@ -64,9 +65,10 @@ class DateTime extends \DateTime implements IntegerRepresentation, FloatRepresen
 	 * @param \DateTimeInterface $dateTime
 	 *        	DateTime to convert
 	 * @param boolean $utc
-	 *        	Indicates if the DateTime time zone must be converted to UTC before calculating the julian day number.
+	 *        	Indicates if the DateTime time zone must be converted to UTC before calculating
+	 *        	the julian day number.
 	 * @return integer Julian day number
-	 *
+	 *        
 	 * @see https://en.wikipedia.org/wiki/Julian_day#Converting_Gregorian_calendar_date_to_Julian_Day_Number
 	 */
 	public static function toJulianDayNumber(\DateTimeInterface $dateTime, $utc = true)
@@ -92,10 +94,11 @@ class DateTime extends \DateTime implements IntegerRepresentation, FloatRepresen
 	 * Julian day representation of the given DateTime
 	 *
 	 * @param boolean $utc
-	 *        	Indicates if the DateTime time zone must be converted to UTC before calculating the julian day number.
-	 *
+	 *        	Indicates if the DateTime time zone must be converted to UTC before calculating
+	 *        	the julian day number.
+	 *        	
 	 * @return integer Julian day number
-	 *
+	 *        
 	 * @see https://en.wikipedia.org/wiki/Julian_day#Converting_Gregorian_calendar_date_to_Julian_Day_Number
 	 */
 	public function getJulianDayNumber($utc = true)
@@ -109,10 +112,11 @@ class DateTime extends \DateTime implements IntegerRepresentation, FloatRepresen
 	 * @param \DateTimeInterface $dateTime
 	 *        	DateTime to convert
 	 * @param boolean $utc
-	 *        	Indicates if the DateTime time zone must be converted to UTC before calculating the julian day number.
-	 *
+	 *        	Indicates if the DateTime time zone must be converted to UTC before calculating
+	 *        	the julian day number.
+	 *        	
 	 * @return number Julian day number and time
-	 *
+	 *        
 	 * @see https://en.wikipedia.org/wiki/Julian_day#Finding_Julian_date_given_Julian_day_number_and_time_of_day
 	 */
 	public static function toJulianDay(\DateTimeInterface $dateTime, $utc = true)
@@ -135,10 +139,11 @@ class DateTime extends \DateTime implements IntegerRepresentation, FloatRepresen
 	 * Full julian day and time representation of the given DateTime
 	 *
 	 * @param boolean $utc
-	 *        	Indicates if the DateTime time zone must be converted to UTC before calculating the julian day number.
-	 *
+	 *        	Indicates if the DateTime time zone must be converted to UTC before calculating
+	 *        	the julian day number.
+	 *        	
 	 * @return number Julian day number and time
-	 *
+	 *        
 	 * @see https://en.wikipedia.org/wiki/Julian_day#Finding_Julian_date_given_Julian_day_number_and_time_of_day
 	 */
 	public function getJulianDay()
@@ -247,7 +252,8 @@ class DateTime extends \DateTime implements IntegerRepresentation, FloatRepresen
 	 *        	<ol>
 	 *        	<li>UTC offset (ex. +0100)</li>
 	 *        	<li>Timezone abbreviation (ex. CET)</li>
-	 *        	<li>Timezone identifier (@see https://www.php.net/manual/en/class.datetimezone.php)</li>
+	 *        	<li>Timezone identifier (@see
+	 *        	https://www.php.net/manual/en/class.datetimezone.php)</li>
 	 *        	</ol>
 	 *        	</li>
 	 *        	<li>timezone: Timezone value</li>
@@ -262,7 +268,8 @@ class DateTime extends \DateTime implements IntegerRepresentation, FloatRepresen
 	 *        	</li>
 	 *        	</ul>
 	 * @param boolean $baseClass
-	 *        	Return a built-in \DateTime instance. Otherwise, return a \NoreSources\DateTime (with no
+	 *        	Return a built-in \DateTime instance. Otherwise, return a \NoreSources\DateTime
+	 *        	(with no
 	 *        	particular benefits)
 	 * @throws \InvalidArgumentException
 	 * @return DateTime
@@ -307,7 +314,8 @@ class DateTime extends \DateTime implements IntegerRepresentation, FloatRepresen
 	}
 
 	/**
-	 * Indicate if the given array can be used to create a DateTime using DateTime::__set_state() magic method.
+	 * Indicate if the given array can be used to create a DateTime using DateTime::__set_state()
+	 * magic method.
 	 *
 	 * @param array $array
 	 * @return boolean

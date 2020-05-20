@@ -73,7 +73,7 @@ class DerivedFileManager extends \PHPUnit\Framework\TestCase
 		if (\is_file($reference))
 		{
 			$this->derivedDataFiles->offsetSet($derived, true);
-			//$this->assertFileEquals($reference, $derived, $label . 'Compare with reference');
+			// $this->assertFileEquals($reference, $derived, $label . 'Compare with reference');
 			$this->assertEquals($this->loadFile($reference, 'lf'),
 				$this->convertEndOfLine($data, 'lf'), $label);
 			$this->derivedDataFiles->offsetSet($derived, false);

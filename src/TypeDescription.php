@@ -20,7 +20,7 @@ class TypeDescription
 	 *
 	 * @param mixed $element
 	 * @return string $element Full class name or data type name
-	 *
+	 *        
 	 *         This method use get_class () or gettype() depending on argument type.
 	 */
 	public static function getName($element)
@@ -41,7 +41,7 @@ class TypeDescription
 	 *        	Class instance or class name
 	 * @param boolean $elementIsClassName
 	 *        	Consider the first argument as a class name
-	 *
+	 *        	
 	 * @return Local name of class
 	 */
 	public static function getLocalName($element, $elementIsClassName = false)
@@ -68,7 +68,7 @@ class TypeDescription
 	 *        	Class instance or class name
 	 * @param boolean $elementIsClassName
 	 *        	Consider the first argument as a class name
-	 *
+	 *        	
 	 * @return array List of namespaces
 	 */
 	public static function getNamespaces($element, $elementIsClassName = false)
@@ -95,7 +95,7 @@ class TypeDescription
 	 *        	Class name or Class instance
 	 * @param string $parent
 	 *        	Class name
-	 *
+	 *        	
 	 * @return boolean @true if $element is a subclass of $parent
 	 */
 	public static function isSubclassOf($element, $parent, $elementIsClassName = false)

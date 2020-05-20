@@ -28,18 +28,19 @@ class Generator
 	 * @param array $options
 	 *        	* fromType (int) : generate date time from integer, float or string timestamp
 	 *        	* yearRange (array): Year range
-	 *
+	 *        	
 	 * @return NULL|\NoreSources\DateTime
 	 */
 	public static function randomDateTime($options = array())
 	{
 		$fromType = Container::keyValue($options, 'fromType',
 			rand(self::TYPE_STRING, self::TYPE_FLOAT));
-		$yearRange = Container::keyValue($options, 'yearRange', [
-			// -400, // Death of Socrates
-			0,
-			2123
-		]);
+		$yearRange = Container::keyValue($options, 'yearRange',
+			[
+				// -400, // Death of Socrates
+				0,
+				2123
+			]);
 
 		$timezone = Container::keyValue($options, 'timezone', null);
 
