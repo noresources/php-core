@@ -52,8 +52,9 @@ final class DateTimeTest extends \PHPUnit\Framework\TestCase
 		] as $time)
 		{
 			$dateTime = new \DateTime($time, $tz);
-
-			$exported = Container::createArray($dateTime);
+			$exported = [];
+			foreach ($dateTime as $key => $value)
+				$exported[$key] = $value;
 			$this->assertIsArray($exported, $time . ' - DateTime to array');
 			$this->assertCount(3, $exported);
 			$this->assertArrayHasKey('date', $exported);

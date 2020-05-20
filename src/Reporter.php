@@ -10,7 +10,6 @@
  */
 namespace NoreSources;
 
-use Psr\Log\LogLevel;
 use Psr\Log\LoggerInterface;
 
 /**
@@ -50,7 +49,7 @@ class Reporter
 	public function unregisterLogger($key)
 	{
 		if (isset($this))
-			Container::removeKey($this->loggers, $key, Container::REMOVE_INPLACE);
+			Container::removeKey($this->loggers, $key);
 		else
 			self::getInstance()->unregisterLogger($key, $logger);
 	}
@@ -66,12 +65,12 @@ class Reporter
 	 * @method void notice ($message, $context)
 	 * @method void info ($message, $context)
 	 * @method void debug ($message, $context)
-	 *        
+	 *
 	 * @param string $method
 	 *        	Loggers method ton invoke
 	 * @param array $args
 	 *        	Loggers method arguments
-	 *        	
+	 *
 	 * @throws \BadMethodCallException
 	 */
 	public function __call($method, $args)

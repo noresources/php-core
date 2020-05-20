@@ -48,6 +48,17 @@ class SimpleClass
 	public $number;
 }
 
+class MetaVariable implements ContainerPropertyInterface
+{
+
+	public function getContainerProperties()
+	{
+		return (Container::TRAVERSABLE | Container::PROPERTY_ACCESS);
+	}
+
+	public $foo = 'bar';
+}
+
 class ArrayAccessImpl implements \ArrayAccess
 {
 
@@ -127,6 +138,105 @@ class TraversableImpl implements \IteratorAggregate
 
 final class ContainerTest extends \PHPUnit\Framework\TestCase
 {
+
+	public function testKeyValue()
+	{
+		$array = [
+			'key' => 'value',
+			'foo' => 'bar',
+			'toto' => 'titi'
+		];
+
+		$ci = new ContainerImpl($array);
+		$aa = new ArrayAccessImpl($array);
+		$metavariable = new MetaVariable();
+
+		foreach ([
+			$array,
+			$ci,
+			$aa,
+			$metavariable
+		] as $container)
+		{
+			$this->assertEquals('bar', Container::keyValue($container, 'foo'),
+				'keyValue of ' . TypeDescription::getLocalName($container));
+		}
+	}
+
+	public function testPropertines()
+	{
+		$properties = [
+			Container::COUNTABLE => 'countable',
+			Container::MODIFIABLE => 'modifiable',
+			Container::EXTENDABLE => 'extendable',
+			Container::SHRINKABLE => 'shrinkable',
+			Container::RANDOM_ACCESS => 'random access',
+			Container::TRAVERSABLE => 'traversable'
+		];
+
+		$tests = [
+			'array' => [
+				'container' => [
+					'Hello'
+				],
+				'expected' => [
+					Container::COUNTABLE,
+					Container::EXTENDABLE,
+					Container::SHRINKABLE,
+					Container::OFFSET_ACCESS,
+					Container::TRAVERSABLE
+				]
+			],
+			'ArrayObject' => [
+				'container' => new \ArrayObject([
+					'Hello'
+				]),
+				'expected' => [
+					Container::COUNTABLE,
+					Container::EXTENDABLE,
+					Container::SHRINKABLE,
+					Container::OFFSET_ACCESS,
+					Container::TRAVERSABLE
+				]
+			],
+			'ContainerInterface' => [
+				'container' => new ContainerImpl([
+					'foo' => 'bar'
+				]),
+				'expected' => [
+					Container::RANDOM_ACCESS
+				]
+			],
+			'MetaVariable object' => [
+				'container' => new MetaVariable(),
+				'expected' => [
+					Container::PROPERTY_ACCESS,
+					Container::TRAVERSABLE
+				]
+			],
+			'SimpleClassobject' => [
+				'container' => new SimpleClass(),
+				'expected' => []
+			]
+		];
+
+		foreach ($tests as $label => $test)
+		{
+			$container = $test['container'];
+			$e = $test['expected'];
+			$expected = 0;
+			foreach ($e as $v)
+				$expected |= $v;
+			$actual = Container::properties($container);
+
+			foreach ($properties as $property => $name)
+			{
+				$expectedValue = $expected & $property;
+				$text = $label . ' is ' . ($expectedValue ? '' : 'not ') . $name;
+				$this->assertEquals($expectedValue, $actual & $property, $text);
+			}
+		}
+	}
 
 	public function testPODArrayIsArray()
 	{
@@ -321,21 +431,20 @@ final class ContainerTest extends \PHPUnit\Framework\TestCase
 		$traversable = new TraversableImpl($array);
 		$container = new ContainerImpl($array);
 
-		$this->assertEquals($expectedKeys, Container::getKeys($array), 'Container::getKeys (array)');
-		$this->assertEquals($expectedKeys, Container::getKeys($arrayObject),
-			'Container::getKeys (ArrayObject)');
-		$this->assertEquals($expectedKeys, Container::getKeys($traversable),
-			'Container::getKeys (TraversableImpl)');
+		$this->assertEquals($expectedKeys, Container::keys($array), 'Container::keys (array)');
+		$this->assertEquals($expectedKeys, Container::keys($arrayObject),
+			'Container::keys (ArrayObject)');
+		$this->assertEquals($expectedKeys, Container::keys($traversable),
+			'Container::keys (TraversableImpl)');
 
-		$this->assertEquals($expectedValues, Container::getValues($array),
-			'Container::getValue(array)');
-		$this->assertEquals($expectedValues, Container::getValues($arrayObject),
+		$this->assertEquals($expectedValues, Container::values($array), 'Container::getValue(array)');
+		$this->assertEquals($expectedValues, Container::values($arrayObject),
 			'Container::getValue(ArrayObject)');
-		$this->assertEquals($expectedValues, Container::getValues($traversable),
+		$this->assertEquals($expectedValues, Container::values($traversable),
 			'Container::getValue(TraversableImpl)');
 
 		$this->expectException(InvalidContainerException::class);
-		Container::getKeys($container);
+		Container::keys($container);
 	}
 
 	public function testImplodeValueBasic()
@@ -413,22 +522,6 @@ final class ContainerTest extends \PHPUnit\Framework\TestCase
 		$this->assertEquals($stringValues, $stringValuesResult, 'Only string values');
 	}
 
-	public function testremoveKeyArrayCopy()
-	{
-		$source = array(
-			'one' => 1,
-			'two' => 2,
-			'three' => 3,
-			'four' => 4
-		);
-		$target = array(
-			'one' => 1,
-			'two' => 2,
-			'four' => 4
-		);
-		$this->assertEquals($target, Container::removeKey($source, 'three', Container::REMOVE_COPY));
-	}
-
 	public function testremoveKeyArrayInplace()
 	{
 		$source = array(
@@ -442,7 +535,11 @@ final class ContainerTest extends \PHPUnit\Framework\TestCase
 			'two' => 2,
 			'four' => 4
 		);
-		Container::removeKey($source, 'three', Container::REMOVE_INPLACE);
+
+		$this->assertFalse(Container::removeKey($source, 'Kowabunga'), 'Remove non-existing');
+
+		$this->assertTrue(Container::removeKey($source, 'three'), 'Remove existing');
+
 		$this->assertEquals($target, $source);
 	}
 
@@ -459,7 +556,7 @@ final class ContainerTest extends \PHPUnit\Framework\TestCase
 			1 => 'two',
 			3 => 'four'
 		);
-		Container::removeKey($source, 2, Container::REMOVE_INPLACE);
+		$this->assertTrue(Container::removeKey($source, 2), 'Remove existing');
 		$this->assertEquals($target, $source);
 	}
 
@@ -538,4 +635,61 @@ final class ContainerTest extends \PHPUnit\Framework\TestCase
 		$this->assertFalse(Container::isIndexed($mixed), 'mixed is not indexed');
 		$this->assertTrue(Container::isAssociative($mixed), 'mixed is associative');
 	}
+
+	public function testFirst()
+	{
+		$tests = [
+			'indexed array' => [
+				'collection' => [
+					'first value',
+					'second one',
+					'third item'
+				],
+				'key' => 0,
+				'value' => 'first value'
+			],
+			'associative array' => [
+				'collection' => [
+					'foo' => 'bar',
+					'a' => 'b',
+					0 => 'not the first'
+				],
+				'key' => 'foo',
+				'value' => 'bar'
+			]
+		];
+
+		foreach ($tests as $label => $test)
+		{
+			$key = $test['key'];
+			$value = $test['value'];
+
+			$array = $test['collection'];
+			$object = new \ArrayObject($array);
+			$iterator = $object->getIterator();
+			$iterator->next();
+			$current = $iterator->current();
+
+			foreach ([
+				'array' => $array,
+				'ArrayObject' => $object,
+				'Ietrator' => $iterator
+			] as $type => $container)
+			{
+				$this->assertEquals([
+					$key,
+					$value
+				], Container::first($container), $label . ' ' . $type . ' first');
+
+				$this->assertEquals($key, Container::firstKey($container),
+					$label . ' ' . $type . ' firstKey');
+				$this->assertEquals($value, Container::firstValue($container),
+					$label . ' ' . $type . ' firstValue');
+			}
+
+			$this->assertEquals($current, $iterator->current(), 'Unchanged iterator');
+		}
+	}
 }
+
+

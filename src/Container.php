@@ -10,6 +10,8 @@
  */
 namespace NoreSources;
 
+use Psr\Container\ContainerInterface;
+
 /**
  * Container utility class
  */
@@ -22,7 +24,7 @@ class Container
 	 *
 	 * Container property flag.
 	 *
-	 * @used-by Container::getContainerProperties()
+	 * @used-by Container::properties()
 	 *
 	 * @var number
 	 */
@@ -33,7 +35,7 @@ class Container
 	 *
 	 * Container property flag.
 	 *
-	 * @used-by Container::getContainerProperties()
+	 * @used-by Container::properties()
 	 *
 	 * @var number
 	 */
@@ -44,71 +46,65 @@ class Container
 	 *
 	 * Container property flag.
 	 *
-	 * @used-by Container::getContainerProperties()
+	 * @used-by Container::properties()
 	 *
 	 * @var number
 	 */
 	const SHRINKABLE = 0x05;
 
 	/**
-	 * Container elements can be accessed using random access method or bracket operator.
-	 *
-	 * Container property flag.
-	 *
-	 * @used-by Container::getContainerProperties()
-	 *
-	 * @var number
-	 */
-	const RANDOM_ACCESS = 0x08;
-
-	/**
 	 * Container can is traversable.
 	 *
 	 * Container property flag.
 	 *
-	 * @used-by Container::getContainerProperties()
+	 * @used-by Container::properties()
 	 *
 	 * @var number
 	 */
-	const TRAVERSABLE = 0x10;
+	const TRAVERSABLE = 0x08;
 
 	/**
 	 * Number of elements contained is available
 	 *
 	 * Container property flag.
 	 *
-	 * @used-by Container::getContainerProperties()
+	 * @used-by Container::properties()
 	 * @var number
 	 */
-	const COUNTABLE = 0x20;
+	const COUNTABLE = 0x10;
 
 	/**
-	 * Replace element in-place.
+	 * Container elements can be accessed using a arbitrary random access method.
 	 *
-	 * Behavior option of the Container::removeKey method.
+	 * Container property flag.
 	 *
-	 * @var integer
+	 * @used-by Container::properties()
+	 *
+	 * @var number
 	 */
-	const REMOVE_INPLACE = 0x1;
+	const RANDOM_ACCESS = 0x20;
 
 	/**
-	 * Return a clone of the input container without the removed key
-	 * or an array
+	 * Container elements can be accessed by using the arrow operator.
 	 *
-	 * Behavior option of the Container::removeKey method.
+	 * Container property flag.
 	 *
-	 * @var integer
+	 * @used-by Container::properties()
+	 *
+	 * @var number
 	 */
-	const REMOVE_COPY = 0x2;
+	const PROPERTY_ACCESS = 0x60;
 
 	/**
-	 * Return a clone of the input container without the removed key.
+	 * Container elements can be accessed by using the bracket operator.
 	 *
-	 * Behavior option of the Container::removeKey method.
+	 * Container property flag.
 	 *
-	 * @var integer
+	 * @used-by Container::properties()
+	 *
+	 * @var number
 	 */
-	const REMOVE_COPY_STRICT_TYPE = 0x6;
+	const OFFSET_ACCESS = 0xA0;
 
 	/**
 	 * The container element key will be passed to the user-defined callable.
@@ -141,24 +137,31 @@ class Container
 	 *         <li>Container::MODIFIABLE</li>
 	 *         <li>Container::EXTENDABLE</li>
 	 *         <li>Container::SHRINKABLE</li>
+	 *         <li>Container::RANDOM_ACCESS</li>
+	 *         <li>Container::PROPERTY_ACCESS</li>
+	 *         <li>Container::OFFSET_ACCESS</li>
 	 *         <ul>
 	 *
 	 */
-	public static function getContainerProperties($container)
+	public static function properties($container)
 	{
-		$property = 0;
+		if ($container instanceof ContainerPropertyInterface)
+			return $container->getContainerProperties();
+
+		$properties = 0;
 		if (\is_array($container))
-			$property |= self::RANDOM_ACCESS | self::TRAVERSABLE | self::EXTENDABLE |
-				self::SHRINKABLE | self::COUNTABLE;
+			$properties |= self::TRAVERSABLE | self::EXTENDABLE | self::SHRINKABLE | self::COUNTABLE |
+				self::OFFSET_ACCESS;
 		if ($container instanceof \ArrayAccess)
-			$property |= self::RANDOM_ACCESS | self::EXTENDABLE | self::SHRINKABLE;
+			$properties |= self::EXTENDABLE | self::SHRINKABLE | self::OFFSET_ACCESS;
 		if ($container instanceof ContainerInterface)
-			$property |= self::RANDOM_ACCESS;
+			$properties |= self::RANDOM_ACCESS;
 		if ($container instanceof \Traversable)
-			$property |= self::TRAVERSABLE;
+			$properties |= self::TRAVERSABLE;
 		if ($container instanceof \Countable)
-			$property |= self::COUNTABLE;
-		return $property;
+			$properties |= self::COUNTABLE;
+
+		return $properties;
 	}
 
 	/**
@@ -169,7 +172,7 @@ class Container
 	 */
 	public static function isArray($container)
 	{
-		$p = self::getContainerProperties($container);
+		$p = self::properties($container);
 		$e = (self::RANDOM_ACCESS);
 		return (($p & $e) == $e);
 	}
@@ -178,20 +181,12 @@ class Container
 	 *
 	 * Indicates if the parameter is an array or an object which
 	 *
-	 * @param boolean $acceptAnyObject
-	 *        	Any class instance is considered as traversable
-	 *
 	 * @return boolean true if$container is traversable (i.e usable in a roreach statement)
 	 */
-	public static function isTraversable($container, $acceptAnyObject = false)
+	public static function isTraversable($container)
 	{
-		$p = self::getContainerProperties($container);
-		$e = (self::TRAVERSABLE);
-
-		if (\is_object($container) && $acceptAnyObject)
-			$p |= self::TRAVERSABLE;
-
-		return (($p & $e) == $e);
+		$p = self::properties($container);
+		return (($p & self::TRAVERSABLE) == self::TRAVERSABLE);
 	}
 
 	/**
@@ -200,17 +195,15 @@ class Container
 	 *
 	 * @param mixed $container
 	 *        	Input container
-	 * @param boolean $acceptAnyObject
-	 *        	Any class instance is considered as traversable
 	 * @throws InvalidContainerException
 	 * @return array Numerically indexed array of keys used in $container
 	 */
-	public static function getKeys($container, $acceptAnyObject = false)
+	public static function keys($container)
 	{
 		if (\is_array($container))
 			return \array_keys($container);
 
-		if (self::isTraversable($container, $acceptAnyObject))
+		if (self::isTraversable($container))
 		{
 			$keys = [];
 			foreach ($container as $key => $value)
@@ -229,17 +222,15 @@ class Container
 	 *
 	 * @param mixed $container
 	 *        	Input container
-	 * @param boolean $acceptAnyObject
-	 *        	Any class instance is considered as traversable
 	 * @throws InvalidContainerException
 	 * @return mixed[] Numerically indexed array of values contained in $container
 	 */
-	public static function getValues($container, $acceptAnyObject = false)
+	public static function values($container)
 	{
 		if (\is_array($container))
 			return \array_values($container);
 
-		if (self::isTraversable($container, $acceptAnyObject))
+		if (self::isTraversable($container))
 		{
 			$values = [];
 			foreach ($container as $value)
@@ -254,85 +245,30 @@ class Container
 		throw new InvalidContainerException($container, __METHOD__);
 	}
 
-	/**
-	 * Remove an element of a container
-	 *
-	 * @param array|\ArrayAccess|\Traversable $container
-	 *        	Input container
-	 * @param mixed $key
-	 *        	The key of the element to remove
-	 * @param integer $mode
-	 *        	Remove mode.
-	 *        	<ul>
-	 *        	<li>Container::REMOVE_INPLACE: Remove element in-place</li>
-	 *        	<li>Container::REMOVE_COPY: Create a new container without the removed
-	 *        	element</li>
-	 *        	<li>Container::REMOVE_COPY_STRICT_TYPE: Ensure the new container have the same
-	 *        	type as the input
-	 *        	container</li>
-	 *        	</ul>
-	 * @throws InvalidContainerException
-	 * @throws \InvalidArgumentException
-	 * @return mixed The input container when $mode is Container::REMOVE_INPLACE,
-	 *         return a boolean indicating if the input array was modified.
-	 *         Otherwise a new container otherwise
-	 */
-	public static function removeKey(&$container, $key, $mode = self::REMOVE_COPY)
+	public static function removeKey(&$container, $key)
 	{
-		if ($mode == self::REMOVE_INPLACE)
+		if ($container instanceof \ArrayAccess)
 		{
-			if ($container instanceof \ArrayAccess)
+			if ($container->offsetExists($key))
 			{
-				if ($container->offsetExists($key))
-				{
-					$container->offsetUnset($key);
-					return true;
-				}
-
-				return false;
-			}
-			elseif (\is_array($container))
-			{
-				if (\array_key_exists($key, $container))
-				{
-					unset($container[$key]);
-					return true;
-				}
-
-				return false;
+				$container->offsetUnset($key);
+				return true;
 			}
 
-			throw new InvalidContainerException($container, __METHOD__ . ' (inplace)');
+			return false;
 		}
-		elseif ($mode & self::REMOVE_COPY)
+		elseif (\is_array($container))
 		{
-			$relax = (($mode & self::REMOVE_COPY_STRICT_TYPE) != self::REMOVE_COPY_STRICT_TYPE);
-
-			if ($container instanceof \ArrayAccess)
+			if (\array_key_exists($key, $container))
 			{
-				$t = clone $container;
-				if ($t->offsetExists($key))
-				{
-					$t->offsetUnset($key);
-				}
-
-				return $t;
-			}
-			elseif (\is_array($container) || (($container instanceof \Traversable) && $relax))
-			{
-				$t = \is_object($container) ? new \ArrayObject() : [];
-				foreach ($container as $k => $v)
-				{
-					if ($k !== $key)
-						$t[$k] = $v;
-				}
-				return $t;
+				unset($container[$key]);
+				return true;
 			}
 
-			throw new InvalidContainerException($container, __METHOD__ . ' (copy)');
+			return false;
 		}
-		else
-			throw new \InvalidArgumentException('mode');
+
+		throw new InvalidContainerException($container, __METHOD__);
 	}
 
 	/**
@@ -345,17 +281,13 @@ class Container
 	 * @return array or null if $anything cannont be converted to array and $singleElementKey is
 	 *         null
 	 */
-	public static function createArray($anything, $singleElementKey = 0)
+	public static function createArray($anything, $singleElementKey = null)
 	{
 		if (\is_array($anything))
-		{
 			return $anything;
-		}
 		elseif ($anything instanceof \ArrayObject || $anything instanceof ArrayRepresentation)
-		{
 			return $anything->getArrayCopy();
-		}
-		elseif (self::isTraversable($anything, true))
+		elseif (self::isTraversable($anything))
 		{
 			$a = [];
 			foreach ($anything as $k => $v)
@@ -370,7 +302,7 @@ class Container
 				$singleElementKey => $anything
 			];
 
-		return null;
+		throw new InvalidContainerException($anything);
 	}
 
 	/**
@@ -398,7 +330,7 @@ class Container
 	 */
 	public static function isIndexed($container, $strict = false)
 	{
-		if (!self::isTraversable($container, true))
+		if (!self::isTraversable($container))
 			throw new InvalidContainerException($container, __METHOD__);
 
 		$i = 0;
@@ -448,7 +380,7 @@ class Container
 	 */
 	public static function isAssociative($container, $strict = false)
 	{
-		if (!self::isTraversable($container, true))
+		if (!self::isTraversable($container))
 			throw new InvalidContainerException($container, __METHOD__);
 
 		$i = 0;
@@ -608,6 +540,73 @@ class Container
 	}
 
 	/**
+	 * Get the first key and value of the given container.
+	 *
+	 * @param mixed $container
+	 * @throws InvalidContainerException
+	 * @return array Array of two elements containing the first key and value of the given
+	 *         container. If the container is empty, both return values will be NULL.
+	 *
+	 *         The list() function can be used to get the result of this function.
+	 */
+	public static function first($container)
+	{
+		if ($container instanceof \Iterator)
+		{
+			$i = clone $container;
+			$i->rewind();
+			if ($i->valid())
+				return [
+					$i->key(),
+					$i->current()
+				];
+
+			return [
+				null,
+				null
+			];
+		}
+
+		if (!self::isTraversable($container))
+			throw new InvalidContainerException($container, __METHOD__);
+
+		foreach ($container as $key => $value)
+			return [
+				$key,
+				$value
+			];
+
+		return [
+			null,
+			null
+		];
+	}
+
+	/**
+	 * Get the first key of the given container
+	 *
+	 * @param mixed $container
+	 * @return mixed
+	 */
+	public static function firstKey($container)
+	{
+		list ($k, $v) = self::first($container);
+		return $k;
+	}
+
+	/**
+	 * Get the first value of the container.
+	 *
+	 * @param mixed $container
+	 * @return mixed
+	 */
+	public static function firstValue($container)
+	{
+		list ($k, $v) = self::first($container);
+		return $v;
+	}
+
+	/**
 	 * Retrieve key value or a default value if key doesn't exists
 	 *
 	 * @param array $container
@@ -639,9 +638,7 @@ class Container
 		elseif (\is_object($container) && \is_string($key))
 		{
 			if (\property_exists($container, $key) || \method_exists($container, '__get'))
-			{
 				return $container->$key;
-			}
 
 			return $defaultValue;
 		}
@@ -731,10 +728,10 @@ class Container
 		$p = $glue;
 		if (self::isArray($glue))
 		{
-			$a = self::keyValue($glue, self::IMPLODE_AFTER);
-			$b = self::keyValue($glue, self::IMPLODE_BEFORE);
-			$i = self::keyValue($glue, self::IMPLODE_BETWEEN);
-			$p = self::keyValue($glue, self::IMPLODE_BETWEEN_LAST);
+			$b = self::keyValue($glue, self::IMPLODE_BEFORE, '');
+			$a = self::keyValue($glue, self::IMPLODE_AFTER, '');
+			$i = self::keyValue($glue, self::IMPLODE_BETWEEN, '');
+			$p = self::keyValue($glue, self::IMPLODE_BETWEEN_LAST, $i);
 		}
 		if (\is_callable($callable))
 		{
@@ -782,10 +779,10 @@ class Container
 		$p = $glue;
 		if (self::isArray($glue))
 		{
-			$a = self::keyValue($glue, self::IMPLODE_AFTER);
-			$b = self::keyValue($glue, self::IMPLODE_BEFORE);
-			$i = self::keyValue($glue, self::IMPLODE_BETWEEN);
-			$p = self::keyValue($glue, self::IMPLODE_BETWEEN_LAST);
+			$b = self::keyValue($glue, self::IMPLODE_BEFORE, '');
+			$a = self::keyValue($glue, self::IMPLODE_AFTER, '');
+			$i = self::keyValue($glue, self::IMPLODE_BETWEEN, '');
+			$p = self::keyValue($glue, self::IMPLODE_BETWEEN_LAST, $i);
 		}
 
 		if (\is_callable($callable))
@@ -834,10 +831,10 @@ class Container
 
 		if (self::isArray($glue))
 		{
-			$a = self::keyValue($glue, self::IMPLODE_AFTER);
-			$b = self::keyValue($glue, self::IMPLODE_BEFORE);
-			$i = self::keyValue($glue, self::IMPLODE_BETWEEN);
-			$p = self::keyValue($glue, self::IMPLODE_BETWEEN_LAST);
+			$b = self::keyValue($glue, self::IMPLODE_BEFORE, '');
+			$a = self::keyValue($glue, self::IMPLODE_AFTER, '');
+			$i = self::keyValue($glue, self::IMPLODE_BETWEEN, '');
+			$p = self::keyValue($glue, self::IMPLODE_BETWEEN_LAST, $i);
 		}
 
 		$parts = [];
@@ -865,7 +862,7 @@ class Container
 	 */
 	public static function filter($container, $callable)
 	{
-		if (!self::isTraversable($container, true))
+		if (!self::isTraversable($container))
 			throw new InvalidContainerException($container, __METHOD__);
 
 		$result = [];
