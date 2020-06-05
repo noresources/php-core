@@ -52,6 +52,8 @@ class DerivedFileManager extends \PHPUnit\Framework\TestCase
 	{
 		$reference = $this->buildFilename(self::DIRECTORY_REFERENCE, $method, $suffix, $extension);
 		$derived = $this->buildFilename(self::DIRECTORY_DERIVED, $method, $suffix, $extension);
+		if (\strlen($label) == 0)
+			$label = \basename($derived);
 		$label = (strlen($label) ? ($label . ': ') : '');
 
 		$result = $this->createDirectoryPath($derived);
@@ -73,7 +75,7 @@ class DerivedFileManager extends \PHPUnit\Framework\TestCase
 			$this->derivedDataFiles->offsetSet($derived, true);
 			//$this->assertFileEquals($reference, $derived, $label . 'Compare with reference');
 			$this->assertEquals($this->loadFile($reference, 'lf'),
-				$this->convertEndOfLine($data, 'lf'));
+				$this->convertEndOfLine($data, 'lf'), $label);
 			$this->derivedDataFiles->offsetSet($derived, false);
 		}
 		else
