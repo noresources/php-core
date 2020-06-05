@@ -35,4 +35,33 @@ final class TextTest extends \PHPUnit\Framework\TestCase
 				$input . ' (uppercase)');
 		}
 	}
+
+	final function testToCamelCase()
+	{
+		$tests = [
+			'hello world' => [
+				'toCamelCase' => 'HelloWorld'
+			],
+			' Hello?world/' => [
+				'toCamelCase' => 'HelloWorld',
+				'toSmallCamelCase' => 'helloWorld',
+				'toSnakeCase' => 'hello_world'
+			],
+			'M_id' => [
+				'toSmallCamelCase' => 'mId'
+			]
+		];
+
+		foreach ($tests as $text => $styles)
+		{
+			foreach ($styles as $style => $expected)
+			{
+				$actual = \call_user_func([
+					Text::class,
+					$style
+				], $text);
+				$this->assertEquals($expected, $actual, $style . ' of "' . $text . '"');
+			}
+		}
+	}
 }
