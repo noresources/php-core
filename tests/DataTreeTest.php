@@ -64,18 +64,37 @@ final class DataTreeTest extends \PHPUnit\Framework\TestCase
 		$this->assertEquals(null, $cloned->tree->three, 'Cloned tree did not change (subtree)');
 	}
 
+	public function testLoadQueryString()
+	{
+		$expected = [
+			'key' => 'value'
+		];
+
+		$input = \http_build_query($expected);
+		$tree = new DataTree();
+		$tree->loadData($input, StructuredText::FORMAT_URL_ENCODED);
+
+		$this->assertEquals($expected, $tree->getArrayCopy(), '');
+	}
+
 	public function testLoadJson()
 	{
 		$tree = new DataTree();
-		$tree->load(__DIR__ . '/data/a.json');
+		$tree->loadFile(__DIR__ . '/data/a.json');
 		$data = json_encode($tree, JSON_PRETTY_PRINT);
-		$this->derived->assertDerivedFile($data, __METHOD__, null, 'json');
+		$this->derived->assertDerivedFile($data, __METHOD__, 'file', 'json', 'json from file');
+
+		$tree = new DataTree();
+		$input = \file_get_contents(__DIR__ . '/data/a.json');
+		$tree->loadData($input, StructuredText::FORMAT_JSON);
+		$data = json_encode($tree, JSON_PRETTY_PRINT);
+		$this->derived->assertDerivedFile($data, __METHOD__, 'string', 'json', 'json from string');
 	}
 
 	public function testLoadPhp()
 	{
 		$tree = new DataTree();
-		$tree->load(__DIR__ . '/data/a.php');
+		$tree->loadFile(__DIR__ . '/data/a.php');
 		$data = json_encode($tree, JSON_PRETTY_PRINT);
 		$this->derived->assertDerivedFile($data, __METHOD__, null, 'json');
 	}
@@ -89,7 +108,7 @@ final class DataTreeTest extends \PHPUnit\Framework\TestCase
 		}
 
 		$tree = new DataTree();
-		$tree->load(__DIR__ . '/data/a.yaml');
+		$tree->loadFile(__DIR__ . '/data/a.yaml');
 		$data = json_encode($tree, JSON_PRETTY_PRINT);
 		$this->derived->assertDerivedFile($data, __METHOD__, null, 'json');
 	}
@@ -100,7 +119,7 @@ final class DataTreeTest extends \PHPUnit\Framework\TestCase
 		$exceptionInstance = null;
 		try
 		{
-			$tree->load(__DIR__ . '/data/syntax-error.json');
+			$tree->loadFile(__DIR__ . '/data/syntax-error.json');
 		}
 		catch (\Exception $e)
 		{
@@ -113,8 +132,8 @@ final class DataTreeTest extends \PHPUnit\Framework\TestCase
 	public function testMerge()
 	{
 		$tree = new DataTree();
-		$tree->load(__DIR__ . '/data/a.json');
-		$tree->load(__DIR__ . '/data/b.json', DataTree::MERGE_OVERWRITE);
+		$tree->loadFile(__DIR__ . '/data/a.json');
+		$tree->loadFile(__DIR__ . '/data/b.json', DataTree::MERGE_OVERWRITE);
 		$data = json_encode($tree, JSON_PRETTY_PRINT);
 		$this->derived->assertDerivedFile($data, __METHOD__, null, 'json');
 	}

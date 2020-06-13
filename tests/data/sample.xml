@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document>
+	<title>Document title</title>
+	<sections>
+		<section name="Section 1">
+			<paragraph>Foo bar and baz</paragraph>
+			<paragraph>Lorem ipsum</paragraph>
+		</section>
+		<section name="Greetings">
+			<paragraph>Hello world</paragraph>
+			<paragraph>Salutations !</paragraph>
+		</section>
+	</sections>
+</document>

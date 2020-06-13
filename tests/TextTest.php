@@ -10,6 +10,9 @@
  */
 namespace NoreSources;
 
+/**
+ * Text and structured text tests
+ */
 final class TextTest extends \PHPUnit\Framework\TestCase
 {
 
@@ -63,5 +66,11 @@ final class TextTest extends \PHPUnit\Framework\TestCase
 				$this->assertEquals($expected, $actual, $style . ' of "' . $text . '"');
 			}
 		}
+	}
+
+	final function testStructureTextFromTextFailure()
+	{
+		$this->expectException(TypeConversionException::class);
+		$data = StructuredText::fileToArray(__DIR__ . '/data/sample.xml');
 	}
 }

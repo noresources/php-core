@@ -280,13 +280,10 @@ class DataTree implements \ArrayAccess, \Serializable, \IteratorAggregate, \Coun
 	 */
 	public function unserialize($serialized)
 	{
-		$this->elements->exchangeArray(self::dataFromJson($serialized));
+		$this->elements->exchangeArray(
+			StructuredText::textToArray($serialized, StructuredText::FORMAT_JSON));
 
-		foreach ($this->elements as $key => &$value)
-		{
-			if (\is_array($value))
-				$this->offsetSet($key, $value);
-		}
+		$this->setContent($data, self::REPLACE);
 	}
 
 	/**
@@ -419,7 +416,7 @@ class DataTree implements \ArrayAccess, \Serializable, \IteratorAggregate, \Coun
 	 * @throws \InvalidArgumentException
 	 * @return DataTree
 	 */
-	public function load($filename, $mode = self::REPLACE, $mediaType = null)
+	public function loadFile($filename, $mode = self::REPLACE, $mediaType = null)
 	{
 		if (!\file_exists($filename))
 			throw new \InvalidArgumentException($filename . ' not found');
@@ -445,53 +442,17 @@ class DataTree implements \ArrayAccess, \Serializable, \IteratorAggregate, \Coun
 			return $this;
 		}
 
-		if ($extension == 'ini')
-			$data = self::dataFromIniFile($filename);
-		elseif (($extension == 'json') || \preg_match(',(/|\+)json$,', $mediaType))
-			$data = self::dataFromJson(file_get_contents($filename));
-		elseif (($extension == 'yaml') || ($extension == 'yml'))
-			$data = self::dataFromYaml(file_get_contents($filename));
-		else
-			throw new \UnexpectedValueException($extension . ' is not supported');
-
-		return $this->setContent($data, $mode);
+		return $this->setContent(StructuredText::fileToArray($filename, $mediaType), $mode);
 	}
 
-	private static function dataFromIniFile($filename)
+	public function loadData($data, $structuredTextFormat, $mode = self::REPLACE)
 	{
-		$data = @parse_ini_file($filename, true);
-		if ($data === false)
-		{
-			$error = \error_get_last();
-			throw new \ErrorException($error['message'], $error['type']);
-		}
-		return $data;
-	}
-
-	private static function dataFromJson($text)
-	{
-		$data = @json_decode($text, true);
-		$code = json_last_error();
-		if ($code != JSON_ERROR_NONE)
-			throw new \ErrorException(json_last_error_msg(), $code);
-
-		if (!\is_array($data))
-			throw new \ErrorException('Expect object or array. Got ',
-				TypeDescription::getName($data));
-
-		return $data;
+		return $this->setContent(StructuredText::textToArray($data, $structuredTextFormat), $mode);
 	}
 
 	private static function dataFromYaml($text)
 	{
-		if (!\function_exists('yaml_parse'))
-			throw new \Exception('YAML extension not available');
-
-		$data = @\yaml_parse($text);
-		if ($data === false)
-			throw new \ErrorException('Invalid YAML');
-
-		return $data;
+		return $this->loadFile($filename, $mode);
 	}
 
 	/**
