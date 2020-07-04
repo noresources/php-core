@@ -20,7 +20,7 @@ class TypeDescription
 	 *
 	 * @param mixed $element
 	 * @return string $element Full class name or data type name
-	 *        
+	 *
 	 *         This method use get_class () or gettype() depending on argument type.
 	 */
 	public static function getName($element)
@@ -41,7 +41,7 @@ class TypeDescription
 	 *        	Class instance or class name
 	 * @param boolean $elementIsClassName
 	 *        	Consider the first argument as a class name
-	 *        	
+	 *
 	 * @return Local name of class
 	 */
 	public static function getLocalName($element, $elementIsClassName = false)
@@ -68,7 +68,7 @@ class TypeDescription
 	 *        	Class instance or class name
 	 * @param boolean $elementIsClassName
 	 *        	Consider the first argument as a class name
-	 *        	
+	 *
 	 * @return array List of namespaces
 	 */
 	public static function getNamespaces($element, $elementIsClassName = false)
@@ -87,6 +87,32 @@ class TypeDescription
 	}
 
 	/**
+	 * Indicates if the given element is of given class name.
+	 *
+	 * This method is equivalent to is_subclass_of
+	 *
+	 * @param mixed $element
+	 *        	Class name or Class instance
+	 * @param string $parent
+	 *        	Class name
+	 *
+	 * @return boolean @true if $element is a subclass of $parent
+	 */
+	public static function isA($element, $parent, $elementIsClassName = false)
+	{
+		$isClassName = false;
+		if (!\is_object($element))
+		{
+			if (\is_string($element) && $elementIsClassName)
+				$isClassName = true;
+			else
+				return false;
+		}
+
+		return \is_a($element, $parent, $isClassName);
+	}
+
+	/**
 	 * Indicates if the given element is a subclass of a given class name.
 	 *
 	 * This method is equivalent to is_subclass_of
@@ -95,7 +121,7 @@ class TypeDescription
 	 *        	Class name or Class instance
 	 * @param string $parent
 	 *        	Class name
-	 *        	
+	 *
 	 * @return boolean @true if $element is a subclass of $parent
 	 */
 	public static function isSubclassOf($element, $parent, $elementIsClassName = false)
