@@ -10,37 +10,11 @@
  */
 namespace NoreSources;
 
+use phpDocumentor\Reflection\Types\Integer;
+
 /**
- * Type conversion exception
+ * Type conversion utility class
  */
-class TypeConversionException extends \Exception
-{
-
-	/**
-	 *
-	 * @var mixed Value that cannot be converted
-	 */
-	public $value;
-
-	/**
-	 *
-	 * @param mixed $value
-	 *        	Value was not converted
-	 * @param string $method
-	 *        	Failing method name
-	 * @param string $message
-	 *        	Failure description
-	 */
-	public function __construct($value, $method, $message = null)
-	{
-		parent::__construct(
-			'Failed to convert ' . TypeDescription::getName($value) . ' to ' .
-			preg_replace(',.*::to(.*),', '\1', $method) . ($message ? (' : ' . $message) : ''));
-
-		$this->value = $value;
-	}
-}
-
 class TypeConversion
 {
 
@@ -79,16 +53,22 @@ class TypeConversion
 	 */
 	public function toArray($value, $fallback = null)
 	{
-		$v = Container::createArray($value, null);
-		if (!\is_array($v))
+		try
 		{
-			if (\is_callable($fallback))
-				return call_user_func($fallback, $value);
-			else
-				throw new TypeConversionException($value, __METHOD__);
+			$v = Container::createArray($value, null);
+		}
+		catch (InvalidContainerException $e)
+		{
+			$v = null;
 		}
 
-		return $v;
+		if (\is_array($v))
+			return $v;
+
+		if (\is_callable($fallback))
+			return call_user_func($fallback, $value);
+
+		throw new TypeConversionException($value, __METHOD__);
 	}
 
 	/**
