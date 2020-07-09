@@ -690,6 +690,38 @@ final class ContainerTest extends \PHPUnit\Framework\TestCase
 			$this->assertEquals($current, $iterator->current(), 'Unchanged iterator');
 		}
 	}
+
+	public function testCreateArrayException()
+	{
+		$this->expectException(InvalidContainerException::class);
+		$o = new SimpleClass();
+		$a = Container::createArray($o);
+	}
+
+	public function testCreateArrayException2()
+	{
+		$this->expectException(InvalidContainerException::class);
+		$a = Container::createArray(5);
+	}
+
+	public function testCreateArray()
+	{
+		$value = 5;
+		$this->assertEquals([
+			'value' => $value
+		], Container::createArray($value, 'value'), 'Literal value');
+
+		$object = new MetaVariable();
+		$this->assertEquals([
+			'foo' => 'bar'
+		], Container::createArray($object), 'Traversable object');
+
+		$a = [
+			'one' => 1,
+			2 => 'two'
+		];
+		$this->assertEquals($a, Container::createArray($a), 'Array');
+	}
 }
 
 

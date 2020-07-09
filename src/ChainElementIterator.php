@@ -10,6 +10,9 @@
  */
 namespace NoreSources;
 
+/**
+ * Iterator over ChainElements
+ */
 class ChainElementIterator implements \Iterator
 {
 

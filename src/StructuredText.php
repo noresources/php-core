@@ -10,6 +10,9 @@
  */
 namespace NoreSources;
 
+/**
+ * Structured syntax text utility
+ */
 class StructuredText
 {
 

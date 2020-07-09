@@ -10,8 +10,6 @@
  */
 namespace NoreSources;
 
-use phpDocumentor\Reflection\Types\Integer;
-
 /**
  * Type conversion utility class
  */
@@ -138,7 +136,7 @@ class TypeConversion
 	 * @param callable $fallback
 	 *        	A cacallback to invoke if the method is nuable to convert the value e
 	 * @throws TypeConversionException
-	 * @return Integer
+	 * @return integer
 	 */
 	public static function toInteger($value, $fallback = null)
 	{

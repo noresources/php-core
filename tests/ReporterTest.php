@@ -17,7 +17,7 @@ class QuietLogger implements LoggerInterface
 {
 	use LoggerTrait;
 
-	public function log($level, $message, $context = array())
+	public function log($level, $message, array $context = array())
 	{}
 }
 
@@ -26,7 +26,7 @@ class EchoLogger implements LoggerInterface
 
 	use LoggerTrait;
 
-	public function log($level, $message, $context = array())
+	public function log($level, $message, array $context = array())
 	{
 		echo ($level . ': ' . $message . PHP_EOL);
 	}

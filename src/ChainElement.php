@@ -10,6 +10,9 @@
  */
 namespace NoreSources;
 
+/**
+ * Reference implementation of the ChainElementInterface
+ */
 class ChainElement implements ChainElementInterface, \IteratorAggregate
 {
 	use ChainElementTrait;

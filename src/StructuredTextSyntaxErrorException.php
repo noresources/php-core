@@ -10,9 +10,19 @@
  */
 namespace NoreSources;
 
+/**
+ * Exception raised when a structured text syntax is invalid
+ */
 class StructuredTextSyntaxErrorException extends \ErrorException
 {
 
+	/**
+	 *
+	 * @param string $format
+	 * @param string $message
+	 * @param integer $line
+	 * @param integer $code
+	 */
 	public function __construct($format, $message = null, $line = null, $code = null)
 	{
 		$m = $format . ' syntax error';

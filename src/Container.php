@@ -69,6 +69,7 @@ class Container
 	 * Container property flag.
 	 *
 	 * @used-by Container::properties()
+	 *
 	 * @var number
 	 */
 	const COUNTABLE = 0x10;

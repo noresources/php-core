@@ -12,7 +12,10 @@ namespace NoreSources;
 
 use Psr\Container\NotFoundExceptionInterface;
 
-class DataTreeElementNotFoundException extends \InvalidArgumentException implements 
+/**
+ * Exception railsed by DataTree methods implementing the PSR ContainerInterface
+ */
+class DataTreeElementNotFoundException extends \InvalidArgumentException implements
 	NotFoundExceptionInterface
 {
 

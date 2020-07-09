@@ -450,7 +450,14 @@ class DataTree implements \ArrayAccess, \Serializable, \IteratorAggregate, \Coun
 		return $this->setContent(StructuredText::textToArray($data, $structuredTextFormat), $mode);
 	}
 
-	private static function dataFromYaml($text)
+	/**
+	 *
+	 * @deprecated Use loadFile
+	 * @param string $filename
+	 * @param integer $mode
+	 * @param unknown $mediaType
+	 */
+	public function load($filename, $mode = self::REPLACE, $mediaType = null)
 	{
 		return $this->loadFile($filename, $mode);
 	}
