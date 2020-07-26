@@ -129,13 +129,28 @@ final class DataTreeTest extends \PHPUnit\Framework\TestCase
 		$this->assertInstanceOf(\ErrorException::class, $exceptionInstance);
 	}
 
-	public function testMerge()
+	public function testFusion()
 	{
-		$tree = new DataTree();
-		$tree->loadFile(__DIR__ . '/data/a.json');
-		$tree->loadFile(__DIR__ . '/data/b.json', DataTree::MERGE_OVERWRITE);
-		$data = json_encode($tree, JSON_PRETTY_PRINT);
-		$this->derived->assertDerivedFile($data, __METHOD__, null, 'json');
+		foreach ([
+			DataTree::REPLACE => 'replace',
+			DataTree::MERGE => 'merge',
+			DataTree::MERGE_OVERWRITE => 'mergeoverwrite'
+		] as $mode => $modeName)
+		{
+
+			foreach ([
+				'json',
+				'php'
+			] as $extension)
+			{
+				$tree = new DataTree();
+				$tree->loadFile(__DIR__ . '/data/a.' . $extension);
+				$tree->loadFile(__DIR__ . '/data/b.' . $extension, $mode);
+				$data = json_encode($tree, JSON_PRETTY_PRINT);
+				$this->derived->assertDerivedFile($data, __METHOD__, $modeName, 'json',
+					'Fusion (' . $modeName . ') ' . $extension);
+			}
+		}
 	}
 
 	private $derived;

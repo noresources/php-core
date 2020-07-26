@@ -29,8 +29,11 @@ class DataTree implements \ArrayAccess, \Serializable, \IteratorAggregate, \Coun
 	/**
 	 * Content fusion mode.
 	 *
-	 * Merge exising data with new content.
-	 * Append new key
+	 * <ul>
+	 * <li>Merge exising data with new content.</li>
+	 * <li>Append new keys</li>
+	 * </ul>
+	 *
 	 *
 	 * @var integer
 	 */
@@ -39,8 +42,10 @@ class DataTree implements \ArrayAccess, \Serializable, \IteratorAggregate, \Coun
 	/**
 	 * Content fusion mode.
 	 *
-	 * Merge existing content with new content.
-	 * Overwrite existing key values.
+	 * <ul>
+	 * <li>Merge existing content with new content.</li>
+	 * <li>Overwrite existing key values.</li>
+	 * </ul>
 	 *
 	 * @var integer
 	 */
@@ -148,10 +153,10 @@ class DataTree implements \ArrayAccess, \Serializable, \IteratorAggregate, \Coun
 	 *
 	 * @param string $key
 	 *        	Key. According to PSR-11, $key MUST be a string
-	 *        	
+	 *
 	 * @throws DataTreeElementNotFoundException
 	 * @return The element value or <code>NULL</code> if the key does not exists
-	 *        
+	 *
 	 * @see https://www.php-fig.org/psr/psr-11/
 	 */
 	public function get($key)
@@ -170,7 +175,7 @@ class DataTree implements \ArrayAccess, \Serializable, \IteratorAggregate, \Coun
 	 *        	Setting key
 	 * @param integer $value
 	 *        	Setting value
-	 *        	
+	 *
 	 * @throws \Exception
 	 */
 	public function offsetSet($key, $value)
@@ -191,35 +196,57 @@ class DataTree implements \ArrayAccess, \Serializable, \IteratorAggregate, \Coun
 	 */
 	public function setElement($key, $value, $mode = self::REPLACE)
 	{
+		if (($mode & self::_FUSION_MODES) == 0)
+			throw new \InvalidArgumentException('Invalid mode value');
+
 		$exists = $this->elements->offsetExists($key);
-
-		if ($exists)
+		if (!$exists)
 		{
-			if (!($mode & self::REPLACE) &&
-				!(($mode & self::MERGE_OVERWRITE) == self::MERGE_OVERWRITE))
-				return;
-		}
-
-		if (Container::isTraversable($value))
-		{
-			$st = null;
-			if ($exists)
+			if (!Container::isTraversable($value))
 			{
-				$existing = $this->elements->offsetGet($key);
-				if ($existing instanceof DataTree && !($mode & self::REPLACE))
-					$st = $existing;
+				$this->elements->offsetSet($key, $value);
+				return;
 			}
 
-			if (!($st instanceof DataTree))
-				$st = new DataTree();
-
+			$entry = new DataTree();
 			foreach ($value as $k => $v)
-				$st->setElement($k, $v, $mode);
-
-			$this->elements->offsetSet($key, $st);
+				$entry->setElement($k, $v, $mode);
+			$this->elements->offsetSet($key, $entry);
+			return;
 		}
-		else
+
+		if (!($mode & self::REPLACE) && !(($mode & self::MERGE_OVERWRITE) == self::MERGE_OVERWRITE))
+		{
+			return;
+		}
+
+		// Mode is REPLACE or MERGE_OVERWRITE
+
+		/**
+		 * Always replace when new value is a plain data or a list
+		 * of values (indexed array)
+		 */
+
+		if (!Container::isTraversable($value) || Container::isIndexed($value))
+		{
 			$this->elements->offsetSet($key, $value);
+			return;
+		}
+
+		$existing = $this->elements->offsetGet($key);
+		$entry = null;
+
+		if ($existing instanceof DataTree &&
+			!(($mode & self::REPLACE) || Container::isIndexed($existing)))
+			$entry = $existing;
+
+		if (!($entry instanceof DataTree))
+			$entry = new DataTree();
+
+		foreach ($value as $k => $v)
+			$entry->setElement($k, $v, $mode);
+
+		$this->elements->offsetSet($key, $entry);
 	}
 
 	/**
@@ -404,10 +431,10 @@ class DataTree implements \ArrayAccess, \Serializable, \IteratorAggregate, \Coun
 	 *        	<li>Ini</li>
 	 *        	<li>php</li>
 	 *        	</ul>
-	 *        	
+	 *
 	 *        	PHP files are loaded with the require() function and expect a Traversable return
 	 *        	value.
-	 *        	
+	 *
 	 *        	Several media type support depends on available PHP extensions.
 	 * @param integer $mode
 	 *        	Control interaction with existing content
@@ -468,4 +495,11 @@ class DataTree implements \ArrayAccess, \Serializable, \IteratorAggregate, \Coun
 	 * @var \ArrayObject
 	 */
 	private $elements;
+
+	/**
+	 * Combination of all fusion modes flags
+	 *
+	 * @var number
+	 */
+	const _FUSION_MODES = 0x07;
 }
