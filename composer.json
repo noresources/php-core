@@ -34,9 +34,6 @@
 	"scripts": {
 		"tests": "@php  ./vendor/bin/phpunit --color=never --bootstrap vendor/autoload.php tests"
 	},
-	"bin" : [
-		"tools/new-type-file"
-	],
 	"require-dev": {
 		"phpunit/phpunit": "~7.0",
 		"nette/php-generator": "^3.4"
