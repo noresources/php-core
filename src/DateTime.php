@@ -4,12 +4,9 @@
  * Copyright © 2012 - 2020 by Renaud Guillard (dev@nore.fr)
  * Distributed under the terms of the MIT License, see LICENSE
  */
-
-/**
- *
- * @package Core
- */
 namespace NoreSources;
+
+use DateTimeZone;
 
 /**
  * the <code>[NoreSources\DateTime](NoreSources/DateTime)</code> class extends the built-in
@@ -68,7 +65,7 @@ class DateTime extends \DateTime implements IntegerRepresentation, FloatRepresen
 	 *        	Indicates if the DateTime time zone must be converted to UTC before calculating
 	 *        	the julian day number.
 	 * @return integer Julian day number
-	 *        
+	 *
 	 * @see https://en.wikipedia.org/wiki/Julian_day#Converting_Gregorian_calendar_date_to_Julian_Day_Number
 	 */
 	public static function toJulianDayNumber(\DateTimeInterface $dateTime, $utc = true)
@@ -96,9 +93,9 @@ class DateTime extends \DateTime implements IntegerRepresentation, FloatRepresen
 	 * @param boolean $utc
 	 *        	Indicates if the DateTime time zone must be converted to UTC before calculating
 	 *        	the julian day number.
-	 *        	
+	 *
 	 * @return integer Julian day number
-	 *        
+	 *
 	 * @see https://en.wikipedia.org/wiki/Julian_day#Converting_Gregorian_calendar_date_to_Julian_Day_Number
 	 */
 	public function getJulianDayNumber($utc = true)
@@ -114,9 +111,9 @@ class DateTime extends \DateTime implements IntegerRepresentation, FloatRepresen
 	 * @param boolean $utc
 	 *        	Indicates if the DateTime time zone must be converted to UTC before calculating
 	 *        	the julian day number.
-	 *        	
+	 *
 	 * @return number Julian day number and time
-	 *        
+	 *
 	 * @see https://en.wikipedia.org/wiki/Julian_day#Finding_Julian_date_given_Julian_day_number_and_time_of_day
 	 */
 	public static function toJulianDay(\DateTimeInterface $dateTime, $utc = true)
@@ -141,9 +138,9 @@ class DateTime extends \DateTime implements IntegerRepresentation, FloatRepresen
 	 * @param boolean $utc
 	 *        	Indicates if the DateTime time zone must be converted to UTC before calculating
 	 *        	the julian day number.
-	 *        	
+	 *
 	 * @return number Julian day number and time
-	 *        
+	 *
 	 * @see https://en.wikipedia.org/wiki/Julian_day#Finding_Julian_date_given_Julian_day_number_and_time_of_day
 	 */
 	public function getJulianDay()

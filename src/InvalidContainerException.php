@@ -3,14 +3,7 @@
  * Copyright © 2012 - 2020 by Renaud Guillard (dev@nore.fr)
  * Distributed under the terms of the MIT License, see LICENSE
  */
-
-/**
- *
- * @package Core
- */
 namespace NoreSources;
-
-use Psr\Container\ContainerInterface;
 
 /**
  * Exception raise when the object given to Container member class is not a valid container

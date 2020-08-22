@@ -3,11 +3,6 @@
  * Copyright © 2012 - 2020 by Renaud Guillard (dev@nore.fr)
  * Distributed under the terms of the MIT License, see LICENSE
  */
-
-/**
- *
- * @package Core
- */
 namespace NoreSources\Test;
 
 use NoreSources\Container;
@@ -28,7 +23,7 @@ class Generator
 	 * @param array $options
 	 *        	* fromType (int) : generate date time from integer, float or string timestamp
 	 *        	* yearRange (array): Year range
-	 *        	
+	 *
 	 * @return NULL|\NoreSources\DateTime
 	 */
 	public static function randomDateTime($options = array())
