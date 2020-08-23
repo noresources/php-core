@@ -8,7 +8,7 @@ namespace NoreSources;
 /**
  * Stack container implementation
  */
-class Stack implements \Countable
+class Stack implements \Countable, \IteratorAggregate, ArrayRepresentation
 {
 
 	public function __construct()
@@ -23,6 +23,25 @@ class Stack implements \Countable
 	public function count()
 	{
 		return \count($this->stackElements);
+	}
+
+	/**
+	 *
+	 * @return array Stack elements (First in, last out)
+	 */
+	public function getArrayCopy()
+	{
+		return \array_reverse($this->stackElements);
+	}
+
+	/**
+	 * Get an iterator on stack elements sorted first in last out.
+	 *
+	 * @return StackIterator
+	 */
+	public function getIterator()
+	{
+		return new StackIterator($this->stackElements);
 	}
 
 	/**

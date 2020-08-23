@@ -88,4 +88,24 @@ final class StackTest extends \PHPUnit\Framework\TestCase
 		$this->assertEquals(null, $exception);
 		$this->assertEquals(42, $value, 'Result invoked top element of stack');
 	}
+
+	public function testIterator()
+	{
+		$stack = new Stack();
+		$stack->push(1);
+		$stack->push(2);
+		$stack->push(3);
+
+		$this->assertEquals(3, $stack->top(), 'Top');
+		$expected = [
+			3,
+			2,
+			1
+		];
+		$actual = [];
+		foreach ($stack as $value)
+			$actual[] = $value;
+
+		$this->assertEquals($expected, $actual, 'Stack iterator direction');
+	}
 }
