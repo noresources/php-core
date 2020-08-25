@@ -8,8 +8,9 @@ namespace NoreSources;
 /**
  * Serializable data tree structure
  */
-class DataTree implements \ArrayAccess, \Serializable, \IteratorAggregate, \Countable,
-	ArrayRepresentation, \JsonSerializable
+class DataTree implements \ArrayAccess, \Serializable,
+	\IteratorAggregate, \Countable, ArrayRepresentation,
+	\JsonSerializable
 {
 
 	/**
@@ -55,7 +56,7 @@ class DataTree implements \ArrayAccess, \Serializable, \IteratorAggregate, \Coun
 	{
 		$this->elements = new \ArrayObject();
 
-		if (Container::isTraversable($data, true))
+		if (self::isTraversable($data))
 			$this->setContent($data, self::REPLACE);
 	}
 
@@ -197,7 +198,7 @@ class DataTree implements \ArrayAccess, \Serializable, \IteratorAggregate, \Coun
 		$exists = $this->elements->offsetExists($key);
 		if (!$exists)
 		{
-			if (!Container::isTraversable($value))
+			if (!self::isTraversable($value))
 			{
 				$this->elements->offsetSet($key, $value);
 				return;
@@ -210,7 +211,8 @@ class DataTree implements \ArrayAccess, \Serializable, \IteratorAggregate, \Coun
 			return;
 		}
 
-		if (!($mode & self::REPLACE) && !(($mode & self::MERGE_OVERWRITE) == self::MERGE_OVERWRITE))
+		if (!($mode & self::REPLACE) &&
+			!(($mode & self::MERGE_OVERWRITE) == self::MERGE_OVERWRITE))
 		{
 			return;
 		}
@@ -222,7 +224,7 @@ class DataTree implements \ArrayAccess, \Serializable, \IteratorAggregate, \Coun
 		 * of values (indexed array)
 		 */
 
-		if (!Container::isTraversable($value) || Container::isIndexed($value))
+		if (!self::isTraversable($value) || Container::isIndexed($value))
 		{
 			$this->elements->offsetSet($key, $value);
 			return;
@@ -303,7 +305,8 @@ class DataTree implements \ArrayAccess, \Serializable, \IteratorAggregate, \Coun
 	public function unserialize($serialized)
 	{
 		$this->elements->exchangeArray(
-			StructuredText::textToArray($serialized, StructuredText::FORMAT_JSON));
+			StructuredText::textToArray($serialized,
+				StructuredText::FORMAT_JSON));
 
 		$this->setContent($data, self::REPLACE);
 	}
@@ -318,7 +321,7 @@ class DataTree implements \ArrayAccess, \Serializable, \IteratorAggregate, \Coun
 		$a = [];
 		foreach ($this->elements as $key => $value)
 		{
-			$a[$key] = (is_object($value) && ($value instanceof DataTree)) ? $value->getArrayCopy() : $value;
+			$a[$key] = ($value instanceof DataTree) ? $value->getArrayCopy() : $value;
 		}
 
 		return $a;
@@ -401,8 +404,8 @@ class DataTree implements \ArrayAccess, \Serializable, \IteratorAggregate, \Coun
 	 */
 	public function setContent($data, $mode = self::REPLACE)
 	{
-		if (!Container::isTraversable($data))
-			throw new \ErrorException('Invalid content. Traversable type expected');
+		if (!self::isTraversable($data))
+			throw new DataTreeNotTraversableException($data);
 
 		if (($mode & self::REPLACE) == self::REPLACE)
 			$this->elements->exchangeArray([]);
@@ -438,12 +441,15 @@ class DataTree implements \ArrayAccess, \Serializable, \IteratorAggregate, \Coun
 	 * @throws \InvalidArgumentException
 	 * @return DataTree
 	 */
-	public function loadFile($filename, $mode = self::REPLACE, $mediaType = null)
+	public function loadFile($filename, $mode = self::REPLACE,
+		$mediaType = null)
 	{
 		if (!\file_exists($filename))
-			throw new \InvalidArgumentException($filename . ' not found');
+			throw new \InvalidArgumentException(
+				$filename . ' not found');
 
-		$extension = \strtolower(\pathinfo($filename, PATHINFO_EXTENSION));
+		$extension = \strtolower(
+			\pathinfo($filename, PATHINFO_EXTENSION));
 
 		if (!(\is_string($mediaType) && \strlen($mediaType)))
 		{
@@ -459,17 +465,22 @@ class DataTree implements \ArrayAccess, \Serializable, \IteratorAggregate, \Coun
 		if ($mediaType == 'text/x-php' || $extension == 'php')
 		{
 			$result = require ($filename);
-			if (Container::isTraversable($result))
-				return $this->setContent($result, $mode);
+			if (!self::isTraversable($result))
+				throw new DataTreeNotTraversableException($result);
+			$this->setContent($result, $mode);
 			return $this;
 		}
 
-		return $this->setContent(StructuredText::fileToArray($filename, $mediaType), $mode);
+		return $this->setContent(
+			StructuredText::fileToArray($filename, $mediaType), $mode);
 	}
 
-	public function loadData($data, $structuredTextFormat, $mode = self::REPLACE)
+	public function loadData($data, $structuredTextFormat,
+		$mode = self::REPLACE)
 	{
-		return $this->setContent(StructuredText::textToArray($data, $structuredTextFormat), $mode);
+		return $this->setContent(
+			StructuredText::textToArray($data, $structuredTextFormat),
+			$mode);
 	}
 
 	/**
@@ -477,11 +488,17 @@ class DataTree implements \ArrayAccess, \Serializable, \IteratorAggregate, \Coun
 	 * @deprecated Use loadFile
 	 * @param string $filename
 	 * @param integer $mode
-	 * @param unknown $mediaType
+	 * @param string $mediaType
 	 */
-	public function load($filename, $mode = self::REPLACE, $mediaType = null)
+	public function load($filename, $mode = self::REPLACE,
+		$mediaType = null)
 	{
 		return $this->loadFile($filename, $mode);
+	}
+
+	private static function isTraversable($e)
+	{
+		return (\is_array($e) || ($e instanceof \Traversable));
 	}
 
 	/**
