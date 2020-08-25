@@ -33,7 +33,8 @@ $hashReference = array(
 );
 $hashReferenceObject = new \ArrayObject($hashReference);
 $indexedReferenceObject = new \ArrayObject($indexedReference);
-$sparseIndexedReferenceObject = new \ArrayObject($sparseIndexedReference);
+$sparseIndexedReferenceObject = new \ArrayObject(
+	$sparseIndexedReference);
 
 $nullValue = null;
 
@@ -153,8 +154,10 @@ final class ContainerTest extends \PHPUnit\Framework\TestCase
 			$metavariable
 		] as $container)
 		{
-			$this->assertEquals('bar', Container::keyValue($container, 'foo'),
-				'keyValue of ' . TypeDescription::getLocalName($container));
+			$this->assertEquals('bar',
+				Container::keyValue($container, 'foo'),
+				'keyValue of ' .
+				TypeDescription::getLocalName($container));
 		}
 	}
 
@@ -227,8 +230,10 @@ final class ContainerTest extends \PHPUnit\Framework\TestCase
 			foreach ($properties as $property => $name)
 			{
 				$expectedValue = $expected & $property;
-				$text = $label . ' is ' . ($expectedValue ? '' : 'not ') . $name;
-				$this->assertEquals($expectedValue, $actual & $property, $text);
+				$text = $label . ' is ' . ($expectedValue ? '' : 'not ') .
+					$name;
+				$this->assertEquals($expectedValue, $actual & $property,
+					$text);
 			}
 		}
 	}
@@ -259,8 +264,10 @@ final class ContainerTest extends \PHPUnit\Framework\TestCase
 	public function testValueExists()
 	{
 		global $indexedReference;
-		$this->assertEquals(true, Container::valueExists($indexedReference, 'two'));
-		$this->assertEquals(false, Container::valueExists($indexedReference, 'deux'));
+		$this->assertEquals(true,
+			Container::valueExists($indexedReference, 'two'));
+		$this->assertEquals(false,
+			Container::valueExists($indexedReference, 'deux'));
 	}
 
 	public function testSetValueArray()
@@ -275,10 +282,11 @@ final class ContainerTest extends \PHPUnit\Framework\TestCase
 
 	public function testSetValueArrayAccess()
 	{
-		$a = new \ArrayObject([
-			'hello' => 'everyone',
-			'good' => 'bye'
-		]);
+		$a = new \ArrayObject(
+			[
+				'hello' => 'everyone',
+				'good' => 'bye'
+			]);
 		Container::setValue($a, 'hello', 'world');
 		$this->assertEquals('world', $a['hello']);
 	}
@@ -309,7 +317,8 @@ final class ContainerTest extends \PHPUnit\Framework\TestCase
 			$exception = $e;
 		}
 
-		$this->assertInstanceOf(\InvalidArgumentException::class, $exception);
+		$this->assertInstanceOf(\InvalidArgumentException::class,
+			$exception);
 	}
 
 	public function testSetValueArbitraryClassInvalidKey()
@@ -328,7 +337,8 @@ final class ContainerTest extends \PHPUnit\Framework\TestCase
 			$exception = $e;
 		}
 
-		$this->assertInstanceOf(InvalidContainerException::class, $exception);
+		$this->assertInstanceOf(InvalidContainerException::class,
+			$exception);
 	}
 
 	public function testCountArray()
@@ -358,7 +368,8 @@ final class ContainerTest extends \PHPUnit\Framework\TestCase
 	public function testCountAssociativeArrayObject()
 	{
 		global $sparseIndexedReferenceObject;
-		$this->assertEquals(3, Container::count($sparseIndexedReferenceObject));
+		$this->assertEquals(3,
+			Container::count($sparseIndexedReferenceObject));
 	}
 
 	public function testCountHashTableObject()
@@ -390,7 +401,8 @@ final class ContainerTest extends \PHPUnit\Framework\TestCase
 				$result = get_class($e);
 			}
 			finally {
-				$this->assertEquals(InvalidContainerException::class, $result);
+				$this->assertEquals(InvalidContainerException::class,
+					$result);
 			}
 		}
 	}
@@ -426,16 +438,20 @@ final class ContainerTest extends \PHPUnit\Framework\TestCase
 		$traversable = new TraversableImpl($array);
 		$container = new ContainerImpl($array);
 
-		$this->assertEquals($expectedKeys, Container::keys($array), 'Container::keys (array)');
+		$this->assertEquals($expectedKeys, Container::keys($array),
+			'Container::keys (array)');
 		$this->assertEquals($expectedKeys, Container::keys($arrayObject),
 			'Container::keys (ArrayObject)');
 		$this->assertEquals($expectedKeys, Container::keys($traversable),
 			'Container::keys (TraversableImpl)');
 
-		$this->assertEquals($expectedValues, Container::values($array), 'Container::getValue(array)');
-		$this->assertEquals($expectedValues, Container::values($arrayObject),
+		$this->assertEquals($expectedValues, Container::values($array),
+			'Container::getValue(array)');
+		$this->assertEquals($expectedValues,
+			Container::values($arrayObject),
 			'Container::getValue(ArrayObject)');
-		$this->assertEquals($expectedValues, Container::values($traversable),
+		$this->assertEquals($expectedValues,
+			Container::values($traversable),
 			'Container::getValue(TraversableImpl)');
 
 		$this->expectException(InvalidContainerException::class);
@@ -448,7 +464,8 @@ final class ContainerTest extends \PHPUnit\Framework\TestCase
 		$builtin = \implode(', ', $indexedReference);
 		$ns = Container::implodeValues($indexedReference, ', ');
 
-		$this->assertEquals($builtin, $ns, 'implodeValue basically mimics the implode function');
+		$this->assertEquals($builtin, $ns,
+			'implodeValue basically mimics the implode function');
 	}
 
 	/**
@@ -496,7 +513,8 @@ final class ContainerTest extends \PHPUnit\Framework\TestCase
 				return strval($v);
 			});
 
-		$this->assertEquals($evenStrings, $evenStringsResult, 'Filter odd keys and false values');
+		$this->assertEquals($evenStrings, $evenStringsResult,
+			'Filter odd keys and false values');
 
 		$oddResult = Container::implode($source, $glue,
 			function ($k, $v) {
@@ -514,7 +532,8 @@ final class ContainerTest extends \PHPUnit\Framework\TestCase
 				return strval($v);
 			});
 
-		$this->assertEquals($stringValues, $stringValuesResult, 'Only string values');
+		$this->assertEquals($stringValues, $stringValuesResult,
+			'Only string values');
 	}
 
 	public function testremoveKeyArrayInplace()
@@ -531,9 +550,11 @@ final class ContainerTest extends \PHPUnit\Framework\TestCase
 			'four' => 4
 		);
 
-		$this->assertFalse(Container::removeKey($source, 'Kowabunga'), 'Remove non-existing');
+		$this->assertFalse(Container::removeKey($source, 'Kowabunga'),
+			'Remove non-existing');
 
-		$this->assertTrue(Container::removeKey($source, 'three'), 'Remove existing');
+		$this->assertTrue(Container::removeKey($source, 'three'),
+			'Remove existing');
 
 		$this->assertEquals($target, $source);
 	}
@@ -551,14 +572,17 @@ final class ContainerTest extends \PHPUnit\Framework\TestCase
 			1 => 'two',
 			3 => 'four'
 		);
-		$this->assertTrue(Container::removeKey($source, 2), 'Remove existing');
+		$this->assertTrue(Container::removeKey($source, 2),
+			'Remove existing');
 		$this->assertEquals($target, $source);
 	}
 
 	public function testAssoc()
 	{
-		$this->assertTrue(Container::isIndexed([]), 'Empty container is indexed');
-		$this->assertTrue(Container::isAssociative([]), 'Empty container is associative');
+		$this->assertTrue(Container::isIndexed([]),
+			'Empty container is indexed');
+		$this->assertTrue(Container::isAssociative([]),
+			'Empty container is associative');
 
 		$indexed = [
 			'zero',
@@ -582,32 +606,40 @@ final class ContainerTest extends \PHPUnit\Framework\TestCase
 			2 => 'two'
 		];
 
-		$this->assertTrue(Container::isIndexed($indexed), 'Indexed is indexed');
-		$this->assertTrue(Container::isIndexed($indexed, true), 'Indexed is indexed (strict)');
+		$this->assertTrue(Container::isIndexed($indexed),
+			'Indexed is indexed');
+		$this->assertTrue(Container::isIndexed($indexed, true),
+			'Indexed is indexed (strict)');
 
-		$this->assertTrue(Container::isIndexed($explicitIndexes), 'Explicitely indexed is indexed');
+		$this->assertTrue(Container::isIndexed($explicitIndexes),
+			'Explicitely indexed is indexed');
 		$this->assertTrue(Container::isIndexed($explicitIndexes, true),
 			'Explicitely indexed is indexed (strict)');
 
 		$this->assertTrue(Container::isIndexed($numericStringIndexes),
 			'numeric string indexes is indexed');
-		$this->assertTrue(Container::isIndexed($numericStringIndexes, true),
+		$this->assertTrue(
+			Container::isIndexed($numericStringIndexes, true),
 			'numeric string indexes (strict) is still indexed due to PHP auto conversion');
 
-		$this->assertFalse(Container::isIndexed($unordered), 'Unordered is not indexed');
+		$this->assertFalse(Container::isIndexed($unordered),
+			'Unordered is not indexed');
 		$this->assertFalse(Container::isIndexed($unordered, true),
 			'Unordered is not indexed (strict)');
 
-		$this->assertFalse(Container::isAssociative($indexed), 'Indexed is not associative');
+		$this->assertFalse(Container::isAssociative($indexed),
+			'Indexed is not associative');
 		$this->assertFalse(Container::isAssociative($indexed, true),
 			'Indexed is not associative (strict)');
 
 		$this->assertFalse(Container::isAssociative($explicitIndexes),
 			'Explicitely indexed is not associative');
-		$this->assertFalse(Container::isAssociative($explicitIndexes, true),
+		$this->assertFalse(
+			Container::isAssociative($explicitIndexes, true),
 			'Explicitely indexed is not associative (strict)');
 
-		$this->assertTrue(Container::isAssociative($unordered), 'Unordered is associative');
+		$this->assertTrue(Container::isAssociative($unordered),
+			'Unordered is associative');
 		$this->assertTrue(Container::isAssociative($unordered, true),
 			'Unordered is associative (strict)');
 
@@ -624,16 +656,33 @@ final class ContainerTest extends \PHPUnit\Framework\TestCase
 			3 => 'trois'
 		];
 
-		$this->assertFalse(Container::isIndexed($associative), 'Associative is not indexed');
+		$this->assertFalse(Container::isIndexed($associative),
+			'Associative is not indexed');
 		$this->assertTrue(Container::isAssociative($associative));
 
-		$this->assertFalse(Container::isIndexed($mixed), 'mixed is not indexed');
-		$this->assertTrue(Container::isAssociative($mixed), 'mixed is associative');
+		$this->assertFalse(Container::isIndexed($mixed),
+			'mixed is not indexed');
+		$this->assertTrue(Container::isAssociative($mixed),
+			'mixed is associative');
 	}
 
 	public function testFirst()
 	{
 		$tests = [
+			'empty' => [
+				'collection' => [],
+				'key' => null,
+				'value' => null
+			],
+			'empty with default' => [
+				'collection' => [],
+				'key' => 'not a key',
+				'value' => 'not a value',
+				'default' => [
+					'not a key',
+					'not a value'
+				]
+			],
 			'indexed array' => [
 				'collection' => [
 					'first value',
@@ -658,6 +707,7 @@ final class ContainerTest extends \PHPUnit\Framework\TestCase
 		{
 			$key = $test['key'];
 			$value = $test['value'];
+			$dflt = Container::keyValue($test, 'default', []);
 
 			$array = $test['collection'];
 			$object = new \ArrayObject($array);
@@ -674,15 +724,21 @@ final class ContainerTest extends \PHPUnit\Framework\TestCase
 				$this->assertEquals([
 					$key,
 					$value
-				], Container::first($container), $label . ' ' . $type . ' first');
+				], Container::first($container, $dflt),
+					$label . ' ' . $type . ' first');
 
-				$this->assertEquals($key, Container::firstKey($container),
+				$this->assertEquals($key,
+					Container::firstKey($container,
+						Container::keyValue($dflt, 0, null)),
 					$label . ' ' . $type . ' firstKey');
-				$this->assertEquals($value, Container::firstValue($container),
+				$this->assertEquals($value,
+					Container::firstValue($container,
+						Container::keyValue($dflt, 1, null)),
 					$label . ' ' . $type . ' firstValue');
 			}
 
-			$this->assertEquals($current, $iterator->current(), 'Unchanged iterator');
+			$this->assertEquals($current, $iterator->current(),
+				'Unchanged iterator');
 		}
 	}
 

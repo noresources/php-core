@@ -146,10 +146,11 @@ class Container
 
 		$properties = 0;
 		if (\is_array($container))
-			$properties |= self::TRAVERSABLE | self::EXTENDABLE | self::SHRINKABLE | self::COUNTABLE |
-				self::OFFSET_ACCESS;
+			$properties |= self::TRAVERSABLE | self::EXTENDABLE |
+				self::SHRINKABLE | self::COUNTABLE | self::OFFSET_ACCESS;
 		if ($container instanceof \ArrayAccess)
-			$properties |= self::EXTENDABLE | self::SHRINKABLE | self::OFFSET_ACCESS;
+			$properties |= self::EXTENDABLE | self::SHRINKABLE |
+				self::OFFSET_ACCESS;
 		if ($container instanceof ContainerInterface)
 			$properties |= self::RANDOM_ACCESS;
 		if ($container instanceof \Traversable)
@@ -214,6 +215,17 @@ class Container
 	}
 
 	/**
+	 *
+	 * @param mixed $container
+	 *        	Input container
+	 * @return boolean true if $container does not contains any element
+	 */
+	public static function isEmpty($container)
+	{
+		return (self::count($container) == 0);
+	}
+
+	/**
 	 * Get the list of values of the given container.
 	 *
 	 * @param mixed $container
@@ -241,6 +253,15 @@ class Container
 		throw new InvalidContainerException($container, __METHOD__);
 	}
 
+	/**
+	 * Remove an entry from the given container
+	 *
+	 * @param mixed $container
+	 * @param mixed $key
+	 *        	Entry key to remove
+	 * @throws InvalidContainerException
+	 * @return boolean true if $container was modified
+	 */
 	public static function removeKey(&$container, $key)
 	{
 		if ($container instanceof \ArrayAccess)
@@ -277,11 +298,13 @@ class Container
 	 * @return array or null if $anything cannont be converted to array and $singleElementKey is
 	 *         null
 	 */
-	public static function createArray($anything, $singleElementKey = null)
+	public static function createArray($anything,
+		$singleElementKey = null)
 	{
 		if (\is_array($anything))
 			return $anything;
-		elseif ($anything instanceof \ArrayObject || $anything instanceof ArrayRepresentation)
+		elseif ($anything instanceof \ArrayObject ||
+			$anything instanceof ArrayRepresentation)
 			return $anything->getArrayCopy();
 		elseif (self::isTraversable($anything))
 		{
@@ -504,7 +527,8 @@ class Container
 	 *
 	 * @return boolean true if $value appears in $container
 	 */
-	public static function valueExists($container, $value, $strict = false)
+	public static function valueExists($container, $value,
+		$strict = false)
 	{
 		if (\is_array($container))
 		{
@@ -545,7 +569,7 @@ class Container
 	 *
 	 *         The list() function can be used to get the result of this function.
 	 */
-	public static function first($container)
+	public static function first($container, $dflt = array())
 	{
 		if ($container instanceof \Iterator)
 		{
@@ -558,8 +582,8 @@ class Container
 				];
 
 			return [
-				null,
-				null
+				Container::keyValue($dflt, 0, null),
+				Container::keyValue($dflt, 1, null)
 			];
 		}
 
@@ -573,8 +597,8 @@ class Container
 			];
 
 		return [
-			null,
-			null
+			Container::keyValue($dflt, 0, null),
+			Container::keyValue($dflt, 1, null)
 		];
 	}
 
@@ -582,11 +606,16 @@ class Container
 	 * Get the first key of the given container
 	 *
 	 * @param mixed $container
+	 * @param mixed $key
+	 *        	Value to return if $container is empty
 	 * @return mixed
 	 */
-	public static function firstKey($container)
+	public static function firstKey($container, $dflt = null)
 	{
-		list ($k, $v) = self::first($container);
+		list ($k, $v) = self::first($container, [
+			$dflt,
+			null
+		]);
 		return $k;
 	}
 
@@ -594,11 +623,16 @@ class Container
 	 * Get the first value of the container.
 	 *
 	 * @param mixed $container
+	 * @param mixed $dflt
+	 *        	Value to return if $container is empty
 	 * @return mixed
 	 */
-	public static function firstValue($container)
+	public static function firstValue($container, $dflt = null)
 	{
-		list ($k, $v) = self::first($container);
+		list ($k, $v) = self::first($container, [
+			null,
+			$dflt
+		]);
 		return $v;
 	}
 
@@ -613,12 +647,14 @@ class Container
 	 *
 	 * @return mixed Value associated to $key or $defaultValue if the key does not exists
 	 */
-	public static function keyValue($container, $key, $defaultValue = null)
+	public static function keyValue($container, $key,
+		$defaultValue = null)
 	{
 		if (\is_array($container))
 			return (\array_key_exists($key, $container)) ? $container[$key] : $defaultValue;
 		elseif ($container instanceof \ArrayAccess)
-			return ($container->offsetExists($key) ? $container->offsetGet($key) : $defaultValue);
+			return ($container->offsetExists($key) ? $container->offsetGet(
+				$key) : $defaultValue);
 		elseif ($container instanceof ContainerInterface)
 			return ($container->has($key) ? $container->get($key) : $defaultValue);
 		elseif ($container instanceof \Traversable)
@@ -633,7 +669,8 @@ class Container
 		}
 		elseif (\is_object($container) && \is_string($key))
 		{
-			if (\property_exists($container, $key) || \method_exists($container, '__get'))
+			if (\property_exists($container, $key) ||
+				\method_exists($container, '__get'))
 				return $container->$key;
 
 			return $defaultValue;
@@ -665,14 +702,16 @@ class Container
 		}
 		elseif (\is_object($container) && \is_string($key))
 		{
-			if (\property_exists($container, $key) || \method_exists($container, '__set'))
+			if (\property_exists($container, $key) ||
+				\method_exists($container, '__set'))
 			{
 				$container->$key = $value;
 				return;
 			}
 
 			throw new \InvalidArgumentException(
-				$key . ' is not a member of ' . TypeDescription::getName($container));
+				$key . ' is not a member of ' .
+				TypeDescription::getName($container));
 		}
 
 		throw new InvalidContainerException($container);
@@ -715,8 +754,8 @@ class Container
 	 *        	Element glue
 	 * @return string
 	 */
-	public static function implodeValues($container, $glue, $callable = null,
-		$callableArguments = array())
+	public static function implodeValues($container, $glue,
+		$callable = null, $callableArguments = array())
 	{
 		$a = '';
 		$b = '';
@@ -734,9 +773,10 @@ class Container
 			$parts = [];
 			foreach ($container as $k => $v)
 			{
-				$part = call_user_func_array($callable, \array_merge([
-					$v
-				], $callableArguments));
+				$part = call_user_func_array($callable,
+					\array_merge([
+						$v
+					], $callableArguments));
 
 				if ($part !== false)
 					$parts[] = $part;
@@ -766,8 +806,8 @@ class Container
 	 *
 	 * @return string
 	 */
-	public static function implodeKeys($container, $glue, $callable = null,
-		$callableArguments = array())
+	public static function implodeKeys($container, $glue,
+		$callable = null, $callableArguments = array())
 	{
 		$a = '';
 		$b = '';
@@ -786,9 +826,10 @@ class Container
 			$parts = [];
 			foreach ($container as $k => $v)
 			{
-				$part = call_user_func_array($callable, \array_merge([
-					$k
-				], $callableArguments));
+				$part = call_user_func_array($callable,
+					\array_merge([
+						$k
+					], $callableArguments));
 
 				if ($part !== false)
 					$parts[] = $part;
@@ -818,7 +859,8 @@ class Container
 	 *
 	 * @return string
 	 */
-	public static function implode($container, $glue, $callable, $callableArguments = array())
+	public static function implode($container, $glue, $callable,
+		$callableArguments = array())
 	{
 		$a = '';
 		$b = '';
@@ -836,10 +878,11 @@ class Container
 		$parts = [];
 		foreach ($container as $k => $v)
 		{
-			$part = call_user_func_array($callable, \array_merge([
-				$k,
-				$v
-			], $callableArguments));
+			$part = call_user_func_array($callable,
+				\array_merge([
+					$k,
+					$v
+				], $callableArguments));
 
 			if ($part !== false)
 				$parts[] = $part;
