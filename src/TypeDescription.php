@@ -39,7 +39,8 @@ class TypeDescription
 	 *
 	 * @return Local name of class
 	 */
-	public static function getLocalName($element, $elementIsClassName = false)
+	public static function getLocalName($element,
+		$elementIsClassName = false)
 	{
 		$className = null;
 		if (\is_object($element))
@@ -66,7 +67,8 @@ class TypeDescription
 	 *
 	 * @return array List of namespaces
 	 */
-	public static function getNamespaces($element, $elementIsClassName = false)
+	public static function getNamespaces($element,
+		$elementIsClassName = false)
 	{
 		$className = null;
 		if (\is_object($element))
@@ -93,7 +95,8 @@ class TypeDescription
 	 *
 	 * @return boolean @true if $element is a subclass of $parent
 	 */
-	public static function isA($element, $parent, $elementIsClassName = false)
+	public static function isA($element, $parent,
+		$elementIsClassName = false)
 	{
 		$isClassName = false;
 		if (!\is_object($element))
@@ -119,7 +122,8 @@ class TypeDescription
 	 *
 	 * @return boolean @true if $element is a subclass of $parent
 	 */
-	public static function isSubclassOf($element, $parent, $elementIsClassName = false)
+	public static function isSubclassOf($element, $parent,
+		$elementIsClassName = false)
 	{
 		$isClassName = false;
 		if (!\is_object($element))
@@ -143,7 +147,8 @@ class TypeDescription
 	{
 		if (\is_object($element))
 			return \method_exists($element, '__toString');
-		return (\is_string($element) || \is_integer($element) || \is_float($element) ||
-			\is_bool($element) || \is_null($element));
+		return (\is_string($element) || \is_integer($element) ||
+			\is_float($element) || \is_bool($element) ||
+			\is_null($element));
 	}
 }
