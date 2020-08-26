@@ -13,9 +13,12 @@ final class TextTest extends \PHPUnit\Framework\TestCase
 
 	final function testToHex()
 	{
-		$this->assertEquals('01', Text::toHexadecimalString(true), 'true');
-		$this->assertEquals('00', Text::toHexadecimalString(false), 'false');
-		$this->assertEquals('00', Text::toHexadecimalString(null), 'null');
+		$this->assertEquals('01', Text::toHexadecimalString(true),
+			'true');
+		$this->assertEquals('00', Text::toHexadecimalString(false),
+			'false');
+		$this->assertEquals('00', Text::toHexadecimalString(null),
+			'null');
 
 		$tests = [
 			1 => '01',
@@ -26,10 +29,12 @@ final class TextTest extends \PHPUnit\Framework\TestCase
 
 		foreach ($tests as $input => $expected)
 		{
-			$this->assertEquals($expected, Text::toHexadecimalString($input),
+			$this->assertEquals($expected,
+				Text::toHexadecimalString($input),
 				$input . ' (lowercase)');
 
-			$this->assertEquals(\strtoupper($expected), Text::toHexadecimalString($input, true),
+			$this->assertEquals(\strtoupper($expected),
+				Text::toHexadecimalString($input, true),
 				$input . ' (uppercase)');
 		}
 	}
@@ -58,14 +63,78 @@ final class TextTest extends \PHPUnit\Framework\TestCase
 					Text::class,
 					$style
 				], $text);
-				$this->assertEquals($expected, $actual, $style . ' of "' . $text . '"');
+				$this->assertEquals($expected, $actual,
+					$style . ' of "' . $text . '"');
 			}
+		}
+	}
+
+	final function testStructuredTextUrlEncoded()
+	{
+		$tests = [
+			'simple value' => [
+				'input' => \urlencode('Simple value'),
+				'expected' => 'Simple value'
+			],
+			'key value' => [
+				'input' => \http_build_query([
+					'key' => 'value'
+				]),
+				'expected' => [
+					'key' => 'value'
+				]
+			],
+			'text with a "&"' => [
+				'input' => \urlencode('text with a "&"'),
+				'expected' => 'text with a "&"'
+			],
+			'multiple key value' => [
+				'input' => \http_build_query(
+					[
+						'key' => 'value',
+						'empty' => '',
+						'foo' => 'bar'
+					]),
+				'expected' => [
+					'key' => 'value',
+					'empty' => '',
+					'foo' => 'bar'
+				]
+			]
+		];
+
+		foreach ($tests as $label => $test)
+		{
+			$actual = StructuredText::parseText($test['input'],
+				StructuredText::FORMAT_URL_ENCODED);
+
+			$this->assertEquals($test['expected'], $actual, $label);
+		}
+	}
+
+	final function testStructuredTextJson()
+	{
+		$json = [
+			'a',
+			'int',
+			'float',
+			'null',
+			'boolean'
+		];
+
+		foreach ($json as $name)
+		{
+			$filename = __DIR__ . '/data/' . $name . '.json';
+			$expected = \json_decode(\file_get_contents($filename), true);
+			$actual = StructuredText::parseFile($filename);
+			$this->assertEquals($expected, $actual, 'JSON ' . $name);
 		}
 	}
 
 	final function testStructureTextFromTextFailure()
 	{
 		$this->expectException(TypeConversionException::class);
-		$data = StructuredText::fileToArray(__DIR__ . '/data/sample.xml');
+		$data = StructuredText::fileToArray(
+			__DIR__ . '/data/sample.xml');
 	}
 }

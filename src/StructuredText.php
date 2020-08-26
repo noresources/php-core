@@ -55,12 +55,14 @@ class StructuredText
 	 * @throws TypeConversionException
 	 * @return array
 	 */
-	public static function fileToArray($filename, $mediaType = null)
+	public static function parseFile($filename, $mediaType = null)
 	{
 		if (!\file_exists($filename))
-			throw new \InvalidArgumentException($filename . ' not found');
+			throw new \InvalidArgumentException(
+				$filename . ' not found');
 
-		$extension = \strtolower(\pathinfo($filename, PATHINFO_EXTENSION));
+		$extension = \strtolower(
+			\pathinfo($filename, PATHINFO_EXTENSION));
 
 		switch ($extension)
 		{
@@ -99,29 +101,57 @@ class StructuredText
 				case self::FORMAT_INI:
 					return self::dataFromIni($filename, true);
 				case self::FORMAT_JSON:
-					return self::dataFromJson(\file_get_contents($filename));
+					return self::dataFromJson(
+						\file_get_contents($filename));
 				case self::FORMAT_URL_ENCODED:
-					return self::dataFromUrlEncoded(\file_get_contents($filename));
+					return self::dataFromUrlEncoded(
+						\file_get_contents($filename));
 				case self::FORMAT_YAML:
-					return self::dataFromYaml(\file_get_contents($filename));
+					return self::dataFromYaml(
+						\file_get_contents($filename));
 			}
 		}
 
 		throw new TypeConversionException('text', 'array',
-			'No conversion available for file "' . $filename . '" (' . $mediaType . ')');
+			'No conversion available for file "' . $filename . '" (' .
+			$mediaType . ')');
 	}
 
 	/**
 	 *
-	 * @param string $queryString
-	 *        	URL encoded query string
+	 * @deprecated use parseFile()
+	 * @param string $filename
+	 * @param string|null $mediaType
+	 *        	File media type. If null, the media type is guessed from file content.
+	 * @throws \InvalidArgumentException
+	 * @throws TypeConversionException
 	 * @return array
 	 */
-	private static function dataFromUrlEncoded($queryString)
+	public static function fileToArray($filename, $mediaType = null)
 	{
-		$data = [];
-		\parse_str($queryString, $data);
-		return $data;
+		$v = self::parseFile($filename, $mediaType);
+		if (!\is_array($v))
+			throw new \LogicException(
+				'Structed text content is not an array');
+		return $v;
+	}
+
+	/**
+	 *
+	 * @param string $text
+	 *        	URL encoded query string
+	 * @return array|string
+	 */
+	private static function dataFromUrlEncoded($text)
+	{
+		if (\strpos($text, '=') !== false)
+		{
+			$data = [];
+			\parse_str($text, $data);
+			return $data;
+		}
+
+		return \urldecode($text);
 	}
 
 	/**
@@ -131,9 +161,9 @@ class StructuredText
 	 * @param string $format
 	 *        	Text format
 	 * @throws TypeConversionException
-	 * @return array|array
+	 * @return mixed
 	 */
-	public static function textToArray($text, $format)
+	public static function parseText($text, $format)
 	{
 		switch ($format)
 		{
@@ -149,6 +179,26 @@ class StructuredText
 
 		throw new TypeConversionException($text, 'array',
 			'No conversion available for ' . $format . ' format');
+	}
+
+	/**
+	 *
+	 * @deprecated use parseText()
+	 *
+	 * @param string $text
+	 *        	Structured text
+	 * @param string $format
+	 *        	Text format
+	 * @throws TypeConversionException
+	 * @return array|array
+	 */
+	public static function textToArray($text, $format)
+	{
+		$v = self::parseText($text, $format);
+		if (!\is_array($v))
+			throw new \LogicException(
+				'Structed text content is not an array');
+		return $v;
 	}
 
 	/**
@@ -173,8 +223,9 @@ class StructuredText
 		if ($format !== false)
 			return $format;
 
-		if (\preg_match(chr(1) . self::STRUCTURED_SYNTAX_SUFFIX_PATTERN . '$' . chr(1), $mediaType,
-			$m))
+		if (\preg_match(
+			chr(1) . self::STRUCTURED_SYNTAX_SUFFIX_PATTERN . '$' .
+			chr(1), $mediaType, $m))
 		{
 			$format = $m[1];
 			$format = Container::keyValue($mediaTypes, $mediaType, false);
@@ -191,7 +242,8 @@ class StructuredText
 	 *        	If true, returns all possible media types.
 	 * @return array|string|false
 	 */
-	public static function formatMediaType($format, $allAlternatives = false)
+	public static function formatMediaType($format,
+		$allAlternatives = false)
 	{
 		static $formats = [
 			/**
@@ -257,9 +309,11 @@ class StructuredText
 		if ($data === false)
 		{
 			$error = \error_get_last();
-			throw new StructuredTextSyntaxErrorException(self::FORMAT_INI,
+			throw new StructuredTextSyntaxErrorException(
+				self::FORMAT_INI,
 				Container::keyValue($error, 'message', null),
-				Container::keyValue($error, 'line', null), Container::keyValue($error, 'type', null));
+				Container::keyValue($error, 'line', null),
+				Container::keyValue($error, 'type', null));
 		}
 		return $data;
 	}
@@ -275,8 +329,8 @@ class StructuredText
 		$data = @json_decode($text, true);
 		$code = json_last_error();
 		if ($code != JSON_ERROR_NONE)
-			throw new StructuredTextSyntaxErrorException(self::FORMAT_JSON, json_last_error_msg(),
-				null, $code);
+			throw new StructuredTextSyntaxErrorException(
+				self::FORMAT_JSON, json_last_error_msg(), null, $code);
 
 		return $data;
 	}
@@ -295,7 +349,8 @@ class StructuredText
 
 		$data = @\yaml_parse($text);
 		if ($data === false)
-			throw new StructuredTextSyntaxErrorException(self::FORMAT_YAML);
+			throw new StructuredTextSyntaxErrorException(
+				self::FORMAT_YAML);
 
 		return $data;
 	}
