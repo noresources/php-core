@@ -13,6 +13,39 @@ class Text
 
 	/**
 	 *
+	 * @param string $text
+	 *        	Input string
+	 * @param string[] $needles
+	 *        	List of strings to look into $text
+	 * @param boolean $firstOnly
+	 *        	If true, only return the nearest match
+	 * @return array|false Position -> needle array or FALSE if none of the $needles can be found in
+	 *         $haystack
+	 */
+	public static function firstOf($haystack, $needles = array(),
+		$firstOnly = false)
+	{
+		$result = [];
+		foreach ($needles as $s)
+		{
+			$p = \strpos($haystack, $s);
+			if ($p !== false)
+				$result[$p] = $s;
+		}
+
+		if (\count($result) == 0)
+			return [
+				-1 => false
+			];
+		ksort($result);
+
+		if ($firstOnly)
+			$result = Container::first($result);
+		return $result;
+	}
+
+	/**
+	 *
 	 * @param integer|string $value
 	 *        	Value to convert
 	 * @param boolean $upperCase
@@ -21,7 +54,8 @@ class Text
 	 * @return string|Hexadecimal representation of the input value. The output string length is
 	 *         always a multiple of 2.
 	 */
-	public static function toHexadecimalString($value, $upperCase = false)
+	public static function toHexadecimalString($value,
+		$upperCase = false)
 	{
 		if (\is_integer($value))
 		{
@@ -47,7 +81,8 @@ class Text
 		}
 
 		throw new \InvalidArgumentException(
-			'string or integer expected. Got ' . TypeDescription::getName($value));
+			'string or integer expected. Got ' .
+			TypeDescription::getName($value));
 	}
 
 	public static function firstLetterCase($text, $upper = true)
@@ -109,9 +144,11 @@ class Text
 		$text = \preg_replace('/\s/', ' ', trim($text));
 		$parts = \preg_split('/[^a-zA-Z0-9]/', $text);
 
-		$parts = \array_values(\array_filter($parts, function ($v) {
-			return \strlen($v) > 0;
-		}));
+		$parts = \array_values(
+			\array_filter($parts,
+				function ($v) {
+					return \strlen($v) > 0;
+				}));
 
 		if (\count($parts) == 0)
 			return '';
@@ -119,13 +156,15 @@ class Text
 		$count = \count($parts);
 		$i = 0;
 		$parts[$i] = self::firstLetterCase($parts[$i],
-			(($options[self::CODE_CASE_CAPITALIZE] & self::CODE_CASE_CAPITALIZE_FIRST) ==
+			(($options[self::CODE_CASE_CAPITALIZE] &
+			self::CODE_CASE_CAPITALIZE_FIRST) ==
 			self::CODE_CASE_CAPITALIZE_FIRST));
 
 		for ($i = 1; $i < $count; $i++)
 		{
 			$parts[$i] = self::firstLetterCase($parts[$i],
-				(($options[self::CODE_CASE_CAPITALIZE] & self::CODE_CASE_CAPITALIZE_OTHER) ==
+				(($options[self::CODE_CASE_CAPITALIZE] &
+				self::CODE_CASE_CAPITALIZE_OTHER) ==
 				self::CODE_CASE_CAPITALIZE_OTHER));
 		}
 

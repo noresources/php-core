@@ -11,6 +11,40 @@ namespace NoreSources;
 final class TextTest extends \PHPUnit\Framework\TestCase
 {
 
+	final function testFirstOf()
+	{
+		$input = 'Acbed';
+		$result = Text::firstOf($input, [
+			'c',
+			'd',
+			'A',
+			'e',
+			'Z',
+			"b"
+		]);
+
+		$this->assertEquals(
+			[
+				0 => 'A',
+				1 => 'c',
+				2 => 'b',
+				3 => 'e',
+				4 => 'd'
+			], $result, 'All results');
+
+		list ($p, $c) = Container::first($result);
+		$this->assertEquals(0, $p, 'First position');
+		$this->assertEquals('A', $c, 'First string');
+
+		$this->assertEquals([
+			-1 => false
+		], Text::firstOf('abc', [
+			'd',
+			'e',
+			'f'
+		]), 'None of them');
+	}
+
 	final function testToHex()
 	{
 		$this->assertEquals('01', Text::toHexadecimalString(true),
