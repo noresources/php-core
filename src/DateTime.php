@@ -13,9 +13,226 @@ use DateTimeZone;
  * <code>\DateTIme</code> class by adding more capabilities to be constructed ad exported to
  * various data types.
  */
-class DateTime extends \DateTime implements IntegerRepresentation, FloatRepresentation,
-	StringRepresentation, ArrayRepresentation
+class DateTime extends \DateTime implements IntegerRepresentation,
+	FloatRepresentation, StringRepresentation, ArrayRepresentation
 {
+
+	/**
+	 * Leap year indicator
+	 */
+	const FORMAT_YEAR_LEAP = 'L';
+
+	/**
+	 * ISO-8601 week-numbering year.
+	 * This has the same value as Y, except that if the ISO week number (W) belongs to the previous
+	 * or next year, that year is used instead.
+	 */
+	const FORMAT_YEAR_ISO8601 = 'o';
+
+	/**
+	 * A two digit representation of a year
+	 */
+	const FORMAT_YEAR_DIGIT_2 = 'y';
+
+	/**
+	 * A full numeric representation of a year, 4 digits
+	 */
+	const FORMAT_YEAR_NUMBER = 'Y';
+
+	/**
+	 * Day of the year, starting from zero.
+	 */
+	const FORMAT_YEAR_DAY_NUMBER = 'z';
+
+	/**
+	 * Abbreviated month name, based on the locale
+	 */
+	const FORMAT_MONTH_ALPHA_3 = 'M';
+
+	/**
+	 * Full month name, based on the locale
+	 */
+	const FORMAT_MONTH_NAME = 'F';
+
+	/**
+	 * Two digit representation of the month
+	 */
+	const FORMAT_MONTH_DIGIT_2 = 'm';
+
+	/**
+	 * Month number without leading zero
+	 */
+	const FORMAT_MONTH_NUMBER = 'n';
+
+	/**
+	 * Number of day in the current month
+	 */
+	const FORMAT_MONTH_DAY_COUNT = 't';
+
+	/**
+	 * A numeric representation of the week of the year, starting with the first Monday as the first
+	 * week
+	 */
+	const FORMAT_WEEK_DIGIT_2 = 'W';
+
+	/**
+	 * ISO-8601 numeric representation of the day of the week.
+	 *
+	 * 1 = Monday
+	 * 7 = Sunday
+	 */
+	const FORMAT_WEEK_DAY_ISO8601 = 'N';
+
+	/**
+	 * Numeric representation of the day of the week.
+	 *
+	 * 0 = Sunday
+	 * 6 = Saturday
+	 */
+	const FORMAT_WEEK_DAY_NUMBER = 'w';
+
+	/**
+	 * English ordinal suffix for the day of the month, 2 character
+	 */
+	const FORMAT_WEEK_DAY_EN_ALPHA_2 = 'S';
+
+	/**
+	 * A textual representation of a day, three letters
+	 */
+	const FORMAT_DAY_ALPHA_3 = 'D';
+
+	/**
+	 * A full textual representation of the day
+	 */
+	const FORMAT_DAY_NAME = 'l';
+
+	/**
+	 * Two-digit day of the month (with leading zeros)
+	 */
+	const FORMAT_DAY_DIGIT_2 = 'd';
+
+	/**
+	 * Day of the month without leading zeros
+	 */
+	const FORMAT_DAY_NUMBER = 'j';
+
+	/**
+	 * Two digit representation of the hour in 24-hour format
+	 */
+	const FORMAT_HOUR_24_DIGIT_2 = 'H';
+
+	/**
+	 * Hour in 24-hour format, with a space preceding single digits
+	 */
+	const FORMAT_HOUR_24_PADDED = 'G';
+
+	/**
+	 * Two digit representation of the hour in 12-hour format
+	 */
+	const FORMAT_HOUR_12_DIGIT_2 = 'h';
+
+	/**
+	 * Hour in 12-hour format, with a space preceding single digits.
+	 *
+	 * 1 through 12
+	 */
+	const FORMAT_HOUR_12_PADDED = 'g';
+
+	/**
+	 * Swatch internet time
+	 *
+	 * 0 to 999
+	 */
+	const FORMAT_SWATCH_TIME = 'B';
+
+	/**
+	 * Seconds since the Unix Epoch (January 1 1970 00:00:00 GMT)
+	 *
+	 * @var string
+	 */
+	const FORMAT_EPOCH_OFFSET = 'U';
+
+	/**
+	 * UPPER-CASE 'AM' or 'PM' based on the given time
+	 */
+	const FORMAT_HOUR_AM_UPPERCASE = 'A';
+
+	/**
+	 * lower-case 'am' or 'pm' based on the given time
+	 */
+	const FORMAT_HOUR_AM_LOWERCASE = 'a';
+
+	/**
+	 * Two digit representation of the minute.
+	 *
+	 * 00 through 59
+	 */
+	const FORMAT_MINUTE_DIGIT_2 = 'i';
+
+	/**
+	 * Two digit representation of the second.
+	 *
+	 * 00 through 59
+	 */
+	const FORMAT_SECOND_DIGIT_2 = 's';
+
+	/**
+	 * Millisecondes
+	 */
+	const FORMAT_MILLISECOND = 'v';
+
+	/**
+	 * Microsecondes
+	 */
+	const FORMAT_MICROSECOND = 'u';
+
+	/**
+	 * Timezone offset in seconds
+	 */
+	const FORMAT_TIMEZONE_OFFSET = 'Z';
+
+	/**
+	 * GMT offset (colon)
+	 */
+	const FORMAT_TIMEZONE_GMT_OFFSET_COLON = 'P';
+
+	/**
+	 * GMT offset
+	 */
+	const FORMAT_TIMEZONE_GMT_OFFSET = 'O';
+
+	/**
+	 * Time zone identifier
+	 *
+	 * Ex: Europe/Berlin
+	 */
+	const FORMAT_TIMEZONE_NAME = 'e';
+
+	/**
+	 * Daylight indicator
+	 *
+	 * 0 or 1
+	 */
+	const FORMAT_TIMEZONE_DST = 'I';
+
+	/**
+	 * The time zone abbreviation
+	 */
+	const FORMAT_TIMEZONE_ALPHA_3 = 'T';
+
+	/**
+	 * ISO 8601 date
+	 *
+	 * @var string
+	 */
+	const FORMAT_TIMESTAMP_ISO8601 = 'c';
+
+	/**
+	 * RFC 2822 formatted date
+	 *
+	 * @var string
+	 */
+	const FORMAT_TIMESTAMP_RFC2822 = 'r';
 
 	/**
 	 *
@@ -28,7 +245,8 @@ class DateTime extends \DateTime implements IntegerRepresentation, FloatRepresen
 	 *        	</ul>
 	 * @param \DateTimeZone $timezone
 	 */
-	public function __construct($time = null, \DateTimeZone $timezone = null)
+	public function __construct($time = null,
+		\DateTimeZone $timezone = null)
 	{
 		if (\is_integer($time))
 		{
@@ -68,7 +286,8 @@ class DateTime extends \DateTime implements IntegerRepresentation, FloatRepresen
 	 *
 	 * @see https://en.wikipedia.org/wiki/Julian_day#Converting_Gregorian_calendar_date_to_Julian_Day_Number
 	 */
-	public static function toJulianDayNumber(\DateTimeInterface $dateTime, $utc = true)
+	public static function toJulianDayNumber(
+		\DateTimeInterface $dateTime, $utc = true)
 	{
 		if ($utc && ($dateTime->getOffset() != 0))
 		{
@@ -84,7 +303,8 @@ class DateTime extends \DateTime implements IntegerRepresentation, FloatRepresen
 			\floor(
 				(1461 * ($Y + 4800 + ($M - 14) / 12)) / 4 +
 				(367 * ($M - 2 - 12 * (($M - 14) / 12))) / 12 -
-				(3 * (($Y + 4900 + ($M - 14) / 12) / 100)) / 4 + $D - 32075));
+				(3 * (($Y + 4900 + ($M - 14) / 12) / 100)) / 4 + $D -
+				32075));
 	}
 
 	/**
@@ -116,7 +336,8 @@ class DateTime extends \DateTime implements IntegerRepresentation, FloatRepresen
 	 *
 	 * @see https://en.wikipedia.org/wiki/Julian_day#Finding_Julian_date_given_Julian_day_number_and_time_of_day
 	 */
-	public static function toJulianDay(\DateTimeInterface $dateTime, $utc = true)
+	public static function toJulianDay(\DateTimeInterface $dateTime,
+		$utc = true)
 	{
 		if ($dateTime->getOffset() != 0)
 		{
@@ -124,12 +345,16 @@ class DateTime extends \DateTime implements IntegerRepresentation, FloatRepresen
 			$dateTime->setTimezone(self::getUTCTimezone());
 		}
 
-		$hour = \floatval($dateTime->format('H'));
-		$minute = \floatval($dateTime->format('i'));
-		$seconds = \floatval($dateTime->format('s'));
+		$hour = \floatval(
+			$dateTime->format(self::FORMAT_HOUR_24_DIGIT_2));
+		$minute = \floatval(
+			$dateTime->format(self::FORMAT_MINUTE_DIGIT_2));
+		$seconds = \floatval(
+			$dateTime->format(self::FORMAT_SECOND_DIGIT_2));
 		$jd = \floatval(self::toJulianDayNumber($dateTime));
 
-		return $jd + ($hour - 12.0) / 24.0 + $minute / 1440.0 + $seconds / 86400.0;
+		return $jd + ($hour - 12.0) / 24.0 + $minute / 1440.0 +
+			$seconds / 86400.0;
 	}
 
 	/**
@@ -286,7 +511,8 @@ class DateTime extends \DateTime implements IntegerRepresentation, FloatRepresen
 				$timezone = $instance->getTimezone();
 			}
 		}
-		elseif (Container::keyExists($array, 'format') && Container::keyExists($array, 'time'))
+		elseif (Container::keyExists($array, 'format') &&
+			Container::keyExists($array, 'time'))
 		{
 			$timezone = Container::keyValue($array, 'timezone', null);
 			if (\is_string($timezone))
@@ -294,7 +520,8 @@ class DateTime extends \DateTime implements IntegerRepresentation, FloatRepresen
 				$timezone = new \DateTimeZone($timezone);
 			}
 
-			$instance = \DateTime::createFromFormat(Container::keyValue($array, 'format'),
+			$instance = \DateTime::createFromFormat(
+				Container::keyValue($array, 'format'),
 				Container::keyValue($array, 'time'), $timezone);
 		}
 
@@ -303,7 +530,8 @@ class DateTime extends \DateTime implements IntegerRepresentation, FloatRepresen
 			if ($baseClass)
 				return $instance;
 
-			return new DateTime($instance->format(\DateTime::ISO8601), $timezone);
+			return new DateTime($instance->format(\DateTime::ISO8601),
+				$timezone);
 		}
 
 		throw new \InvalidArgumentException(
@@ -363,28 +591,28 @@ class DateTime extends \DateTime implements IntegerRepresentation, FloatRepresen
 	 *
 	 * @var string
 	 */
-	const FORMAT_LABEL = 'label';
+	const FORMAT_DESCRIPTION_LABEL = 'label';
 
 	/**
 	 * Timestamp format token value range
 	 *
 	 * @var string
 	 */
-	const FORMAT_RANGE = 'range';
+	const FORMAT_DESCRIPTION_RANGE = 'range';
 
 	/**
 	 * Strict equivalent format token for the strftime() function
 	 *
 	 * @var string
 	 */
-	const FORMAT_STRFTIME = 'strftime';
+	const FORMAT_DESCRIPTION_STRFTIME = 'strftime';
 
 	/**
 	 * Timestamp format token additional informations
 	 *
 	 * @var string
 	 */
-	const FORMAT_DETAILS = 'details';
+	const FORMAT_DESCRIPTION_DETAILS = 'details';
 
 	/**
 	 * Description of PHP date() function tokens
@@ -400,68 +628,68 @@ class DateTime extends \DateTime implements IntegerRepresentation, FloatRepresen
 			self::$formatTokenDescriptions = new \ArrayObject(
 				[
 					// Year
-					'L' => [
-						self::FORMAT_LABEL => 'Leap year indicator',
-						self::FORMAT_RANGE => [
+					self::FORMAT_YEAR_LEAP => [
+						self::FORMAT_DESCRIPTION_LABEL => 'Leap year indicator',
+						self::FORMAT_DESCRIPTION_RANGE => [
 							0,
 							1
 						]
 					],
-					'o' => [
-						self::FORMAT_LABEL => 'ISO-8601 week-numbering year',
-						self::FORMAT_DETAILS => 'Same value as Y, except that if the ISO week number (W) belongs to the previous or next year, that year is used instead',
-						self::FORMAT_STRFTIME => '%G'
+					self::FORMAT_YEAR_ISO8601 => [
+						self::FORMAT_DESCRIPTION_LABEL => 'ISO-8601 week-numbering year',
+						self::FORMAT_DESCRIPTION_DETAILS => 'Same value as Y, except that if the ISO week number (W) belongs to the previous or next year, that year is used instead',
+						self::FORMAT_DESCRIPTION_STRFTIME => '%G'
 					],
-					'Y' => [
-						self::FORMAT_LABEL => 'Year',
-						self::FORMAT_STRFTIME => '%Y'
+					self::FORMAT_YEAR_NUMBER => [
+						self::FORMAT_DESCRIPTION_LABEL => 'Year',
+						self::FORMAT_DESCRIPTION_STRFTIME => '%Y'
 					],
-					'y' => [
-						self::FORMAT_LABEL => '2-letters Year',
-						self::FORMAT_STRFTIME => '%y'
+					self::FORMAT_YEAR_DIGIT_2 => [
+						self::FORMAT_DESCRIPTION_LABEL => '2-letters Year',
+						self::FORMAT_DESCRIPTION_STRFTIME => '%y'
 					],
 
 					// Week
 
-					'W' => [
-						self::FORMAT_LABEL => 'ISO 8601 Week number of the year',
-						self::FORMAT_DETAILS => 'Starting on Monday',
-						self::FORMAT_RANGE => [
+					self::FORMAT_WEEK_DIGIT_2 => [
+						self::FORMAT_DESCRIPTION_LABEL => 'ISO 8601 Week number of the year',
+						self::FORMAT_DESCRIPTION_DETAILS => 'Starting on Monday',
+						self::FORMAT_DESCRIPTION_RANGE => [
 							0,
 							53
 						],
-						self::FORMAT_STRFTIME => '%W'
+						self::FORMAT_DESCRIPTION_STRFTIME => '%W'
 					],
 
 					// Month
 
-					'F' => [
-						self::FORMAT_LABEL => 'Month name',
-						self::FORMAT_STRFTIME => '%B'
+					self::FORMAT_MONTH_NAME => [
+						self::FORMAT_DESCRIPTION_LABEL => 'Month name',
+						self::FORMAT_DESCRIPTION_STRFTIME => '%B'
 					],
-					'M' => [
-						self::FORMAT_LABEL => '3-letters month name',
-						self::FORMAT_STRFTIME => '%b'
+					self::FORMAT_MONTH_ALPHA_3 => [
+						self::FORMAT_DESCRIPTION_LABEL => '3-letters month name',
+						self::FORMAT_DESCRIPTION_STRFTIME => '%b'
 					],
-					'm' => [
-						self::FORMAT_LABEL => 'Month number of the year',
-						self::FORMAT_RANGE => [
+					self::FORMAT_MONTH_DIGIT_2 => [
+						self::FORMAT_DESCRIPTION_LABEL => 'Month number of the year',
+						self::FORMAT_DESCRIPTION_RANGE => [
 							1,
 							12
 						],
-						self::FORMAT_STRFTIME => '%m'
+						self::FORMAT_DESCRIPTION_STRFTIME => '%m'
 					],
-					'n' => [
-						self::FORMAT_LABEL => 'Month number of the year',
-						self::FORMAT_DETAILS => 'Without leading zero',
-						self::FORMAT_RANGE => [
+					self::FORMAT_MONTH_NUMBER => [
+						self::FORMAT_DESCRIPTION_LABEL => 'Month number of the year',
+						self::FORMAT_DESCRIPTION_DETAILS => 'Without leading zero',
+						self::FORMAT_DESCRIPTION_RANGE => [
 							1,
 							12
 						]
 					],
-					't' => [
-						self::FORMAT_LABEL => 'Number of days in the month',
-						self::FORMAT_RANGE => [
+					self::FORMAT_MONTH_DAY_COUNT => [
+						self::FORMAT_DESCRIPTION_LABEL => 'Number of days in the month',
+						self::FORMAT_DESCRIPTION_RANGE => [
 							28,
 							31
 						]
@@ -469,54 +697,57 @@ class DateTime extends \DateTime implements IntegerRepresentation, FloatRepresen
 
 					// Day
 
-					'd' => [
-						self::FORMAT_LABEL => 'Day number of the month',
-						self::FORMAT_RANGE => [
+					self::FORMAT_DAY_DIGIT_2 => [
+						self::FORMAT_DESCRIPTION_LABEL => 'Day number of the month',
+						self::FORMAT_DESCRIPTION_RANGE => [
 							1,
 							31
 						],
-						self::FORMAT_STRFTIME => '%d'
+						self::FORMAT_DESCRIPTION_STRFTIME => '%d'
 					],
 					'D' => [
-						self::FORMAT_LABEL => '3-letters day name'
+						self::FORMAT_DESCRIPTION_LABEL => '3-letters day name'
 					],
-					'j' => [
-						self::FORMAT_LABEL => 'Day number of month',
-						self::FORMAT_DETAILS => 'Without leading zero',
-						self::FORMAT_RANGE => [
+					self::FORMAT_DAY_NUMBER => [
+						self::FORMAT_DESCRIPTION_LABEL => 'Day number of month',
+						self::FORMAT_DESCRIPTION_DETAILS => 'Without leading zero',
+						self::FORMAT_DESCRIPTION_RANGE => [
 							1,
 							31
 						],
-						self::FORMAT_STRFTIME => '%e'
+						self::FORMAT_DESCRIPTION_STRFTIME => '%e'
 					],
-					'l' => [
-						self::FORMAT_LABEL => 'Day name',
-						self::FORMAT_STRFTIME => '%A'
+					self::FORMAT_WEEK_DAY_EN_ALPHA_2 => [
+						self::FORMAT_DESCRIPTION_LABEL => 'English ordinal suffix for the day of the month, 2 character'
 					],
-					'N' => [
-						self::FORMAT_LABEL => 'ISO 8601 day number of the week',
-						self::FORMAT_DETAILS => 'From Monday to Sunday',
-						self::FORMAT_RANGE => [
+					self::FORMAT_DAY_NAME => [
+						self::FORMAT_DESCRIPTION_LABEL => 'Day name',
+						self::FORMAT_DESCRIPTION_STRFTIME => '%A'
+					],
+					self::FORMAT_WEEK_DAY_ISO8601 => [
+						self::FORMAT_DESCRIPTION_LABEL => 'ISO 8601 day number of the week',
+						self::FORMAT_DESCRIPTION_DETAILS => 'From Monday to Sunday',
+						self::FORMAT_DESCRIPTION_RANGE => [
 							1,
 							7
 						],
-						self::FORMAT_STRFTIME => '%u'
+						self::FORMAT_DESCRIPTION_STRFTIME => '%u'
 					],
-					'S' => [
-						self::FORMAT_LABEL => '2-letters english day name'
+					self::FORMAT_WEEK_DAY_NUMBER => [
+						self::FORMAT_DESCRIPTION_LABEL => '2-letters english day name'
 					],
-					'w' => [
-						self::FORMAT_LABEL => 'Day number of the week',
-						self::FORMAT_DETAILS => 'From Sunday to Saturday',
-						self::FORMAT_RANGE => [
+					self::FORMAT_WEEK_DAY_NUMBER => [
+						self::FORMAT_DESCRIPTION_LABEL => 'Day number of the week',
+						self::FORMAT_DESCRIPTION_DETAILS => 'From Sunday to Saturday',
+						self::FORMAT_DESCRIPTION_RANGE => [
 							0,
 							6
 						],
-						self::FORMAT_STRFTIME => '%w'
+						self::FORMAT_DESCRIPTION_STRFTIME => '%w'
 					],
-					'z' => [
-						self::FORMAT_LABEL => 'Day number of the year',
-						self::FORMAT_RANGE => [
+					self::FORMAT_YEAR_DAY_NUMBER => [
+						self::FORMAT_DESCRIPTION_LABEL => 'Day number of the year',
+						self::FORMAT_DESCRIPTION_RANGE => [
 							0,
 							365
 						]
@@ -524,83 +755,83 @@ class DateTime extends \DateTime implements IntegerRepresentation, FloatRepresen
 
 					// Hour
 
-					'a' => [
-						self::FORMAT_LABEL => 'Ante meridiem and Post meridiem',
-						self::FORMAT_DETAILS => 'Lowercase',
-						self::FORMAT_STRFTIME => '%P'
+					self::FORMAT_HOUR_AM_LOWERCASE => [
+						self::FORMAT_DESCRIPTION_LABEL => 'Ante meridiem and Post meridiem',
+						self::FORMAT_DESCRIPTION_DETAILS => 'Lowercase',
+						self::FORMAT_DESCRIPTION_STRFTIME => '%P'
 					],
-					'A' => [
-						self::FORMAT_LABEL => 'Ante meridiem and Post meridiem',
-						self::FORMAT_DETAILS => 'Uppercase',
-						self::FORMAT_STRFTIME => '%p'
+					self::FORMAT_HOUR_AM_UPPERCASE => [
+						self::FORMAT_DESCRIPTION_LABEL => 'Ante meridiem and Post meridiem',
+						self::FORMAT_DESCRIPTION_DETAILS => 'Uppercase',
+						self::FORMAT_DESCRIPTION_STRFTIME => '%p'
 					],
 
-					'g' => [
-						self::FORMAT_LABEL => '12-hour day hour',
-						self::FORMAT_DETAILS => 'Without leading zero',
-						self::FORMAT_RANGE => [
+					self::FORMAT_HOUR_12_PADDED => [
+						self::FORMAT_DESCRIPTION_LABEL => '12-hour day hour',
+						self::FORMAT_DESCRIPTION_DETAILS => 'Without leading zero',
+						self::FORMAT_DESCRIPTION_RANGE => [
 							1,
 							12
 						],
-						self::FORMAT_STRFTIME => '%l'
+						self::FORMAT_DESCRIPTION_STRFTIME => '%l'
 					],
-					'G' => [
-						self::FORMAT_LABEL => '24-hour day hour',
-						self::FORMAT_DETAILS => 'Without leading zero',
-						self::FORMAT_RANGE => [
+					self::FORMAT_HOUR_24_PADDED => [
+						self::FORMAT_DESCRIPTION_LABEL => '24-hour day hour',
+						self::FORMAT_DESCRIPTION_DETAILS => 'Without leading zero',
+						self::FORMAT_DESCRIPTION_RANGE => [
 							0,
 							23
 						],
-						self::FORMAT_STRFTIME => '%k'
+						self::FORMAT_DESCRIPTION_STRFTIME => '%k'
 					],
-					'h' => [
-						self::FORMAT_LABEL => '12-hour day hour',
-						self::FORMAT_RANGE => [
+					self::FORMAT_HOUR_12_DIGIT_2 => [
+						self::FORMAT_DESCRIPTION_LABEL => '12-hour day hour',
+						self::FORMAT_DESCRIPTION_RANGE => [
 							1,
 							12
 						],
-						self::FORMAT_STRFTIME => '%I'
+						self::FORMAT_DESCRIPTION_STRFTIME => '%I'
 					],
-					'H' => [
-						self::FORMAT_LABEL => '24-hour day hour',
-						self::FORMAT_RANGE => [
+					self::FORMAT_HOUR_24_DIGIT_2 => [
+						self::FORMAT_DESCRIPTION_LABEL => '24-hour day hour',
+						self::FORMAT_DESCRIPTION_RANGE => [
 							0,
 							23
 						],
-						self::FORMAT_STRFTIME => '%H'
+						self::FORMAT_DESCRIPTION_STRFTIME => '%H'
 					],
 
 					// Minutes
 
-					'i' => [
-						self::FORMAT_LABEL => 'Minutes',
-						self::FORMAT_RANGE => [
+					self::FORMAT_MINUTE_DIGIT_2 => [
+						self::FORMAT_DESCRIPTION_LABEL => 'Minutes',
+						self::FORMAT_DESCRIPTION_RANGE => [
 							0,
 							56
 						],
-						self::FORMAT_STRFTIME => '%M'
+						self::FORMAT_DESCRIPTION_STRFTIME => '%M'
 					],
 
 					// Seconds
 
-					's' => [
-						self::FORMAT_LABEL => 'Seconds',
-						self::FORMAT_RANGE => [
+					self::FORMAT_SECOND_DIGIT_2 => [
+						self::FORMAT_DESCRIPTION_LABEL => 'Seconds',
+						self::FORMAT_DESCRIPTION_RANGE => [
 							0,
 							56
 						],
-						self::FORMAT_STRFTIME => '%S'
+						self::FORMAT_DESCRIPTION_STRFTIME => '%S'
 					],
-					'v' => [
-						self::FORMAT_LABEL => 'Milliseconds',
-						self::FORMAT_RANGE => [
+					self::FORMAT_MILLISECOND => [
+						self::FORMAT_DESCRIPTION_LABEL => 'Milliseconds',
+						self::FORMAT_DESCRIPTION_RANGE => [
 							0,
 							999
 						]
 					],
-					'u' => [
-						self::FORMAT_LABEL => 'Microseconds',
-						self::FORMAT_RANGE => [
+					self::FORMAT_MICROSECOND => [
+						self::FORMAT_DESCRIPTION_LABEL => 'Microseconds',
+						self::FORMAT_DESCRIPTION_RANGE => [
 							0,
 							999999
 						]
@@ -608,64 +839,65 @@ class DateTime extends \DateTime implements IntegerRepresentation, FloatRepresen
 
 					// Time zone
 
-					'I' => [
-						self::FORMAT_LABEL => 'Daylight saving time indicator',
-						self::FORMAT_RANGE => [
+					self::FORMAT_TIMEZONE_DST => [
+						self::FORMAT_DESCRIPTION_LABEL => 'Daylight saving time indicator',
+						self::FORMAT_DESCRIPTION_RANGE => [
 							0,
 							1
 						]
 					],
 
-					'e' => [
-						self::FORMAT_LABEL => 'Timezone identifier'
+					self::FORMAT_TIMEZONE_NAME => [
+						self::FORMAT_DESCRIPTION_LABEL => 'Timezone identifier'
 					],
 
-					'O' => [
-						self::FORMAT_LABEL => 'GMT offset',
-						self::FORMAT_DETAILS => 'Without colon separator'
+					self::FORMAT_TIMEZONE_GMT_OFFSET => [
+						self::FORMAT_DESCRIPTION_LABEL => 'GMT offset',
+						self::FORMAT_DESCRIPTION_DETAILS => 'Without colon separator'
 					],
-					'P' => [
-						self::FORMAT_LABEL => 'GMT offset'
-					],
-
-					'T' => [
-						self::FORMAT_LABEL => 'Timezone abbreviation'
+					self::FORMAT_TIMEZONE_GMT_OFFSET_COLON => [
+						self::FORMAT_DESCRIPTION_LABEL => 'GMT offset'
 					],
 
-					'Z' => [
-						self::FORMAT_LABEL => 'Timezone offset in seconds',
-						self::FORMAT_STRFTIME => '%z'
+					self::FORMAT_TIMEZONE_ALPHA_3 => [
+						self::FORMAT_DESCRIPTION_LABEL => 'Timezone abbreviation'
+					],
+
+					self::FORMAT_TIMEZONE_OFFSET => [
+						self::FORMAT_DESCRIPTION_LABEL => 'Timezone offset in seconds',
+						self::FORMAT_DESCRIPTION_STRFTIME => '%z'
 					],
 
 					// Shorthands
 
-					'c' => [
-						self::FORMAT_LABEL => 'ISO 8601 date'
+					self::FORMAT_TIMESTAMP_ISO8601 => [
+						self::FORMAT_DESCRIPTION_LABEL => 'ISO 8601 date'
 					],
-					'r' => [
-						self::FORMAT_LABEL => 'RFC 2822 date'
+					self::FORMAT_TIMESTAMP_RFC2822 => [
+						self::FORMAT_DESCRIPTION_LABEL => 'RFC 2822 date'
 					],
 
 					// Misc
 
-					'B' => [
-						self::FORMAT_LABEL => 'Swatch internet time',
-						self::FORMAT_RANGE => [
+					self::FORMAT_SWATCH_TIME => [
+						self::FORMAT_DESCRIPTION_LABEL => 'Swatch internet time',
+						self::FORMAT_DESCRIPTION_RANGE => [
 							0,
 							999
 						]
 					],
 
-					'U' => [
-						self::FORMAT_LABEL => 'Number of seconds since UNIX epoch',
-						self::FORMAT_DETAILS => 'Since January 1 1970 00:00:00 GM',
-						self::FORMAT_STRFTIME => '%s'
+					self::FORMAT_EPOCH_OFFSET => [
+						self::FORMAT_DESCRIPTION_LABEL => 'Number of seconds since UNIX epoch',
+						self::FORMAT_DESCRIPTION_DETAILS => 'Since January 1 1970 00:00:00 GM',
+						self::FORMAT_DESCRIPTION_STRFTIME => '%s'
 					]
 				]);
 		}
 
 		if (\is_string($token))
-			return Container::keyValue(self::$formatTokenDescriptions, $token, false);
+			return Container::keyValue(self::$formatTokenDescriptions,
+				$token, false);
 
 		return self::$formatTokenDescriptions;
 	}
