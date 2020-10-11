@@ -187,6 +187,16 @@ final class DataTreeTest extends \PHPUnit\Framework\TestCase
 		}
 	}
 
+	public function testException()
+	{
+		$this->expectException(DataTreeElementNotFoundException::class);
+		$dt = new DataTree([
+			'foo' => 'bar'
+		]);
+
+		return $dt->get('fii');
+	}
+
 	private $derived;
 
 	public function testClassTypePreservation()

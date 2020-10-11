@@ -10,8 +10,7 @@ use Psr\Container\NotFoundExceptionInterface;
 /**
  * Exception railsed by DataTree methods implementing the PSR ContainerInterface
  */
-class DataTreeElementNotFoundException extends \InvalidArgumentException implements
-	NotFoundExceptionInterface
+class DataTreeElementNotFoundException extends KeyNotFoundException
 {
 
 	/**
@@ -28,7 +27,7 @@ class DataTreeElementNotFoundException extends \InvalidArgumentException impleme
 	 */
 	public function __construct(DataTree $tree, $key)
 	{
-		parent::\__construct(\strval($key) . ' element not found', 404);
-		$this->dataTree;
+		parent::__construct($key);
+		$this->dataTree = $tree;
 	}
 }
