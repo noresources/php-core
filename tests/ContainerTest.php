@@ -773,6 +773,47 @@ final class ContainerTest extends \PHPUnit\Framework\TestCase
 		];
 		$this->assertEquals($a, Container::createArray($a), 'Array');
 	}
+
+	public function testMap()
+	{
+		$input = [
+			'foo' => 'bar',
+			'bar' => 'baz'
+		];
+
+		$expected = [
+			'foo' => 'foo.BAR',
+			'bar' => 'bar.BAZ'
+		];
+
+		$actual = Container::map($input,
+			function ($k, $v) {
+				return $k . '.' . \strtoupper($v);
+			});
+
+		$this->assertEquals($expected, $actual,
+			'map without aadditional arguments');
+
+		$expected = [
+			'foo' => 'foo.BAR.suffix',
+			'bar' => 'bar.BAZ.suffix'
+		];
+
+		$actual = Container::map($input,
+			function ($k, $v, $suffix) {
+				return $k . '.' . \strtoupper($v) . '.' . $suffix;
+			}, 'suffix');
+
+		$this->assertEquals($expected, $actual,
+			'map with aadditional arguments');
+
+		Container::walk($input,
+			function ($k, $v, $suffix) {
+				return $k . '.' . \strtoupper($v) . '.' . $suffix;
+			}, 'suffix');
+
+		$this->assertEquals($expected, $input, 'Walk');
+	}
 }
 
 

@@ -914,6 +914,80 @@ class Container
 		return $result;
 	}
 
+	/**
+	 * Returns an array containing the results of applying the callback to each of input container
+	 * elements.
+	 *
+	 * @param mixed $container
+	 *        	Container
+	 * @param callable $callable
+	 *        	Callable to apply on each $container elements
+	 * @throws InvalidContainerException
+	 * @return array
+	 *
+	 * @see https://www.php.net/manual/en/function.array-map.php
+	 */
+	public static function map($container, $callable)
+	{
+		$properties = self::properties($container);
+		$expected = self::TRAVERSABLE;
+		if (($properties & $expected) != $expected)
+			throw new InvalidContainerException($container);
+
+		$args = \array_slice(func_get_args(), 2);
+
+		$result = [];
+
+		if (self::count($args))
+			foreach ($container as $key => $value)
+				$result[$key] = \call_user_func_array($callable,
+					\array_merge([
+						$key,
+						$value
+					], $args));
+		else
+			foreach ($container as $key => $value)
+				$result[$key] = \call_user_func($callable, $key, $value);
+
+		return $result;
+	}
+
+	/**
+	 * Applies the user-defined callback function to each element of the container $container.
+	 *
+	 * @param mixed $container
+	 *        	Container
+	 * @param callable $callable
+	 *        	Callable to apply on each elements of $container
+	 * @throws InvalidContainerException
+	 * @return $container
+	 */
+	public static function walk(&$container, $callable)
+	{
+		$properties = self::properties($container);
+		$expected = self::TRAVERSABLE | self::RANDOM_ACCESS |
+			self::MODIFIABLE;
+		if (($properties & $expected) != $expected)
+			throw new InvalidContainerException($container);
+
+		$args = \array_slice(func_get_args(), 2);
+
+		if (self::count($args))
+			foreach ($container as $key => $value)
+				self::setValue($container, $key,
+					\call_user_func_array($callable,
+						\array_merge([
+							$key,
+							$value
+						], $args)));
+		else
+			foreach ($container as $key => $value)
+				self::setValue($container, $key,
+					\call_user_func($callable, $key, $value));
+
+		return $container;
+	}
+
 	private static function implodeParts($parts, $b, $i, $p, $a)
 	{
 		$count = self::count($parts);
