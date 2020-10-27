@@ -13,7 +13,7 @@ use Psr\Log\LoggerInterface;
 class Reporter
 {
 
-	use StaticallyCallableSingletonTrait;
+	use SingletonTrait;
 
 	/**
 	 * Add a replace a logger.
@@ -27,10 +27,7 @@ class Reporter
 	 */
 	public function registerLogger($key, LoggerInterface $logger)
 	{
-		if (isset($this))
-			$this->loggers[$key] = $logger;
-		else
-			self::getInstance()->registerLogger($key, $logger);
+		$this->loggers[$key] = $logger;
 	}
 
 	/**
@@ -43,10 +40,7 @@ class Reporter
 	 */
 	public function unregisterLogger($key)
 	{
-		if (isset($this))
-			Container::removeKey($this->loggers, $key);
-		else
-			self::getInstance()->unregisterLogger($key, $logger);
+		Container::removeKey($this->loggers, $key);
 	}
 
 	/**
@@ -91,6 +85,14 @@ class Reporter
 				$method
 			], $args);
 		}
+	}
+
+	public static function __callStatic($method, $args)
+	{
+		return \call_user_func_array([
+			self::getInstance(),
+			$method
+		], $args);
 	}
 
 	public function __construct()

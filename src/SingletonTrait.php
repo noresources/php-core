@@ -14,17 +14,19 @@ trait SingletonTrait
 	/**
 	 * Get the class singleton instance
 	 *
-	 * @return object Class singleton instance. If the singleton was not created yet,
+	 * @return $this Class singleton instance. If the singleton was not created yet,
 	 *         the instance will be created by calling the class constructor with the arguments
 	 *         given to the getInstance() method
 	 */
 	public static function getInstance()
 	{
-		if (\is_a(self::$singletonInstance, static::class))
-			return self::$singletonInstance;
+		if (!isset(self::$singletonInstance))
+		{
+			$cls = new \ReflectionClass(static::class);
+			self::$singletonInstance = $cls->newInstanceArgs(
+				func_get_args());
+		}
 
-		$cls = new \ReflectionClass(static::class);
-		self::$singletonInstance = $cls->newInstanceArgs(func_get_args());
 		return self::$singletonInstance;
 	}
 

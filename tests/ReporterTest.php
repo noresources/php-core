@@ -38,8 +38,9 @@ final class ReporterTest extends \PHPUnit\Framework\TestCase
 
 	final function testMagic()
 	{
-		Reporter::registerLogger('echo', new EchoLogger());
-		Reporter::registerLogger('echo2', new EchoLogger());
+		$instance = Reporter::getInstance();
+		$instance->registerLogger('echo', new EchoLogger());
+		$instance->registerLogger('echo2', new EchoLogger());
 
 		ob_start();
 		Reporter::warning('invoke warning statically');
