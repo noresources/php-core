@@ -31,7 +31,8 @@ class TypeConversion
 			], $value, $fallback);
 
 		throw new \BadMethodCallException(
-			'Mo method to convert to ' . $type . ' (' . $methodName . ' not found)');
+			'Mo method to convert to ' . $type . ' (' . $methodName .
+			' not found)');
 	}
 
 	/**
@@ -44,7 +45,7 @@ class TypeConversion
 	 * @throws TypeConversionException
 	 * @return array
 	 */
-	public function toArray($value, $fallback = null)
+	public static function toArray($value, $fallback = null)
 	{
 		try
 		{
@@ -214,7 +215,8 @@ class TypeConversion
 		if ($value instanceof \DateTime)
 			return $value->format(\DateTIme::ISO8601);
 
-		if ((\is_object($value) && !\method_exists($value, '__toString')) || \is_array($value))
+		if ((\is_object($value) && !\method_exists($value, '__toString')) ||
+			\is_array($value))
 		{
 			if (\is_callable($fallback))
 				return call_user_func($fallback, $value);
