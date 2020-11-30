@@ -43,10 +43,13 @@ class DerivedFileManager extends \PHPUnit\Framework\TestCase
 	 * @param unknown $suffix
 	 * @param unknown $extension
 	 */
-	public function assertDerivedFile($data, $method, $suffix, $extension, $label = '', $eol = null)
+	public function assertDerivedFile($data, $method, $suffix,
+		$extension, $label = '', $eol = null)
 	{
-		$reference = $this->buildFilename(self::DIRECTORY_REFERENCE, $method, $suffix, $extension);
-		$derived = $this->buildFilename(self::DIRECTORY_DERIVED, $method, $suffix, $extension);
+		$reference = $this->buildFilename(self::DIRECTORY_REFERENCE,
+			$method, $suffix, $extension);
+		$derived = $this->buildFilename(self::DIRECTORY_DERIVED, $method,
+			$suffix, $extension);
 		if (\strlen($label) == 0)
 			$label = \basename($derived);
 		$label = (strlen($label) ? ($label . ': ') : '');
@@ -57,7 +60,8 @@ class DerivedFileManager extends \PHPUnit\Framework\TestCase
 		{
 			$result = file_put_contents($derived, $data);
 			$this->assertNotFalse($result, $label . 'Write derived data');
-			$this->assertFileExists($derived, $label . 'Derived file exists');
+			$this->assertFileExists($derived,
+				$label . 'Derived file exists');
 
 			if ($result)
 			{
@@ -80,8 +84,10 @@ class DerivedFileManager extends \PHPUnit\Framework\TestCase
 			if ($result)
 			{
 				$result = file_put_contents($reference, $data);
-				$this->assertNotFalse($result, $label . 'Write reference data to ' . $reference);
-				$this->assertFileExists($reference, $label . 'Reference file exists');
+				$this->assertNotFalse($result,
+					$label . 'Write reference data to ' . $reference);
+				$this->assertFileExists($reference,
+					$label . 'Reference file exists');
 			}
 		}
 
@@ -94,16 +100,19 @@ class DerivedFileManager extends \PHPUnit\Framework\TestCase
 			$this->derivedDataFiles->offsetSet($path, $value);
 	}
 
-	public function registerDerivedFile($subDirectory, $method, $suffix, $extension)
+	public function registerDerivedFile($subDirectory, $method, $suffix,
+		$extension)
 	{
 		$directory = self::DIRECTORY_DERIVED;
 
-		$path = self::buildFilename($directory, $method, $suffix, $extension);
+		$path = self::buildFilename($directory, $method, $suffix,
+			$extension);
 
 		if (\is_string($subDirectory) && strlen($subDirectory))
 		{
 			$pi = pathinfo($path);
-			$path = $pi['dirname'] . '/' . $subDirectory . '/' . $pi['basename'];
+			$path = $pi['dirname'] . '/' . $subDirectory . '/' .
+				$pi['basename'];
 			$directory .= '/' . $subDirectory;
 		}
 
@@ -113,7 +122,22 @@ class DerivedFileManager extends \PHPUnit\Framework\TestCase
 		return $path;
 	}
 
-	private function buildFilename($directory, $method, $suffix, $extension)
+	/**
+	 *
+	 * @param string $method
+	 * @param string $suffix
+	 * @param string $extension
+	 *
+	 * @return string
+	 */
+	public function getDerivedFilename($method, $suffix, $extension)
+	{
+		return $this->buildFilename(self::DIRECTORY_DERIVED, $method,
+			$suffix, $extension);
+	}
+
+	private function buildFilename($directory, $method, $suffix,
+		$extension)
 	{
 		if (preg_match('/.*\\\\(.*?)Test::test(.*)$/', $method, $m))
 		{
@@ -129,7 +153,8 @@ class DerivedFileManager extends \PHPUnit\Framework\TestCase
 			throw new \Exception('Invalid method ' . $method);
 
 		if (\is_string($suffix) && strlen($suffix))
-			$method .= '_' . preg_replace('/[^a-zA-Z0-9._-]/', '_', $suffix);
+			$method .= '_' .
+				preg_replace('/[^a-zA-Z0-9._-]/', '_', $suffix);
 
 		$name = $cls . '_' . $method . '.' . $extension;
 		$name = preg_replace('/_+/', '_', $name);
@@ -163,7 +188,8 @@ class DerivedFileManager extends \PHPUnit\Framework\TestCase
 		}
 		elseif ($eol == 'cr')
 		{
-			$data = str_replace("\n", "\r", str_replace("\r\n", "\n", $data));
+			$data = str_replace("\n", "\r",
+				str_replace("\r\n", "\n", $data));
 		}
 
 		return $data;

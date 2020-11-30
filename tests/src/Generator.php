@@ -64,7 +64,8 @@ class Generator
 			$i = rand(0, 59);
 			$s = rand(0, 59);
 
-			$timestamp = sprintf('%d-%02d-%02dT%02d:%02d:%02d', $y, $m, $d, $h, $i, $s);
+			$timestamp = sprintf('%d-%02d-%02dT%02d:%02d:%02d', $y, $m,
+				$d, $h, $i, $s);
 
 			$dt = new DateTIme($timestamp);
 		}
@@ -96,7 +97,8 @@ class Generator
 		}
 
 		if (!($timezone instanceof \DateTimeZone))
-			$timezone = new \DateTimeZone($zones[rand(0, \count($zones) - 1)]);
+			$timezone = new \DateTimeZone(
+				$zones[rand(0, \count($zones) - 1)]);
 		$dt->setTimezone($timezone);
 
 		return $dt;
