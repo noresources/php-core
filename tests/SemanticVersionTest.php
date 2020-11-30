@@ -13,6 +13,8 @@ final class SemanticVersionTest extends \PHPUnit\Framework\TestCase
 		$versions = array(
 			'1.0.0-alpha',
 			'1.0.0-alpha.1',
+			'1.0.0-alpha.1.1',
+			'1.0.0-alpha.2',
 			'1.0.0-alpha.beta',
 			'1.0.0-beta',
 			'1.0.0-beta.2',
@@ -48,9 +50,11 @@ final class SemanticVersionTest extends \PHPUnit\Framework\TestCase
 
 			if ($previous instanceof SemanticVersion)
 			{
-				$this->assertLessThan(0, $previous->compare($v), 'Version comparison');
+				$this->assertLessThan(0, $previous->compare($v),
+					'Version comparison');
 				$this->assertLessThan(0,
-					SemanticVersion::compare($previous, $v, 'Version comparison (static method)'),
+					SemanticVersion::compare($previous, $v,
+						'Version comparison (static method)'),
 					'Version comparison (static)');
 			}
 
@@ -93,7 +97,8 @@ final class SemanticVersionTest extends \PHPUnit\Framework\TestCase
 			$version = null;
 			$version = new SemanticVersion($test['version']);
 
-			$this->assertEquals($test['value'], $version->getIntegerValue(),
+			$this->assertEquals($test['value'],
+				$version->getIntegerValue(),
 				'Integer conversion of ' . $version);
 		}
 	}
