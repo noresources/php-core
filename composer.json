@@ -1,48 +1,48 @@
 {
-	"name": "noresources/ns-php-core",
-	"description": "Utility class library for PHP",
-	"type": "library",
+	"name": "noresources/ns-php-core", 
+	"description": "Utility class library for PHP", 
+	"type": "library", 
 	"keywords": [
 		"Utility"
-	],
-	"license": "MIT",
+	], 
+	"license": "MIT", 
 	"authors": [
-		{
-			"name": "Renaud Guillard",
-			"email": "dev@nore.fr",
+			{
+			"name": "Renaud Guillard", 
+			"email": "dev@nore.fr", 
 			"role": "lead"
-		}
-	],
+			}
+	], 
 	"support": {
 		"issues": "https://github.com/noresources/ns-php-core/issues"
-	},
+	}, 
 	"autoload": {
 		"psr-4": {
-			"NoreSources\\": "src/",
+			"NoreSources\\": "src/", 
 			"NoreSources\\Test\\": "tests/src/"
 		}
-	},
+	}, 
 	"require": {
-		"php": ">= 5.5",
-		"ext-json": "*",
-		"psr/container": "^1.0",
+		"php": ">= 5.5", 
+		"ext-json": "*", 
+		"psr/container": "^1.0", 
 		"psr/log": "^1.1"
-	},
+	}, 
 	"suggest": {
 		"ext-yaml": "Needed to load DataTree content from YAML encoded file"
-	},
+	}, 
 	"scripts": {
 		"tests": "@php  ./vendor/bin/phpunit --color=never --bootstrap vendor/autoload.php tests"
-	},
+	}, 
 	"require-dev": {
-		"phpunit/phpunit": "~7.0",
+		"phpunit/phpunit": "< 7.0", 
 		"nette/php-generator": "^3.4"
-	},
+	}, 
 	"extra": {
 		"branch-alias": {
-			"dev-1.0.x": "1.0.x-dev",
-			"dev-1.1.x": "1.1.x-dev",
-			"dev-2.0.x": "2.0.x-dev",
+			"dev-1.0.x": "1.0.x-dev", 
+			"dev-1.1.x": "1.1.x-dev", 
+			"dev-2.0.x": "2.0.x-dev", 
 			"dev-master": "2.2.x-dev"
 		}
 	}

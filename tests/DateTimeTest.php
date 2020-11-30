@@ -33,7 +33,8 @@ final class DateTimeTest extends \PHPUnit\Framework\TestCase
 			}
 
 			$dt = new DateTime($test->int, $tz);
-			$this->assertEquals($test->text, $dt->format(\DateTime::ISO8601), $label);
+			$this->assertEquals($test->text,
+				$dt->format(\DateTime::ISO8601), $label);
 		}
 	}
 
@@ -50,7 +51,8 @@ final class DateTimeTest extends \PHPUnit\Framework\TestCase
 			$exported = [];
 			foreach ($dateTime as $key => $value)
 				$exported[$key] = $value;
-			$this->assertIsArray($exported, $time . ' - DateTime to array');
+			$this->assertTrue(\is_array($exported),
+				$time . ' - DateTime to array');
 			$this->assertCount(3, $exported);
 			$this->assertArrayHasKey('date', $exported);
 			$this->assertArrayHasKey('timezone', $exported);
@@ -58,13 +60,15 @@ final class DateTimeTest extends \PHPUnit\Framework\TestCase
 
 			$fromArray = DateTime::createFromArray($exported);
 			$this->assertEquals($dateTime->format(\DateTime::ISO8601),
-				$fromArray->format(\DateTime::ISO8601), $time . ' - From array');
+				$fromArray->format(\DateTime::ISO8601),
+				$time . ' - From array');
 		}
 	}
 
 	public function testToString()
 	{
-		$dt = new DateTime('2010-11-12T13:14:15.654321 +04:30', new \DateTimeZone('Europe/Berlin'));
+		$dt = new DateTime('2010-11-12T13:14:15.654321 +04:30',
+			new \DateTimeZone('Europe/Berlin'));
 		$this->assertEquals('2010-11-12T13:14:15+0430', \strval($dt));
 	}
 
@@ -96,7 +100,8 @@ final class DateTimeTest extends \PHPUnit\Framework\TestCase
 				$actual = implode("\n", array_slice($actual, 1, 3));
 				$actual = preg_replace('/[ \t]*(.*)/', '\1', $actual);
 
-				$this->assertEquals($expected, $actual, $stringValue . ' ' . $tz->getName());
+				$this->assertEquals($expected, $actual,
+					$stringValue . ' ' . $tz->getName());
 			}
 		}
 	}
@@ -136,15 +141,18 @@ final class DateTimeTest extends \PHPUnit\Framework\TestCase
 
 		foreach ($tests as $label => $test)
 		{
-			$dt = new DateTime($test['timestamp'], DateTime::getUTCTimezone());
+			$dt = new DateTime($test['timestamp'],
+				DateTime::getUTCTimezone());
 
 			foreach ($timezones as $tzName => $tz)
 			{
 				$dt->setTimezone($tz);
 				if (Container::keyExists($test, 'jdn'))
 				{
-					$this->assertEquals($test['jdn'], $dt->getJulianDayNumber(),
-						'Julian day number of ' . $label . ' ' . \strval($dt));
+					$this->assertEquals($test['jdn'],
+						$dt->getJulianDayNumber(),
+						'Julian day number of ' . $label . ' ' .
+						\strval($dt));
 				}
 
 				if (Container::keyExists($test, 'jd'))
@@ -159,14 +167,16 @@ final class DateTimeTest extends \PHPUnit\Framework\TestCase
 					$actual->setJulianDay($test['jd']);
 					$expected = new \DateTime($test['timestamp'], $tz);
 					$this->assertEquals($expected, $actual,
-						$label . ' DateTime from Julian day ' . $test['jd']);
+						$label . ' DateTime from Julian day ' .
+						$test['jd']);
 				}
 				elseif (Container::keyExists($test, 'jdn'))
 				{
 					$actual->setJulianDay($test['jdn']);
 					$expected = new \DateTime($test['timestamp'], $tz);
 					$this->assertEquals($expected, $actual,
-						$label . ' DateTime from Julian day number ' . $test['jdn']);
+						$label . ' DateTime from Julian day number ' .
+						$test['jdn']);
 				}
 			}
 		}
@@ -175,14 +185,16 @@ final class DateTimeTest extends \PHPUnit\Framework\TestCase
 		$expected = \gregoriantojd(1, 1, 1970);
 		$actual = $epoch->getJulianDayNumber();
 
-		$this->assertEquals($expected, $actual, 'Julian day number of ' . $epoch);
+		$this->assertEquals($expected, $actual,
+			'Julian day number of ' . $epoch);
 
 		$wikipediaExample = '2000-01-01T18:00:00+0000';
 		$wikipediaExampleJulian = 2451545.25;
 
 		$w = new DateTime($wikipediaExample);
 		$expected = $wikipediaExampleJulian;
-		$this->assertEquals($expected, $w->getJulianDay(), 'Julian day of ' . $wikipediaExample);
+		$this->assertEquals($expected, $w->getJulianDay(),
+			'Julian day of ' . $wikipediaExample);
 
 		$expected_bis = gregoriantojd(1, 1, 2000);
 
@@ -191,10 +203,12 @@ final class DateTimeTest extends \PHPUnit\Framework\TestCase
 
 		$w2 = new DateTime('2000-01-01T18:00:00-0600');
 		$expected = $wikipediaExampleJulian + 0.25;
-		$this->assertEquals($expected, $w2->getJulianDay(), 'Julian day of ' . $w2);
+		$this->assertEquals($expected, $w2->getJulianDay(),
+			'Julian day of ' . $w2);
 
 		$fromJD = new DateTime('now', DateTIme::getUTCTimezone());
 		$fromJD->setJulianDay($wikipediaExampleJulian);
-		$this->assertEquals($wikipediaExample, \strval($fromJD), 'From julian day');
+		$this->assertEquals($wikipediaExample, \strval($fromJD),
+			'From julian day');
 	}
 }
