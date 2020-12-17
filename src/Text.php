@@ -87,8 +87,7 @@ class Text
 
 	public static function firstLetterCase($text, $upper = true)
 	{
-		$f = ($upper ? '\strtoupper' : '\strtolower');
-		return $f(\substr($text, 0, 1)) . \substr($text, 1);
+		return ($upper ? \ucfirst($text) : \lcfirst($text));
 	}
 
 	/**
