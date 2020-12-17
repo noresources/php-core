@@ -10,9 +10,6 @@
  */
 namespace NoreSources;
 
-use NoreSources\Container;
-use NoreSources\KeyNotFoundException;
-
 /**
  * Case-insensitive key value map.
  *
@@ -66,15 +63,7 @@ trait CaseInsensitiveKeyMapTrait
 	 */
 	public function offsetExists($name)
 	{
-		$strict = $this->map->offsetExists($name);
-		if ($strict)
-			return true;
-		foreach ($this->map as $key => $_)
-		{
-			if (\strcasecmp($key, $name) == 0)
-				return true;
-		}
-		return false;
+		return $this->caselessOffsetExists($name);
 	}
 
 	/**
@@ -84,16 +73,7 @@ trait CaseInsensitiveKeyMapTrait
 	 */
 	public function offsetGet($name)
 	{
-		if ($this->map->offsetExists($name))
-			return $this->map->offsetGet($name);
-
-		foreach ($this->map as $key => $value)
-		{
-			if (\strcasecmp($key, $name) == 0)
-				return $value;
-		}
-
-		return null;
+		return $this->caselessOffsetGet($name);
 	}
 
 	/**
@@ -103,8 +83,7 @@ trait CaseInsensitiveKeyMapTrait
 	 */
 	public function offsetSet($name, $value)
 	{
-		$this->offsetUnset($name);
-		$this->map->offsetSet($name, $value);
+		return $this->caselessOffsetSet($name, $value);
 	}
 
 	/**
@@ -113,14 +92,7 @@ trait CaseInsensitiveKeyMapTrait
 	 */
 	public function offsetUnset($name)
 	{
-		foreach ($this->map as $key => $_)
-		{
-			if (\strcasecmp($key, $name) == 0)
-			{
-				$this->map->offsetUnset($key);
-				return;
-			}
-		}
+		$this->caselessOffsetUnset($name);
 	}
 
 	/**
@@ -158,10 +130,65 @@ trait CaseInsensitiveKeyMapTrait
 			}
 	}
 
+	protected function caselessOffsetExists($name)
+	{
+		$strict = $this->map->offsetExists($name);
+		if ($strict)
+			return true;
+		foreach ($this->map as $key => $_)
+		{
+			if (\strcasecmp($key, $name) == 0)
+				return true;
+		}
+		return false;
+	}
+
+	protected function caselessOffsetGet($name)
+	{
+		if ($this->map->offsetExists($name))
+			return $this->map->offsetGet($name);
+
+		foreach ($this->map as $key => $value)
+		{
+			if (\strcasecmp($key, $name) == 0)
+				return $value;
+		}
+
+		return null;
+	}
+
+	protected function caselessOffsetSet($name, $value)
+	{
+		$this->offsetUnset($name);
+		$this->map->offsetSet($name, $value);
+	}
+
+	protected function caselessOffsetUnset($name)
+	{
+		foreach ($this->map as $key => $_)
+		{
+			if (\strcasecmp($key, $name) == 0)
+			{
+				$this->map->offsetUnset($key);
+				return;
+			}
+		}
+	}
+
+	/**
+	 * Thing to do when a requested element was not found
+	 *
+	 * @param mixed $key
+	 * @throws KeyNotFoundException
+	 */
 	protected function onKeyNotFound($key)
 	{
 		throw new KeyNotFoundException($key);
 	}
 
+	/**
+	 *
+	 * @var \ArrayObject
+	 */
 	private $map;
 }
