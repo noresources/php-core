@@ -666,6 +666,33 @@ final class ContainerTest extends \PHPUnit\Framework\TestCase
 			'mixed is associative');
 	}
 
+	public function testNthValue()
+	{
+		$this->assertEquals('Three',
+			Container::nthValue([
+				'One',
+				"Two",
+				'Three',
+				'Four'
+			], 2), '3rd value of array');
+
+		$this->assertEquals('Two',
+			Container::nthValue(
+				[
+					0 => 'One',
+					5 => "Two",
+					3 => 'Three',
+					42 => 'Four'
+				], 1),
+			'2nd value of associative array with integer keys');
+
+		$this->assertEquals(null,
+			Container::nthValue([
+				'One',
+				'Four'
+			], 15), '3rd value of array');
+	}
+
 	public function testFirst()
 	{
 		$tests = [

@@ -352,33 +352,51 @@ class Container
 		if (!self::isTraversable($container))
 			throw new InvalidContainerException($container, __METHOD__);
 
-		$i = 0;
 		if ($strict)
 		{
-			foreach ($container as $key => $value)
-			{
-				if (!(\is_integer($key)))
-					return false;
-
-				if ($i != $key)
-					return false;
-
-				$i++;
-			}
+			$c = Container::count($container);
+			if ($c == 0)
+				return true;
+			$range = \range(0, $c - 1);
+			$keys = Container::keys($container);
+			return ($keys === $range);
 		}
-		else
+
+		$i = 0;
+		foreach ($container as $key => $value)
 		{
-			foreach ($container as $key => $value)
-			{
-				if (!(\is_integer($key) || \ctype_digit($key)))
-					return false;
-				if ($i != \intval($key))
-					return false;
-				$i++;
-			}
+			if (!(\is_integer($key) || \ctype_digit($key)))
+				return false;
+			if ($i != \intval($key))
+				return false;
+			$i++;
 		}
 
 		return true;
+	}
+
+	/**
+	 * Iterate container and return the value of the nth element.
+	 *
+	 * @param mixed $container
+	 *        	A tranversable container
+	 * @param integer $offset
+	 *        	Index of the expected value
+	 * @param mixed $dflt
+	 *        	Value to return if the expected index does not exists
+	 * @throws InvalidContainerException
+	 * @return The nth value of the container
+	 */
+	public static function nthValue($container, $offset, $dflt = null)
+	{
+		if (!self::isTraversable($container))
+			throw new InvalidContainerException($container, __METHOD__);
+
+		foreach ($container as $value)
+			if ($offset-- == 0)
+				return $value;
+
+		return $dflt;
 	}
 
 	/**
