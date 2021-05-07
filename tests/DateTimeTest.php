@@ -48,9 +48,7 @@ final class DateTimeTest extends \PHPUnit\Framework\TestCase
 		] as $time)
 		{
 			$dateTime = new \DateTime($time, $tz);
-			$exported = [];
-			foreach ($dateTime as $key => $value)
-				$exported[$key] = $value;
+			$exported = \json_decode(\json_encode($dateTime), true);
 			$this->assertTrue(\is_array($exported),
 				$time . ' - DateTime to array');
 			$this->assertCount(3, $exported);

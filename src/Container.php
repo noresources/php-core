@@ -306,13 +306,19 @@ class Container
 		elseif ($anything instanceof \ArrayObject ||
 			$anything instanceof ArrayRepresentation)
 			return $anything->getArrayCopy();
-		elseif (self::isTraversable($anything))
+
+		if ($anything instanceof \JsonSerializable)
+		{
+			$j = $anything->jsonSerialize();
+			if (\is_array($j))
+				return $j;
+		}
+
+		if (self::isTraversable($anything))
 		{
 			$a = [];
 			foreach ($anything as $k => $v)
-			{
 				$a[$k] = $v;
-			}
 			return $a;
 		}
 
