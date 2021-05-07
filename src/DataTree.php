@@ -360,8 +360,8 @@ class DataTree implements \ArrayAccess, \Serializable,
 			return ($i == $c) ? $t : $defaultValue;
 		}
 
-		if (array_key_exists($key, $this->elements))
-			return $this->elements[$key];
+		if ($this->elements->offsetExists($key))
+			return $this->elements->offsetGet($key);
 
 		return $defaultValue;
 	}
@@ -387,7 +387,7 @@ class DataTree implements \ArrayAccess, \Serializable,
 	public function prepend($value)
 	{
 		$a = $this->elements->getArrayCopy();
-		$c = array_unshift($a, $value);
+		$c = \array_unshift($a, $value);
 		$this->elements->exchangeArray($a);
 		return $c;
 	}
@@ -502,7 +502,7 @@ class DataTree implements \ArrayAccess, \Serializable,
 	}
 
 	/**
-	 * Setting map
+	 * Data tree map
 	 *
 	 * @var \ArrayObject
 	 */
