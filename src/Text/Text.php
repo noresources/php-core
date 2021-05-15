@@ -1,9 +1,12 @@
 <?php
 /**
- * Copyright © 2012 - 2020 by Renaud Guillard (dev@nore.fr)
+ * Copyright © 2012 - 2021 by Renaud Guillard (dev@nore.fr)
  * Distributed under the terms of the MIT License, see LICENSE
  */
-namespace NoreSources;
+namespace NoreSources\Text;
+
+use NoreSources\Container\Container;
+use NoreSources\Type\TypeDescription;
 
 /**
  * Text manipulation utility class
@@ -37,7 +40,7 @@ class Text
 			return [
 				-1 => false
 			];
-		ksort($result);
+		Container::ksort($result);
 
 		if ($firstOnly)
 			$result = Container::first($result);

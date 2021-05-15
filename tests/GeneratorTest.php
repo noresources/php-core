@@ -1,11 +1,11 @@
 <?php
 /**
- * Copyright © 2012 - 2020 by Renaud Guillard (dev@nore.fr)
+ * Copyright © 2012 - 2021 by Renaud Guillard (dev@nore.fr)
  * Distributed under the terms of the MIT License, see LICENSE
  */
-namespace NoreSources;
+namespace NoreSources\Test;
 
-use NoreSources\Test\Generator;
+use NoreSources\DateTime;
 
 final class GeneratorTest extends \PHPUnit\Framework\TestCase
 {
@@ -16,7 +16,8 @@ final class GeneratorTest extends \PHPUnit\Framework\TestCase
 		{
 			$v = Generator::randomDateTime(
 				[
-					'fromType' => rand(Generator::TYPE_STRING, Generator::TYPE_FLOAT)
+					'fromType' => rand(Generator::TYPE_STRING,
+						Generator::TYPE_FLOAT)
 				]);
 			$this->assertInstanceOf(DateTIme::class, $v);
 		}

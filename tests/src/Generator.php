@@ -1,12 +1,12 @@
 <?php
 /**
- * Copyright © 2012 - 2020 by Renaud Guillard (dev@nore.fr)
+ * Copyright © 2012 - 2021 by Renaud Guillard (dev@nore.fr)
  * Distributed under the terms of the MIT License, see LICENSE
  */
 namespace NoreSources\Test;
 
-use NoreSources\Container;
 use NoreSources\DateTime;
+use NoreSources\Container\Container;
 
 class Generator
 {

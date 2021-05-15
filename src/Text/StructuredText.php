@@ -1,9 +1,12 @@
 <?php
 /**
- * Copyright © 2012 - 2020 by Renaud Guillard (dev@nore.fr)
+ * Copyright © 2012 - 2021 by Renaud Guillard (dev@nore.fr)
  * Distributed under the terms of the MIT License, see LICENSE
  */
-namespace NoreSources;
+namespace NoreSources\Text;
+
+use NoreSources\Container\Container;
+use NoreSources\Type\TypeConversionException;
 
 /**
  * Structured syntax text utility
@@ -119,25 +122,6 @@ class StructuredText
 
 	/**
 	 *
-	 * @deprecated use parseFile()
-	 * @param string $filename
-	 * @param string|null $mediaType
-	 *        	File media type. If null, the media type is guessed from file content.
-	 * @throws \InvalidArgumentException
-	 * @throws TypeConversionException
-	 * @return array
-	 */
-	public static function fileToArray($filename, $mediaType = null)
-	{
-		$v = self::parseFile($filename, $mediaType);
-		if (!\is_array($v))
-			throw new \LogicException(
-				'Structed text content is not an array');
-		return $v;
-	}
-
-	/**
-	 *
 	 * @param string $text
 	 *        	URL encoded query string
 	 * @return array|string
@@ -182,26 +166,6 @@ class StructuredText
 	}
 
 	/**
-	 *
-	 * @deprecated use parseText()
-	 *
-	 * @param string $text
-	 *        	Structured text
-	 * @param string $format
-	 *        	Text format
-	 * @throws TypeConversionException
-	 * @return array|array
-	 */
-	public static function textToArray($text, $format)
-	{
-		$v = self::parseText($text, $format);
-		if (!\is_array($v))
-			throw new \LogicException(
-				'Structed text content is not an array');
-		return $v;
-	}
-
-	/**
 	 * Find the structured text format from the given media type.
 	 *
 	 * @param string $mediaType
@@ -219,7 +183,8 @@ class StructuredText
 			'text/yaml' => self::FORMAT_YAML
 		];
 
-		$format = Container::keyValue($mediaTypes, $mediaType, false);
+		$format = Container::keyValue($mediaTypes, \strval($mediaType),
+			false);
 		if ($format !== false)
 			return $format;
 
@@ -228,7 +193,7 @@ class StructuredText
 			chr(1), $mediaType, $m))
 		{
 			$format = $m[1];
-			$format = Container::keyValue($mediaTypes, $mediaType, false);
+			$format = Container::keyValue($mediaType, $mediaType, false);
 		}
 
 		return $format;

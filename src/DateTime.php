@@ -1,11 +1,16 @@
 <?php
 
 /**
- * Copyright © 2012 - 2020 by Renaud Guillard (dev@nore.fr)
+ * Copyright © 2012 - 2021 by Renaud Guillard (dev@nore.fr)
  * Distributed under the terms of the MIT License, see LICENSE
  */
 namespace NoreSources;
 
+use NoreSources\Container\Container;
+use NoreSources\Type\ArrayRepresentation;
+use NoreSources\Type\FloatRepresentation;
+use NoreSources\Type\IntegerRepresentation;
+use NoreSources\Type\StringRepresentation;
 use DateTimeZone;
 
 /**

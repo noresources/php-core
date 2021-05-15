@@ -1,11 +1,16 @@
 <?php
 
 /**
- * Copyright © 2020 by Renaud Guillard (dev@nore.fr)
+ * Copyright © 2020 - 2021 by Renaud Guillard (dev@nore.fr)
  * Distributed under the terms of the MIT License, see LICENSE
  */
 namespace NoreSources;
 
+use NoreSources\Type\TypeDescription;
+
+/**
+ * Exception raised by ComparableInterface::compare()
+ */
 class NotComparableException extends \LogicException
 {
 

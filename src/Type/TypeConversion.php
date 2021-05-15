@@ -1,9 +1,13 @@
 <?php
 /**
- * Copyright © 2012 - 2020 by Renaud Guillard (dev@nore.fr)
+ * Copyright © 2012 - 2021 by Renaud Guillard (dev@nore.fr)
  * Distributed under the terms of the MIT License, see LICENSE
  */
-namespace NoreSources;
+namespace NoreSources\Type;
+
+use NoreSources\DateTime;
+use NoreSources\Container\Container;
+use NoreSources\Container\InvalidContainerException;
 
 /**
  * Type conversion utility class
@@ -73,7 +77,7 @@ class TypeConversion
 	 * @param callable $fallback
 	 *        	A cacallback to invoke if the method is nuable to convert the value e
 	 * @throws TypeConversionException
-	 * @return \DateTime
+	 * @return \DateTimeInterface
 	 */
 	public static function toDateTime($value, $fallback = null)
 	{
@@ -97,7 +101,7 @@ class TypeConversion
 		{
 			try
 			{
-				$d = new \DateTime($value);
+				$d = new DateTime($value);
 				return $d;
 			}
 			catch (\Exception $e)
@@ -139,7 +143,7 @@ class TypeConversion
 		if ($value instanceof IntegerRepresentation)
 			return $value->getIntegerValue();
 
-		if ($value instanceof \DateTime)
+		if ($value instanceof \DateTimeInterface)
 			return $value->getTimestamp();
 		elseif (\is_bool($value))
 			return ($value ? 1 : 0);
@@ -174,7 +178,7 @@ class TypeConversion
 		if ($value instanceof FloatRepresentation)
 			return $value->getFloatValue();
 
-		if ($value instanceof \DateTime)
+		if ($value instanceof \DateTimeInterface)
 			return DateTime::toJulianDay($value);
 		elseif (\is_bool($value))
 			return ($value ? 1. : 0.);
@@ -212,7 +216,7 @@ class TypeConversion
 			return $value;
 		elseif (\is_numeric($value))
 			return \strval($value);
-		if ($value instanceof \DateTime)
+		if ($value instanceof \DateTimeInterface)
 			return $value->format(\DateTIme::ISO8601);
 
 		if ((\is_object($value) && !\method_exists($value, '__toString')) ||

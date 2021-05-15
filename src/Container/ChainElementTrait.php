@@ -1,9 +1,9 @@
 <?php
 /**
- * Copyright © 2012 - 2020 by Renaud Guillard (dev@nore.fr)
+ * Copyright © 2012 - 2021 by Renaud Guillard (dev@nore.fr)
  * Distributed under the terms of the MIT License, see LICENSE
  */
-namespace NoreSources;
+namespace NoreSources\Container;
 
 /**
  * Reference implementation of the ChainElementInterface
@@ -23,7 +23,8 @@ trait ChainElementTrait
 		$this->attachBetween($before, $after);
 	}
 
-	public function setPreviousElement(ChainElementInterface $previousElement = null)
+	public function setPreviousElement(
+		ChainElementInterface $previousElement = null)
 	{
 		if ($this->previousChainElement == $previousElement)
 			return;
@@ -37,7 +38,8 @@ trait ChainElementTrait
 		$this->previousChainElement = $previousElement;
 	}
 
-	public function setNextElement(ChainElementInterface $nextElement = null)
+	public function setNextElement(
+		ChainElementInterface $nextElement = null)
 	{
 		if ($this->nextChainElement == $nextElement)
 			return;

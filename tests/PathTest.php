@@ -1,9 +1,11 @@
 <?php
 /**
- * Copyright © 2012 - 2020 by Renaud Guillard (dev@nore.fr)
+ * Copyright © 2012 - 2021 by Renaud Guillard (dev@nore.fr)
  * Distributed under the terms of the MIT License, see LICENSE
  */
-namespace NoreSources;
+namespace NoreSources\Test;
+
+use NoreSources\Path;
 
 final class PathTest extends \PHPUnit\Framework\TestCase
 {
@@ -28,7 +30,8 @@ final class PathTest extends \PHPUnit\Framework\TestCase
 
 		foreach ($paths as $path => $expected)
 		{
-			$this->assertEquals($expected, Path::isAbsolute($path), 'Path: "' . $path . '"');
+			$this->assertEquals($expected, Path::isAbsolute($path),
+				'Path: "' . $path . '"');
 		}
 	}
 }

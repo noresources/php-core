@@ -1,9 +1,14 @@
 <?php
 /**
- * Copyright © 2012 - 2020 by Renaud Guillard (dev@nore.fr)
+ * Copyright © 2012 - 2021 by Renaud Guillard (dev@nore.fr)
  * Distributed under the terms of the MIT License, see LICENSE
  */
-namespace NoreSources;
+namespace NoreSources\Test;
+
+use NoreSources\Container\Container;
+use NoreSources\Text\StructuredText;
+use NoreSources\Text\Text;
+use NoreSources\Type\TypeConversionException;
 
 /**
  * Text and structured text tests
@@ -168,7 +173,7 @@ final class TextTest extends \PHPUnit\Framework\TestCase
 	final function testStructureTextFromTextFailure()
 	{
 		$this->expectException(TypeConversionException::class);
-		$data = StructuredText::fileToArray(
+		$data = StructuredText::parseFile(
 			__DIR__ . '/data/sample.xml');
 	}
 }

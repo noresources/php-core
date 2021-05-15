@@ -1,9 +1,11 @@
 <?php
 /**
- * Copyright © 2012 - 2020 by Renaud Guillard (dev@nore.fr)
+ * Copyright © 2012 - 2021 by Renaud Guillard (dev@nore.fr)
  * Distributed under the terms of the MIT License, see LICENSE
  */
-namespace NoreSources;
+namespace NoreSources\Test;
+
+use NoreSources\Container\Stack;
 
 final class StackTest extends \PHPUnit\Framework\TestCase
 {
@@ -46,7 +48,8 @@ final class StackTest extends \PHPUnit\Framework\TestCase
 		$stack->push(new \DateTime('now'));
 		$stack->setTimestamp(0);
 
-		$this->assertEquals('1970-01-01T00:00:00+0000', $stack->format(\DateTIme::ISO8601));
+		$this->assertEquals('1970-01-01T00:00:00+0000',
+			$stack->format(\DateTIme::ISO8601));
 	}
 
 	public function testTopInvoke()
@@ -86,7 +89,8 @@ final class StackTest extends \PHPUnit\Framework\TestCase
 		}
 
 		$this->assertEquals(null, $exception);
-		$this->assertEquals(42, $value, 'Result invoked top element of stack');
+		$this->assertEquals(42, $value,
+			'Result invoked top element of stack');
 	}
 
 	public function testIterator()
@@ -106,6 +110,7 @@ final class StackTest extends \PHPUnit\Framework\TestCase
 		foreach ($stack as $value)
 			$actual[] = $value;
 
-		$this->assertEquals($expected, $actual, 'Stack iterator direction');
+		$this->assertEquals($expected, $actual,
+			'Stack iterator direction');
 	}
 }

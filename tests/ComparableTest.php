@@ -1,11 +1,17 @@
 <?php
 /**
- * Copyright © 2012 - 2020 by Renaud Guillard (dev@nore.fr)
+ * Copyright © 2012 - 2021 by Renaud Guillard (dev@nore.fr)
  * Distributed under the terms of the MIT License, see LICENSE
  */
-namespace NoreSources;
+namespace NoreSources\Test;
 
-class ComparableInteger implements ComparableInterface, StringRepresentation
+use NoreSources\ComparableInterface;
+use NoreSources\NotComparableException;
+use NoreSources\Type\StringRepresentation;
+use NoreSources\Type\TypeDescription;
+
+class ComparableInteger implements ComparableInterface,
+	StringRepresentation
 {
 
 	/**

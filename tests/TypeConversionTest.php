@@ -1,9 +1,14 @@
 <?php
 /**
- * Copyright © 2012 - 2020 by Renaud Guillard (dev@nore.fr)
+ * Copyright © 2012 - 2021 by Renaud Guillard (dev@nore.fr)
  * Distributed under the terms of the MIT License, see LICENSE
  */
-namespace NoreSources;
+namespace NoreSources\Test;
+
+use NoreSources\Container\Container;
+use NoreSources\Container\DataTree;
+use NoreSources\Type\TypeConversion;
+use NoreSources\Type\TypeDescription;
 
 class TypeConversionTestClassWithoutToString
 {
@@ -23,10 +28,12 @@ final class TypeConversionTest extends \PHPUnit\Framework\TestCase
 
 		foreach ($input as $value)
 		{
-			$dt = TypeConversion::toArray($value, function ($value) {
-				return 'fallback';
-			});
-			$this->assertEquals('fallback', $dt, var_export($value, true));
+			$dt = TypeConversion::toArray($value,
+				function ($value) {
+					return 'fallback';
+				});
+			$this->assertEquals('fallback', $dt,
+				var_export($value, true));
 		}
 	}
 
@@ -44,10 +51,12 @@ final class TypeConversionTest extends \PHPUnit\Framework\TestCase
 
 		foreach ($input as $value)
 		{
-			$actual = TypeConversion::toInteger($value, function ($value) {
-				return 'fallback';
-			});
-			$this->assertEquals('fallback', $actual, var_export($value, true));
+			$actual = TypeConversion::toInteger($value,
+				function ($value) {
+					return 'fallback';
+				});
+			$this->assertEquals('fallback', $actual,
+				var_export($value, true));
 		}
 	}
 
@@ -84,10 +93,12 @@ final class TypeConversionTest extends \PHPUnit\Framework\TestCase
 
 		foreach ($input as $value)
 		{
-			$actual = TypeConversion::toString($value, function ($value) {
-				return 'fallback';
-			});
-			$this->assertEquals('fallback', $actual, var_export($value, true));
+			$actual = TypeConversion::toString($value,
+				function ($value) {
+					return 'fallback';
+				});
+			$this->assertEquals('fallback', $actual,
+				var_export($value, true));
 		}
 	}
 
@@ -126,10 +137,12 @@ final class TypeConversionTest extends \PHPUnit\Framework\TestCase
 
 		foreach ($input as $value)
 		{
-			$dt = TypeConversion::toDateTime($value, function ($value) {
-				return 'fallback';
-			});
-			$this->assertEquals('fallback', $dt, var_export($value, true));
+			$dt = TypeConversion::toDateTime($value,
+				function ($value) {
+					return 'fallback';
+				});
+			$this->assertEquals('fallback', $dt,
+				var_export($value, true));
 		}
 	}
 
@@ -153,7 +166,8 @@ final class TypeConversionTest extends \PHPUnit\Framework\TestCase
 		foreach ($input as $value)
 		{
 			$dt = TypeConversion::toDateTime($value);
-			$this->assertInstanceOf(\DateTIme::class, $dt, var_export($value, true));
+			$this->assertInstanceOf(\DateTIme::class, $dt,
+				var_export($value, true));
 		}
 	}
 
@@ -248,12 +262,15 @@ final class TypeConversionTest extends \PHPUnit\Framework\TestCase
 			}
 
 			$this->assertEquals('success', $message,
-				'Successful conversion from ' . TypeDescription::getName($value) . ' to ' . $type);
+				'Successful conversion from ' .
+				TypeDescription::getName($value) . ' to ' . $type);
 
 			if ($message == 'sucess')
 			{
-				$this->assertEquals($type, TypeDescription::getName($actual), 'Type name');
-				$this->assertEquals($expected, $actual, 'Converted value type');
+				$this->assertEquals($type,
+					TypeDescription::getName($actual), 'Type name');
+				$this->assertEquals($expected, $actual,
+					'Converted value type');
 			}
 		}
 	}

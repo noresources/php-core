@@ -1,9 +1,11 @@
 <?php
 /**
- * Copyright © 2012 - 2020 by Renaud Guillard (dev@nore.fr)
+ * Copyright © 2012 - 2021 by Renaud Guillard (dev@nore.fr)
  * Distributed under the terms of the MIT License, see LICENSE
  */
-namespace NoreSources;
+namespace NoreSources\Test;
+
+use NoreSources\Type\TypeDescription;
 
 final class TypeDescriptionTest extends \PHPUnit\Framework\TestCase
 {
@@ -54,7 +56,8 @@ final class TypeDescriptionTest extends \PHPUnit\Framework\TestCase
 					new TypeDescription()
 				],
 				'namespaces' => [
-					'NoreSources'
+					'NoreSources',
+					'Type'
 				]
 			],
 			[
@@ -63,7 +66,8 @@ final class TypeDescriptionTest extends \PHPUnit\Framework\TestCase
 					true
 				],
 				'namespaces' => [
-					'NoreSources'
+					'NoreSources',
+					'Type'
 				]
 			]
 		];
@@ -72,11 +76,13 @@ final class TypeDescriptionTest extends \PHPUnit\Framework\TestCase
 		{
 			$name = $test['args'][0];
 			$name = (\is_object($name) ? TypeDescription::getName($name) : $name);
-			$ns = \call_user_func_array([
-				TypeDescription::class,
-				'getNamespaces'
-			], $test['args']);
-			$this->assertEquals('array', TypeDescription::getName($ns), 'Result is an array');
+			$ns = \call_user_func_array(
+				[
+					TypeDescription::class,
+					'getNamespaces'
+				], $test['args']);
+			$this->assertEquals('array', TypeDescription::getName($ns),
+				'Result is an array');
 			$this->assertCount(count($test['namespaces']), $ns,
 				'Number of namespace parts for ' . $name);
 		}

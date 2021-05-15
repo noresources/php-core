@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright © 2012 - 2020 by Renaud Guillard (dev@nore.fr)
+ * Copyright © 2012 - 2021 by Renaud Guillard (dev@nore.fr)
  * Distributed under the terms of the MIT License, see LICENSE
  */
 namespace NoreSources;
@@ -19,7 +19,8 @@ class Path
 	public static function cleanup($path)
 	{
 		$path = str_replace('\\', '/', $path);
-		$path = preg_replace(chr(1) . '/[^/]+/\.\.(/|$)' . chr(1), '\1', $path);
+		$path = preg_replace(chr(1) . '/[^/]+/\.\.(/|$)' . chr(1), '\1',
+			$path);
 		$path = preg_replace(chr(1) . '/\.(/|$)' . chr(1), '\1', $path);
 		return $path;
 	}
@@ -69,7 +70,8 @@ class Path
 		$min = ($fromCount < $toCount) ? $fromCount : $toCount;
 		$commonPartsCount = 0;
 		$result = [];
-		while (($commonPartsCount < $min) && ($from[$commonPartsCount] == $to[$commonPartsCount]))
+		while (($commonPartsCount < $min) &&
+			($from[$commonPartsCount] == $to[$commonPartsCount]))
 		{
 			$commonPartsCount++;
 		}

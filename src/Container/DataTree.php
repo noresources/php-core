@@ -1,9 +1,13 @@
 <?php
 /**
- * Copyright © 2012 - 2020 by Renaud Guillard (dev@nore.fr)
+ * Copyright © 2012 - 2021 by Renaud Guillard (dev@nore.fr)
  * Distributed under the terms of the MIT License, see LICENSE
  */
-namespace NoreSources;
+namespace NoreSources\Container;
+
+use NoreSources\Text\StructuredText;
+use NoreSources\Type\ArrayRepresentation;
+use NoreSources\Type\TypeConversion;
 
 /**
  * Serializable data tree structure
@@ -305,7 +309,7 @@ class DataTree implements \ArrayAccess, \Serializable,
 	public function unserialize($serialized)
 	{
 		$this->elements->exchangeArray(
-			StructuredText::textToArray($serialized,
+			StructuredText::parseText($serialized,
 				StructuredText::FORMAT_JSON));
 
 		$this->setContent($data, self::REPLACE);
@@ -405,7 +409,7 @@ class DataTree implements \ArrayAccess, \Serializable,
 	public function setContent($data, $mode = self::REPLACE)
 	{
 		if (!self::isTraversable($data))
-			throw new DataTreeNotTraversableException($data);
+			throw new DataTreeNotTraversableException($this, $data);
 
 		if (($mode & self::REPLACE) == self::REPLACE)
 			$this->elements->exchangeArray([]);
@@ -472,28 +476,15 @@ class DataTree implements \ArrayAccess, \Serializable,
 		}
 
 		return $this->setContent(
-			StructuredText::fileToArray($filename, $mediaType), $mode);
+			StructuredText::parseFile($filename, $mediaType), $mode);
 	}
 
 	public function loadData($data, $structuredTextFormat,
 		$mode = self::REPLACE)
 	{
 		return $this->setContent(
-			StructuredText::textToArray($data, $structuredTextFormat),
+			StructuredText::parseText($data, $structuredTextFormat),
 			$mode);
-	}
-
-	/**
-	 *
-	 * @deprecated Use loadFile
-	 * @param string $filename
-	 * @param integer $mode
-	 * @param string $mediaType
-	 */
-	public function load($filename, $mode = self::REPLACE,
-		$mediaType = null)
-	{
-		return $this->loadFile($filename, $mode);
 	}
 
 	private static function isTraversable($e)

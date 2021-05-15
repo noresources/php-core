@@ -1,9 +1,12 @@
 <?php
 /**
- * Copyright © 2012 - 2020 by Renaud Guillard (dev@nore.fr)
+ * Copyright © 2012 - 2021 by Renaud Guillard (dev@nore.fr)
  * Distributed under the terms of the MIT License, see LICENSE
  */
-namespace NoreSources;
+namespace NoreSources\Container;
+
+use NoreSources\Type\IntegerRepresentation;
+use NoreSources\Type\TypeDescription;
 
 /**
  * Iterator over ChainElements
@@ -15,7 +18,8 @@ class ChainElementIterator implements \Iterator
 
 	const DIRECTION_BACKWARD = -1;
 
-	public function __construct(ChainElementInterface $chain, $direction = self::DIRECTION_FORWARD)
+	public function __construct(ChainElementInterface $chain,
+		$direction = self::DIRECTION_FORWARD)
 	{
 		$this->current = $this->base = $chain;
 		$this->direction = $direction;

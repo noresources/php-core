@@ -1,10 +1,14 @@
 <?php
 /**
- * Copyright © 2012 - 2020 by Renaud Guillard (dev@nore.fr)
+ * Copyright © 2012 - 2021 by Renaud Guillard (dev@nore.fr)
  * Distributed under the terms of the MIT License, see LICENSE
  */
-namespace NoreSources;
+namespace NoreSources\Test;
 
+use NoreSources\Container\Container;
+use NoreSources\Container\ContainerPropertyInterface;
+use NoreSources\Container\InvalidContainerException;
+use NoreSources\Type\TypeDescription;
 use Psr\Container\ContainerInterface;
 use Psr\Container\NotFoundExceptionInterface;
 
@@ -840,6 +844,91 @@ final class ContainerTest extends \PHPUnit\Framework\TestCase
 			}, 'suffix');
 
 		$this->assertEquals($expected, $input, 'Walk');
+	}
+
+	public function testSorts()
+	{
+		$tests = [
+			'asort' => [
+				'input' => [
+					5,
+					2,
+					4,
+					3,
+					1
+				],
+				'expected' => [
+					4 => 1,
+					1 => 2,
+					3 => 3,
+					2 => 4,
+					0 => 5
+				]
+			],
+			'ksort' => [
+				'input' => [
+					'c' => 3,
+					'b' => 2,
+					'a' => 1
+				],
+				'expected' => [
+					'a' => 1,
+					'b' => 2,
+					'c' => 3
+				]
+			],
+			'uksort' => [
+				'input' => [
+					'b' => 2,
+					'a' => 1,
+					'c' => 3
+				],
+				'expected' => [
+					'c' => 3,
+					'b' => 2,
+					'a' => 1
+				],
+				'args' => [
+					function ($a, $b) {
+						return \strcmp($b, $a);
+					}
+				]
+			]
+		];
+
+		foreach ($tests as $f => $test)
+		{
+			$arrayInput = $test['input'];
+			$objectInput = new \ArrayObject($arrayInput);
+			$arrayExpected = $test['expected'];
+			$objectExpected = new \ArrayObject($arrayExpected);
+
+			$arrayArgs = [
+				&$arrayInput
+			];
+			$objectArgs = [
+				&$objectInput
+			];
+			if (Container::keyExists($test, 'args'))
+			{
+				$arrayArgs = \array_merge($arrayArgs, $test['args']);
+				$objectArgs = \array_merge($objectArgs, $test['args']);
+			}
+
+			\call_user_func_array([
+				Container::class,
+				$f
+			], $arrayArgs);
+			$this->assertEquals($arrayExpected, $arrayInput,
+				$f . ' array');
+
+			\call_user_func_array([
+				Container::class,
+				$f
+			], $objectArgs);
+			$this->assertEquals($objectExpected, $objectInput,
+				$f . ' ArrayObject');
+		}
 	}
 }
 

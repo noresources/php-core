@@ -1,9 +1,15 @@
 <?php
 /**
- * Copyright © 2012 - 2020 by Renaud Guillard (dev@nore.fr)
+ * Copyright © 2012 - 2021 by Renaud Guillard (dev@nore.fr)
  * Distributed under the terms of the MIT License, see LICENSE
  */
 namespace NoreSources;
+
+use NoreSources\Container\Container;
+use NoreSources\Type\IntegerRepresentation;
+use NoreSources\Type\StringRepresentation;
+use NoreSources\Type\TypeConversion;
+use NoreSources\Type\TypeDescription;
 
 /**
  * Sematic version rule violation exception
@@ -23,8 +29,9 @@ class SemanticVersionRuleException extends \ErrorException
 	public function __construct($rulePoint, $message, $value)
 	{
 		parent::__construct(
-			$value . ' does not respect Semantic Versioning rule #' . $rulePoint . ': ' . $message .
-			'.' . PHP_EOL . 'See https://semver.org', $rulePoint);
+			$value . ' does not respect Semantic Versioning rule #' .
+			$rulePoint . ': ' . $message . '.' . PHP_EOL .
+			'See https://semver.org', $rulePoint);
 	}
 }
 
@@ -65,7 +72,8 @@ final class SemanticPostfixedData extends \ArrayObject
 	{
 		if (!(\is_numeric($offset) || \is_null($offset)))
 		{
-			throw new \InvalidArgumentException('Non-numeric key "' . strval($offset) . '"');
+			throw new \InvalidArgumentException(
+				'Non-numeric key "' . strval($offset) . '"');
 		}
 
 		self::validate($value);
@@ -197,11 +205,12 @@ final class SemanticPostfixedData extends \ArrayObject
 	{
 		if (preg_match(chr(1) . '^0+[0-9]*$' . chr(1), $value))
 			throw new SemanticVersionRuleException(9,
-				'Numeric identifiers MUST NOT include leading zeroes', $value);
+				'Numeric identifiers MUST NOT include leading zeroes',
+				$value);
 
 		if (!preg_match(chr(1) . '^[A-Za-z0-9-]+$' . chr(1), $value))
-			throw new SemanticVersionRuleException(9, 'Invalid pre-release/build metadata format',
-				$value);
+			throw new SemanticVersionRuleException(9,
+				'Invalid pre-release/build metadata format', $value);
 	}
 
 	private static function compareString($a, $b)
@@ -229,7 +238,8 @@ final class SemanticPostfixedData extends \ArrayObject
  *
  * @see https://semver.org/
  */
-class SemanticVersion implements StringRepresentation, IntegerRepresentation
+class SemanticVersion implements StringRepresentation,
+	IntegerRepresentation
 {
 
 	const MAJOR = 'major';
@@ -282,7 +292,8 @@ class SemanticVersion implements StringRepresentation, IntegerRepresentation
 			$this->prerelease = clone $version->prerelease;
 			$this->metadata = clone $version->metadata;
 		}
-		elseif (is_int($version) || ($version instanceof IntegerRepresentation))
+		elseif (is_int($version) ||
+			($version instanceof IntegerRepresentation))
 		{
 			$version = TypeConversion::toInteger($version);
 			$p = pow(10, $numberFormDigitCount);
@@ -291,7 +302,8 @@ class SemanticVersion implements StringRepresentation, IntegerRepresentation
 			$this->major = intval($version / ($p * $p));
 		}
 		elseif (TypeDescription::hasStringRepresentation($version) &&
-			preg_match(chr(1) . self::PATTERN . chr(1) . self::PATTERN_MODIFIERS,
+			preg_match(
+				chr(1) . self::PATTERN . chr(1) . self::PATTERN_MODIFIERS,
 				TypeConversion::toString($version), $matches))
 		{
 			$this->major = Container::keyValue($matches, 1, 0);
@@ -305,8 +317,10 @@ class SemanticVersion implements StringRepresentation, IntegerRepresentation
 			$this->major = Container::keyValue($version, self::MAJOR, 0);
 			$this->minor = Container::keyValue($version, self::MINOR, 0);
 			$this->patch = Container::keyValue($version, self::PATCH, 0);
-			$this->prerelease->set(Container::keyValue($version, self::PRE_RELEASE, ''));
-			$this->metadata->set(Container::keyValue($version, self::METADATA, ''));
+			$this->prerelease->set(
+				Container::keyValue($version, self::PRE_RELEASE, ''));
+			$this->metadata->set(
+				Container::keyValue($version, self::METADATA, ''));
 		}
 		else
 		{
@@ -316,8 +330,8 @@ class SemanticVersion implements StringRepresentation, IntegerRepresentation
 			else
 				$s = var_export($version, true);
 			throw new \InvalidArgumentException(
-				TypeDescription::getName($version) . ' (' . $s . ') has no valid conversion to ' .
-				__CLASS__);
+				TypeDescription::getName($version) . ' (' . $s .
+				') has no valid conversion to ' . __CLASS__);
 		}
 	}
 
@@ -508,10 +522,11 @@ class SemanticVersion implements StringRepresentation, IntegerRepresentation
 		if ($name == 'compare')
 		{
 			array_unshift($arguments, $this);
-			return call_user_func_array([
-				get_called_class(),
-				'compareVersions'
-			], $arguments);
+			return call_user_func_array(
+				[
+					get_called_class(),
+					'compareVersions'
+				], $arguments);
 		}
 
 		throw new \InvalidArgumentException($name . ' is not callable');
@@ -531,13 +546,15 @@ class SemanticVersion implements StringRepresentation, IntegerRepresentation
 	{
 		if ($name == 'compare')
 		{
-			return call_user_func_array([
-				get_called_class(),
-				'compareVersions'
-			], $arguments);
+			return call_user_func_array(
+				[
+					get_called_class(),
+					'compareVersions'
+				], $arguments);
 		}
 
-		throw new \InvalidArgumentException($name . ' is not callable statically');
+		throw new \InvalidArgumentException(
+			$name . ' is not callable statically');
 	}
 
 	/**

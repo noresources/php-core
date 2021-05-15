@@ -1,9 +1,9 @@
 <?php
 /**
- * Copyright © 2012 - 2020 by Renaud Guillard (dev@nore.fr)
+ * Copyright © 2012 - 2021 by Renaud Guillard (dev@nore.fr)
  * Distributed under the terms of the MIT License, see LICENSE
  */
-namespace NoreSources;
+namespace NoreSources\Container;
 
 /**
  * A class implementing the ChainElementInterface can be attached
@@ -41,7 +41,8 @@ interface ChainElementInterface
 	 * @param ChainElementInterface $previousElement
 	 *        	The new chain link which will be before the instance.
 	 */
-	function setPreviousElement(ChainElementInterface $previousElement = null);
+	function setPreviousElement(
+		ChainElementInterface $previousElement = null);
 
 	/**
 	 * Change the link to the element after the instance.

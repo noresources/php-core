@@ -1,9 +1,9 @@
 <?php
 /**
- * Copyright © 2012 - 2020 by Renaud Guillard (dev@nore.fr)
+ * Copyright © 2012 - 2021 by Renaud Guillard (dev@nore.fr)
  * Distributed under the terms of the MIT License, see LICENSE
  */
-namespace NoreSources;
+namespace NoreSources\Type;
 
 /**
  * Type conversion exception
@@ -29,8 +29,9 @@ class TypeConversionException extends \Exception
 	public function __construct($value, $method, $message = null)
 	{
 		parent::__construct(
-			'Failed to convert ' . TypeDescription::getName($value) . ' to ' .
-			preg_replace(',.*::to(.*),', '\1', $method) . ($message ? (' : ' . $message) : ''));
+			'Failed to convert ' . TypeDescription::getName($value) .
+			' to ' . preg_replace(',.*::to(.*),', '\1', $method) .
+			($message ? (' : ' . $message) : ''));
 
 		$this->value = $value;
 	}

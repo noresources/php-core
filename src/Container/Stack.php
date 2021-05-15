@@ -1,14 +1,18 @@
 <?php
 /**
- * Copyright © 2012 - 2020 by Renaud Guillard (dev@nore.fr)
+ * Copyright © 2012 - 2021 by Renaud Guillard (dev@nore.fr)
  * Distributed under the terms of the MIT License, see LICENSE
  */
-namespace NoreSources;
+namespace NoreSources\Container;
+
+use NoreSources\Type\ArrayRepresentation;
+use NoreSources\Type\TypeDescription;
 
 /**
  * Stack container implementation
  */
-class Stack implements \Countable, \IteratorAggregate, ArrayRepresentation
+class Stack implements \Countable, \IteratorAggregate,
+	ArrayRepresentation
 {
 
 	public function __construct()
@@ -109,7 +113,8 @@ class Stack implements \Countable, \IteratorAggregate, ArrayRepresentation
 
 		if (!\is_callable($e))
 			throw new \UnexpectedValueException(
-				'Unable to invoke a non-callable type (' . TypeDescription::getName($e) . ')');
+				'Unable to invoke a non-callable type (' .
+				TypeDescription::getName($e) . ')');
 
 		return call_user_func_array($e, func_get_args());
 	}
@@ -133,7 +138,8 @@ class Stack implements \Countable, \IteratorAggregate, ArrayRepresentation
 
 		if (!\method_exists($e, $name))
 			throw new \BadMethodCallException(
-				$name . ' is not a method of ' . TypeDescription::getName($e));
+				$name . ' is not a method of ' .
+				TypeDescription::getName($e));
 		;
 
 		return \call_user_func_array([
@@ -158,7 +164,8 @@ class Stack implements \Countable, \IteratorAggregate, ArrayRepresentation
 			return Container::keyValue($e, $member);
 
 		throw new \InvalidArgumentException(
-			$member . ' is not a member of ' . TypeDescription::getName($e));
+			$member . ' is not a member of ' .
+			TypeDescription::getName($e));
 	}
 
 	/**
@@ -181,7 +188,8 @@ class Stack implements \Countable, \IteratorAggregate, ArrayRepresentation
 		}
 
 		throw new \InvalidArgumentException(
-			$member . ' is not a member of ' . TypeDescription::getName($e));
+			$member . ' is not a member of ' .
+			TypeDescription::getName($e));
 	}
 
 	/**

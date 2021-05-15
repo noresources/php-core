@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright © 2012 - 2020 by Renaud Guillard (dev@nore.fr)
+ * Copyright © 2012 - 2021 by Renaud Guillard (dev@nore.fr)
  * Distributed under the terms of the MIT License, see LICENSE
  */
 namespace NoreSources\Logger;
@@ -26,7 +26,8 @@ abstract class AbstractTcpLogger implements LoggerInterface
 	 *
 	 * @return string Message to send through the TCP socket
 	 */
-	abstract public function formatMessage($level, $message, array $context = array());
+	abstract public function formatMessage($level, $message,
+		array $context = array());
 
 	/**
 	 *

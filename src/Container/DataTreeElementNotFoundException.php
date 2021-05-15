@@ -1,24 +1,17 @@
 <?php
 /**
- * Copyright © 2012 - 2020 by Renaud Guillard (dev@nore.fr)
+ * Copyright © 2012 - 2021 by Renaud Guillard (dev@nore.fr)
  * Distributed under the terms of the MIT License, see LICENSE
  */
-namespace NoreSources;
-
-use Psr\Container\NotFoundExceptionInterface;
+namespace NoreSources\Container;
 
 /**
  * Exception railsed by DataTree methods implementing the PSR ContainerInterface
  */
-class DataTreeElementNotFoundException extends KeyNotFoundException
+class DataTreeElementNotFoundException extends KeyNotFoundException implements
+	DataTreeExceptionInterface
 {
-
-	/**
-	 * Reference to the DataTree that throws the exception
-	 *
-	 * @varDataTree
-	 */
-	public $dataTree;
+	use DataTreeExceptionTrait;
 
 	/**
 	 *

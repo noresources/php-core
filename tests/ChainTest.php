@@ -1,9 +1,13 @@
 <?php
 /**
- * Copyright © 2012 - 2020 by Renaud Guillard (dev@nore.fr)
+ * Copyright © 2012 - 2021 by Renaud Guillard (dev@nore.fr)
  * Distributed under the terms of the MIT License, see LICENSE
  */
-namespace NoreSources;
+namespace NoreSources\Test;
+
+use NoreSources\Container\ChainElement;
+use NoreSources\Container\ChainElementInterface;
+use NoreSources\Type\StringRepresentation;
 
 class ChainValue extends ChainElement implements StringRepresentation
 {
@@ -27,7 +31,8 @@ final class ChainTest extends \PHPUnit\Framework\TestCase
 	final function testInit()
 	{
 		$a = new ChainValue(1);
-		$this->assertEquals(null, $a->getPreviousElement(), 'getPrevious : null');
+		$this->assertEquals(null, $a->getPreviousElement(),
+			'getPrevious : null');
 		$this->assertEquals(null, $a->getNextElement(), 'getNext: null');
 	}
 
@@ -37,22 +42,29 @@ final class ChainTest extends \PHPUnit\Framework\TestCase
 		$b = new ChainValue('b');
 		$b->insertAfter($a);
 
-		$this->assertEquals('a, b', self::stringifyForward($a), 'append :: forward');
-		$this->assertEquals('b, a', self::stringifyBackward($b), 'append :: backward');
+		$this->assertEquals('a, b', self::stringifyForward($a),
+			'append :: forward');
+		$this->assertEquals('b, a', self::stringifyBackward($b),
+			'append :: backward');
 
 		$c = new ChainValue('c');
 		$c->insertAfter($b);
-		$this->assertEquals('a, b, c', self::stringifyForward($a), 'append again :: forward');
-		$this->assertEquals('c, b, a', self::stringifyBackward($c), 'append again :: backward');
+		$this->assertEquals('a, b, c', self::stringifyForward($a),
+			'append again :: forward');
+		$this->assertEquals('c, b, a', self::stringifyBackward($c),
+			'append again :: backward');
 
 		$b2 = new ChainValue('b2');
 		$b2->insertAfter($a);
-		$this->assertEquals('a, b2, b, c', self::stringifyForward($a), 'insert :: forward');
-		$this->assertEquals('c, b, b2, a', self::stringifyBackward($c), 'insert :: backward');
+		$this->assertEquals('a, b2, b, c', self::stringifyForward($a),
+			'insert :: forward');
+		$this->assertEquals('c, b, b2, a', self::stringifyBackward($c),
+			'insert :: backward');
 
 		$head = new ChainValue('head');
 		$head->insertBefor($a);
-		$this->assertEquals('head, a, b2, b, c', self::stringifyForward($head), 'prepend :: forward');
+		$this->assertEquals('head, a, b2, b, c',
+			self::stringifyForward($head), 'prepend :: forward');
 	}
 
 	public static function stringifyForward(ChainValue $e)
