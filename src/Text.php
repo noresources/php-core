@@ -37,7 +37,7 @@ class Text
 			return [
 				-1 => false
 			];
-		ksort($result);
+		Container::ksort($result);
 
 		if ($firstOnly)
 			$result = Container::first($result);

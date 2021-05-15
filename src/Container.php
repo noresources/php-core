@@ -1012,6 +1012,120 @@ class Container
 		return $container;
 	}
 
+	/**
+	 * Sort array values and maintain index association
+	 *
+	 * @param array|\ArrayObject $container
+	 * @param integer $flags
+	 * @throws InvalidContainerException
+	 * @return boolean
+	 *
+	 * @see https://www.php.net/manual/en/function.asort.php
+	 */
+	public static function asort(&$container, $flags = \SORT_REGULAR)
+	{
+		if (\is_array($container))
+			return \asort($container, $flags);
+		elseif ($container instanceof \ArrayObject)
+			return $container->asort($flags);
+		throw new InvalidContainerException($container, __METHOD__);
+	}
+
+	/**
+	 * Sort an array by keys
+	 *
+	 * @param array|\ArrayObject $container
+	 * @param integer $flags
+	 * @throws InvalidContainerException
+	 * @return boolean
+	 *
+	 * @see https://www.php.net/manual/en/function.ksort.php
+	 */
+	public static function ksort(&$container, $flags = \SORT_REGULAR)
+	{
+		if (\is_array($container))
+			return \ksort($container, $flags);
+		elseif ($container instanceof \ArrayObject)
+			return $container->ksort($flags);
+		throw new InvalidContainerException($container, __METHOD__);
+	}
+
+	/**
+	 * Sort an array using a "natural order" algorithm
+	 *
+	 * @param array|\ArrayObject $container
+	 * @throws InvalidContainerException
+	 * @return boolean
+	 *
+	 * @see https://www.php.net/manual/en/function.natsort.php
+	 */
+	public static function natsort(&$container)
+	{
+		if (\is_array($container))
+			return \natsort($container);
+		elseif ($container instanceof \ArrayObject)
+			return $container->natsort();
+		throw new InvalidContainerException($container, __METHOD__);
+	}
+
+	/**
+	 * Sort an array using a case insensitive "natural order" algorithm
+	 *
+	 * @param array|\ArrayObject $container
+	 * @throws InvalidContainerException
+	 * @return boolean
+	 *
+	 * @see https://www.php.net/manual/en/function.natcasesort.php
+	 */
+	public static function natcasesort(&$container)
+	{
+		if (\is_array($container))
+			return \natcasesort($container);
+		elseif ($container instanceof \ArrayObject)
+			return $container->natcasesort();
+		throw new InvalidContainerException($container, __METHOD__);
+	}
+
+	/**
+	 * Sort an array with a user-defined comparison function and maintain index associatio
+	 *
+	 * @param array|\ArrayObject $container
+	 * @param callable $callable
+	 *        	Value comparison function
+	 * @throws InvalidContainerException
+	 * @return boolean
+	 *
+	 * @see https://www.php.net/manual/en/function.uasort.php
+	 */
+	public static function uasort(&$container, $callable)
+	{
+		if (\is_array($container))
+			return \uasort($container, $callable);
+		elseif ($container instanceof \ArrayObject)
+			return $container->uasort($callable);
+		throw new InvalidContainerException($container, __METHOD__);
+	}
+
+	/**
+	 * Sort an array by keys using a user-defined comparison function
+	 *
+	 * @param array|\ArrayObject $container
+	 * @param callable $callable
+	 *        	Key comparison function
+	 * @throws InvalidContainerException
+	 * @return boolean
+	 *
+	 * @see https://www.php.net/manual/en/function.uksort.php
+	 */
+	public static function uksort(&$container, $callable)
+	{
+		if (\is_array($container))
+			return \uksort($container, $callable);
+		elseif ($container instanceof \ArrayObject)
+			return $container->uksort($callable);
+		throw new InvalidContainerException($container, __METHOD__);
+	}
+
 	private static function implodeParts($parts, $b, $i, $p, $a)
 	{
 		$count = self::count($parts);
