@@ -35,7 +35,7 @@ trait CaseInsensitiveKeyMapTrait
 	 */
 	public function count()
 	{
-		return $this->map->count();
+		return $this->caseSensitiveMap->count();
 	}
 
 	/**
@@ -44,7 +44,7 @@ trait CaseInsensitiveKeyMapTrait
 	 */
 	public function getIterator()
 	{
-		return $this->map->getIterator();
+		return $this->caseSensitiveMap->getIterator();
 	}
 
 	/**
@@ -53,7 +53,7 @@ trait CaseInsensitiveKeyMapTrait
 	 */
 	public function getArrayCopy()
 	{
-		return $this->map->getArrayCopy();
+		return $this->caseSensitiveMap->getArrayCopy();
 	}
 
 	/**
@@ -95,100 +95,95 @@ trait CaseInsensitiveKeyMapTrait
 		$this->caselessOffsetUnset($name);
 	}
 
-	/**
-	 *
-	 * @param mixed $name
-	 *        	Key
-	 * @throws KeyNotFoundException
-	 * @return mixed
-	 */
-	public function get($name)
+	public function exchangeArray($array)
 	{
-		if (!$this->offsetExists($name))
-			$this->onKeyNotFound($name);
-		return $this->offsetGet($name);
+		$this->initializeCaseInsensitiveKeyMapTrait($array, true);
 	}
 
 	/**
 	 *
-	 * @param string $name
-	 * @return boolean
+	 * @param \ArrayObject|array $array
+	 *        	Input array. If $array is a \ArrayObject nad $copy is not true. The internal map
+	 *        	will use $array as a reference.
+	 * @param NULL|boolean $copy
+	 *        	If TRUE, copy input array anyway. If NULL, set to FALSE if $array is ArrayObject,
+	 *        	FALSE otherwise.
+	 *        	If FALSE and if input array is a ArrayObject,
+	 *        	use $array as referecne
 	 */
-	public function has($name)
-	{
-		return $this->offsetExists($name);
-	}
-
 	protected function initializeCaseInsensitiveKeyMapTrait(
-		$array = array())
+		$array = array(), $copy = null)
 	{
-		$this->map = new \ArrayObject();
-		if (Container::isTraversable($array))
-			foreach ($array as $name => $value)
-			{
-				$this->offsetSet($name, $value);
-			}
+		if ($copy === null)
+			$copy = ($array instanceof \ArrayObject) ? false : true;
+
+		if ($array instanceof \ArrayObject && !$copy)
+			$this->caseSensitiveMap = $array;
+		else
+		{
+			if (!isset($this->caseSensitiveMap))
+				$this->caseSensitiveMap = new \ArrayObject();
+			$this->caseSensitiveMap->exchangeArray(
+				Container::createArray($array));
+		}
+
+		$this->keys = [];
+		foreach ($this->caseSensitiveMap as $key => $value)
+			if (\is_string($key))
+				$this->keys[\strtolower($key)] = $key;
 	}
 
 	protected function caselessOffsetExists($name)
 	{
-		$strict = $this->map->offsetExists($name);
-		if ($strict)
-			return true;
-		foreach ($this->map as $key => $_)
-		{
-			if (\strcasecmp($key, $name) == 0)
-				return true;
-		}
-		return false;
+		if (\is_string($name))
+			return Container::keyExists($this->keys, \strtolower($name));
+		return $this->caseSensitiveMap->offsetExists($name);
 	}
 
 	protected function caselessOffsetGet($name)
 	{
-		if ($this->map->offsetExists($name))
-			return $this->map->offsetGet($name);
-
-		foreach ($this->map as $key => $value)
-		{
-			if (\strcasecmp($key, $name) == 0)
-				return $value;
-		}
-
-		return null;
+		if (\is_string($name))
+			$name = Container::keyValue($this->keys, \strtolower($name),
+				$name);
+		return $this->caseSensitiveMap->offsetGet($name);
 	}
 
 	protected function caselessOffsetSet($name, $value)
 	{
-		$this->offsetUnset($name);
-		$this->map->offsetSet($name, $value);
+		if (\is_string($name))
+		{
+			$lower = \strtolower($name);
+			if (($previous = Container::keyValue($this->keys, $lower)) &&
+				($previous != $name))
+				$this->caseSensitiveMap->offsetUnset($previous);
+
+			$this->keys[$lower] = $name;
+		}
+
+		$this->caseSensitiveMap->offsetSet($name, $value);
 	}
 
 	protected function caselessOffsetUnset($name)
 	{
-		foreach ($this->map as $key => $_)
+		if (\is_string($name))
 		{
-			if (\strcasecmp($key, $name) == 0)
-			{
-				$this->map->offsetUnset($key);
-				return;
-			}
+			$lower = \strtolower($name);
+			$name = Container::keyValue($this->keys, $lower, $name);
+			Container::removeKey($this->keys, $lower);
 		}
-	}
 
-	/**
-	 * Thing to do when a requested element was not found
-	 *
-	 * @param mixed $key
-	 * @throws KeyNotFoundException
-	 */
-	protected function onKeyNotFound($key)
-	{
-		throw new KeyNotFoundException($key);
+		$this->caseSensitiveMap->offsetUnset($name);
 	}
 
 	/**
 	 *
 	 * @var \ArrayObject
 	 */
-	private $map;
+	private $caseSensitiveMap;
+
+	/**
+	 *
+	 * @var array
+	 */
+	private $keys;
 }
