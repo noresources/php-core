@@ -41,8 +41,10 @@
 		"branch-alias": {
 			"dev-1.0.x": "1.0.x-dev", 
 			"dev-1.1.x": "1.1.x-dev", 
-			"dev-2.0.x": "2.0.x-dev", 
-			"dev-master": "2.2.x-dev"
+			"dev-2.0.x": "2.0.x-dev",
+			"dev-2.1.x": "2.1.x-dev",
+			"dev-2.2.x": "2.2.x-dev", 
+			"dev-master": "2.3.x-dev"
 		}
 	}, 
 	"config": {
