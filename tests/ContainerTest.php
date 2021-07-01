@@ -472,6 +472,56 @@ final class ContainerTest extends \PHPUnit\Framework\TestCase
 			'implodeValue basically mimics the implode function');
 	}
 
+	public function testFilter()
+	{
+		$series = [
+			1,
+			2,
+			3,
+			4,
+			5,
+			6
+		];
+		$seriesObject = new \ArrayObject($series);
+		$evenValues = [
+			1 => 2,
+			3 => 4,
+			5 => 6
+		];
+		$evenKeys = [
+			0 => 1,
+			2 => 3,
+			4 => 5
+		];
+
+		$oddFilter = function ($v) {
+			return ($v % 2) == 0;
+		};
+
+		$this->assertEquals($evenValues,
+			Container::filterValues($series, $oddFilter),
+			'Filter odd array values');
+		$this->assertEquals($evenValues,
+			Container::filterValues($seriesObject, $oddFilter),
+			'Filter odd ArrayObject values');
+
+		$this->assertEquals($evenKeys,
+			Container::filterKeys($series, $oddFilter),
+			'Filter odd array keys');
+		$this->assertEquals($evenKeys,
+			Container::filterKeys($seriesObject, $oddFilter),
+			'Filter odd ArrayObject keys');
+
+		$this->assertEquals([
+			1 => 2,
+			2 => 3
+		],
+			Container::filter($series,
+				function ($k, $v) {
+					return $k == 2 || $v == 2;
+				}), 'Filter two only');
+	}
+
 	/**
 	 * Test ability to skip elements
 	 */
