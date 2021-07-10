@@ -88,6 +88,16 @@ class Reporter
 		}
 	}
 
+	/**
+	 * Invoke the corresponding method on all loggers registered to
+	 * the Reporter default instance.
+	 *
+	 * @param string $method
+	 *        	Method name
+	 * @param array $args
+	 *        	Method arguments
+	 * @return mixed
+	 */
 	public static function __callStatic($method, $args)
 	{
 		return \call_user_func_array([

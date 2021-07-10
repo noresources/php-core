@@ -1,34 +1,34 @@
-<?php
-
-/**
- * Copyright © 2021 by Renaud Guillard (dev@nore.fr)
- * Distributed under the terms of the MIT License, see LICENSE
- */
-namespace NoreSources;
-
-/**
- * Provide an interface that allow to get a deep clone of an object
- *
- * @see https://www.php.net/manual/en/language.oop5.magic.php
- */
-interface ClonableInterface
-{
+	<?php
 
 	/**
-	 * PHP magic method
-	 *
-	 * @return $this
+	 * Copyright © 2021 by Renaud Guillard (dev@nore.fr)
+	 * Distributed under the terms of the MIT License, see LICENSE
 	 */
-	function __clone();
+	namespace NoreSources;
 
 	/**
-	 * Create clone of the instance
+	 * Provide an interface that allow to get a deep clone of an object
 	 *
-	 * @param boolean $deep
-	 *        	If FALSE, the method MUST produce the same object than the __clone() magic
-	 *        	method. If TRUE, the method MAY return a deep copy of the instance.
-	 * @return $this Instance clone
-	 *
+	 * @see https://www.php.net/manual/en/language.oop5.magic.php
 	 */
-	function newClone($deep = false);
-}
+	interface ClonableInterface
+	{
+
+		/**
+		 * PHP magic method
+		 *
+		 * @return $this
+		 */
+		function __clone();
+
+		/**
+		 * Create clone of the instance
+		 *
+		 * @param boolean $deep
+		 *        	If FALSE, the method MUST produce the same object than the __clone() magic
+		 *        	method. If TRUE, the method MAY return a deep copy of the instance.
+		 * @return $this Instance clone
+		 *
+		 */
+		function newClone($deep = false);
+	}

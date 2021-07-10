@@ -10,6 +10,8 @@ use NoreSources\Type\TypeConversionException;
 
 /**
  * Structured syntax text utility
+ *
+ * @deprecated Use ns-php-data DataSerializationManager
  */
 class StructuredText
 {
