@@ -15,6 +15,30 @@ class Text
 {
 
 	/**
+	 * Indicates if the given text represents a floating point number
+	 *
+	 * @param string $text
+	 *        	Input text
+	 * @return boolean TRUE if $text represents a floating point number
+	 */
+	public static function isFloat($text)
+	{
+		return ($text == \strval(\floatval($text)));
+	}
+
+	/**
+	 * Indicates if the given text represents an integer
+	 *
+	 * @param string $text
+	 *        	Input text
+	 * @return boolean TRUE if $text represents an integer
+	 */
+	public static function isInteger($text)
+	{
+		return ($text == \strval(\intval($text)));
+	}
+
+	/**
 	 *
 	 * @param string $text
 	 *        	Input string
@@ -88,6 +112,15 @@ class Text
 			TypeDescription::getName($value));
 	}
 
+	/**
+	 * Set the first letter case
+	 *
+	 * @param string $text
+	 *        	Text Input text
+	 * @param boolean $upper
+	 *        	Indicate if the first letter must be upper case
+	 * @return string
+	 */
 	public static function firstLetterCase($text, $upper = true)
 	{
 		return ($upper ? \ucfirst($text) : \lcfirst($text));
