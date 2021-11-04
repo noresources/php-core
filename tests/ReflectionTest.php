@@ -38,7 +38,7 @@ final class ReflectionTest extends \PHPUnit\Framework\TestCase
 		], $ns, \basename(__FILE__) . ' namespace');
 
 		$this->assertEquals(ReflectionFile::class,
-			$file->getCanonicalClassName('ReflectionFile'),
+			$file->getQualifiedClassName('ReflectionFile'),
 			'Class name resolution');
 
 		$file = new ReflectionFile(__DIR__ . '/data/MultiNamespace.php');

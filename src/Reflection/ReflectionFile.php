@@ -65,7 +65,7 @@ class ReflectionFile
 
 			$index = $this->skipWhitespace($index);
 			$name = '';
-			$index = $this->readCanonicalName($name, $index);
+			$index = $this->readQualifiedName($name, $index);
 
 			if (($index + 3) < ($this->tokenCount) &&
 				$this->tokens[$index][0] == T_WHITESPACE &&
@@ -94,11 +94,11 @@ class ReflectionFile
 	 *
 	 * @param string $name
 	 *        	Local class name
-	 * @return string Canonical class name. Name is resolved by looking into "use" statements first,
+	 * @return string Qualified class name. Name is resolved by looking into "use" statements first,
 	 *         then by assuming the class is part of the file namespace.
 	 *
 	 */
-	public function getCanonicalClassName($name)
+	public function getQualifiedClassName($name)
 	{
 		if (\substr($name, 0, 1) == '\\')
 			return $name;
@@ -215,10 +215,29 @@ class ReflectionFile
 		return $index;
 	}
 
-	private function readCanonicalName(&$name, $index)
+	private function readQualifiedName(&$name, $index)
 	{
 		$name = '';
 		$i = $index;
+
+		if (defined('T_NAME_QUALIFIED')) // PHP 8
+		{
+			$expected = [
+				T_NAME_FULLY_QUALIFIED,
+				T_NAME_QUALIFIED,
+				T_STRING
+			];
+			$token = $this->tokens[$index];
+			if (!(\is_array($token) && \in_array($token[0], $expected)))
+				throw new \ReflectionException(
+					'Invalid token. Expect T_STRING or T_NAME_[FULLY_]QUALIFIED. Got ' .
+					(\is_array($token) ? \token_name($token[0]) . ' ' .
+					$token[1] : $token));
+			$name = $token[1];
+			$index++;
+			return $index;
+		}
+
 		while ($index < $this->tokenCount)
 		{
 			$token = $this->tokens[$index];
@@ -282,7 +301,7 @@ class ReflectionFile
 			$index = $this->skipWhitespace($index);
 
 			$name = '';
-			$index = $this->readCanonicalName($name, $index);
+			$index = $this->readQualifiedName($name, $index);
 
 			if ($type != T_NAMESPACE)
 			{
