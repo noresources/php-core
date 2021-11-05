@@ -7,11 +7,11 @@
 	], 
 	"license": "MIT", 
 	"authors": [
-			{
+		{
 			"name": "Renaud Guillard", 
 			"email": "dev@nore.fr", 
 			"role": "lead"
-			}
+		}
 	], 
 	"support": {
 		"issues": "https://github.com/noresources/ns-php-core/issues"
@@ -35,17 +35,17 @@
 		"tests": "@php  ./vendor/bin/phpunit --color=never --bootstrap vendor/autoload.php tests"
 	}, 
 	"require-dev": {
-		"phpunit/phpunit": "< 7.0" 
+		"phpunit/phpunit": ">= 5.0"
+	},
+	"autoload-dev": {
+		"psr-4": {
+			"": "tests/data/Root"
+		}
 	}, 
 	"extra": {
 		"branch-alias": {
-			"dev-master": "2.5.x-dev",
+			"dev-master": "2.5.x-dev", 
 			"dev-devel": "2.6.x-dev"
-		}
-	}, 
-	"config": {
-		"platform": {
-			"php": "5.6.40"
 		}
 	}
 }

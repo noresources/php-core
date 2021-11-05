@@ -12,7 +12,8 @@ use NoreSources\Type\TypeDescription;
 use Psr\Container\ContainerInterface;
 use Psr\Container\NotFoundExceptionInterface;
 
-class NotFoundException implements NotFoundExceptionInterface
+class NotFoundException extends \Exception implements
+	NotFoundExceptionInterface
 {
 
 	public function __construct()

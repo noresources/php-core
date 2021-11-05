@@ -10,8 +10,12 @@ use NoreSources\Reflection\ReflectionDocComment;
 use NoreSources\Reflection\ReflectionFile;
 use NoreSources\Type\TypeDescription as TD;
 
+const REFLECTION_TEST = 'constant-value';
+
 final class ReflectionTest extends \PHPUnit\Framework\TestCase
 {
+
+	const REFLECTION_CLASS_CONSTANT = 'class-constant-value';
 
 	use SingletonTrait;
 
@@ -39,7 +43,11 @@ final class ReflectionTest extends \PHPUnit\Framework\TestCase
 
 		$this->assertEquals(ReflectionFile::class,
 			$file->getQualifiedClassName('ReflectionFile'),
-			'Class name resolution');
+			'Qualified name using "use" statement');
+
+		$this->assertEquals(ReflectionTest::class,
+			$file->getQualifiedClassName('ReflectionTest'),
+			'Qualified name using file namespace');
 
 		$file = new ReflectionFile(__DIR__ . '/data/MultiNamespace.php');
 
@@ -70,6 +78,18 @@ final class ReflectionTest extends \PHPUnit\Framework\TestCase
 			'Food\\Fish'
 		], $file->getNamespaces(),
 			'Multiple namespaces in a single file');
+
+		$namespaceLessClass = new \ReflectionClass('NamespaceLessClass');
+
+		$namespaceLessClassFilename = $namespaceLessClass->getFileName();
+		$this->assertEquals(
+			__DIR__ . '/data/Root/NamespaceLessClass.php',
+			$namespaceLessClassFilename);
+		$file = new ReflectionFile($namespaceLessClassFilename);
+
+		$this->assertEquals(\NamespaceLessClass::class,
+			$file->getQualifiedClassName('NamespaceLessClass'),
+			'Qualified class name in a file without namespace');
 	}
 
 	public function testReflectionDocComment()
@@ -98,9 +118,12 @@ final class ReflectionTest extends \PHPUnit\Framework\TestCase
 		if ($transformTypenames)
 			\array_walk($tokens,
 				function (&$t) {
-					if (\is_integer($t[0]))
-						$t[0] = \token_name($t[0]);
+					if (\is_array($t))
+						$t = '@' . $t[2] . ' ' . \token_name($t[0]) . ' ' .
+						$t[1];
+					return $t;
 				});
+		print_r($tokens);
 		return $tokens;
 	}
 }

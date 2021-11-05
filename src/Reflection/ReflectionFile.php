@@ -49,6 +49,7 @@ class ReflectionFile
 		if (isset($this->useStatements))
 			return $this->useStatements;
 		$this->getTokens();
+		$this->useStatements = [];
 		$index = 0;
 		while ($index < $this->tokenCount)
 		{
@@ -90,11 +91,13 @@ class ReflectionFile
 	}
 
 	/**
-	 * Get the canonical name of a class
+	 * Get the qualified name of a class, interface or trait
+	 * declared or used in this file.
 	 *
 	 * @param string $name
-	 *        	Local class name
-	 * @return string Qualified class name. Name is resolved by looking into "use" statements first,
+	 *        	Local PHP entity name
+	 * @return string Qualified entity name. Name is resolved by looking into "use" statements
+	 *         first,
 	 *         then by assuming the class is part of the file namespace.
 	 *
 	 */
@@ -106,8 +109,8 @@ class ReflectionFile
 		$map = $this->getUseStatements();
 		$map = \array_flip($map);
 
-		if (($name = Container::keyValue($map, $name, false)))
-			return $name;
+		if (($qualifiedName = Container::keyValue($map, $name, false)))
+			return $qualifiedName;
 
 		$ns = $this->getNamespaces();
 		switch (\count($ns))
