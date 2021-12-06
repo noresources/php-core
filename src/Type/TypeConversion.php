@@ -216,15 +216,29 @@ class TypeConversion
 			return $value;
 		elseif (\is_numeric($value))
 			return \strval($value);
-		if ($value instanceof \DateTimeInterface)
-			return $value->format(\DateTIme::ISO8601);
+		elseif (\is_object($value))
+		{
+			if (\method_exists($value, '__toString'))
+				return \call_user_func([
+					$value,
+					'__toString'
+				]);
+			elseif ($value instanceof \DateTimeInterface)
+				return $value->format(\DateTIme::ISO8601);
+			elseif ($value instanceof \Serializable)
+				return $value->serialize();
+			elseif ($value instanceof \JsonSerializable &&
+				\function_exists('\json_encode'))
+				return \json_encode($value->jsonSerialize());
 
-		if ((\is_object($value) && !\method_exists($value, '__toString')) ||
-			\is_array($value))
+			if (\is_callable($fallback))
+				return \call_user_func($fallback, $value);
+			throw new TypeConversionException($value, __METHOD__);
+		}
+		elseif (\is_array($value))
 		{
 			if (\is_callable($fallback))
-				return call_user_func($fallback, $value);
-
+				return \call_user_func($fallback, $value);
 			throw new TypeConversionException($value, __METHOD__);
 		}
 

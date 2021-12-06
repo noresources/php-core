@@ -142,9 +142,25 @@ class TypeDescription
 	 *
 	 * @param mixed $element
 	 *        	Any type
+	 * @param boolean $strict
+	 *        	The function will return true only if $element can be converted to string using
+	 *        	the \strval() function. Otherwise, any type supported by TypeConversion::toString
+	 *        	() will return true
+	 * @return boolean
 	 */
-	public static function hasStringRepresentation($element)
+	public static function hasStringRepresentation($element,
+		$strict = true)
 	{
+		if (!$strict)
+		{
+			if ($element instanceof \DateTimeInterface) // format ()
+				return true;
+			elseif ($element instanceof \Serializable) // szerialize()
+				return true;
+			elseif ($element instanceof \JsonSerializable) // encode (jsonSerialize)
+				return true;
+		}
+
 		if (\is_object($element))
 			return \method_exists($element, '__toString');
 		return (\is_string($element) || \is_integer($element) ||
