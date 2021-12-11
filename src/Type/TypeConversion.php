@@ -145,6 +145,9 @@ class TypeConversion
 
 		if ($value instanceof \DateTimeInterface)
 			return $value->getTimestamp();
+		elseif ($value instanceof \DateTimeZone)
+			return $value->getOffset(
+				new DateTime('now', DateTime::getUTCTimezone()));
 		elseif (\is_bool($value))
 			return ($value ? 1 : 0);
 		elseif (\is_null($value))
@@ -180,6 +183,10 @@ class TypeConversion
 
 		if ($value instanceof \DateTimeInterface)
 			return DateTime::toJulianDay($value);
+		elseif ($value instanceof \DateTimeZone)
+			return \floatval(
+				$value->getOffset(
+					new DateTime('now', DateTime::getUTCTimezone())));
 		elseif (\is_bool($value))
 			return ($value ? 1. : 0.);
 		elseif (\is_null($value))
@@ -225,6 +232,8 @@ class TypeConversion
 				]);
 			elseif ($value instanceof \DateTimeInterface)
 				return $value->format(\DateTIme::ISO8601);
+			elseif ($value instanceof \DateTimeZone)
+				return $value->getName();
 			elseif ($value instanceof \Serializable)
 				return $value->serialize();
 			elseif ($value instanceof \JsonSerializable &&

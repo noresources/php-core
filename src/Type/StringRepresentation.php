@@ -10,7 +10,11 @@ namespace NoreSources\Type;
  * string representation of a class instance
  *
  * This interface is a syntaxic sugar to indicates the object redefines the __toString() magic
- * method
+ * method.
+ *
+ * This interface is obsolet in PHP 8 which introduces the implicit Stringable interface.
+ *
+ * @see https://www.php.net/manual/en/class.stringable.php
  */
 interface StringRepresentation
 {

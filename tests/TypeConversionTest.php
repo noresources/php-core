@@ -67,6 +67,7 @@ final class TypeConversionTest extends \PHPUnit\Framework\TestCase
 			'2014',
 			456.125,
 			new \DateTime('now'),
+			new \DateTimeZone('Europe/Berlin'),
 			false,
 			true,
 			null
@@ -111,7 +112,8 @@ final class TypeConversionTest extends \PHPUnit\Framework\TestCase
 			new DataTree([
 				'key' => "value"
 			]),
-			new \DateTime('now')
+			new \DateTime('now'),
+			new \DateTimeZone('Europe/Berlin')
 		];
 
 		foreach ($input as $value)

@@ -30,7 +30,7 @@ class TypeComparison
 	 *         - > 0 if $a is greater than $b
 	 *         This method uses the following rules
 	 *         - NULL is lower than everything except itself.
-	 *         - FALSE is lower tahn anything that evaluates to TRUE and equals anything that
+	 *         - FALSE is lower than anything that evaluates to TRUE and equals anything that
 	 *         evaluates to FALSE (except NULL).
 	 *         - TRUE is greater than anything that evaluates to FALSE.
 	 *         - Two numbers are cmopared using the minus operator
@@ -49,8 +49,7 @@ class TypeComparison
 				return $a->compare($b);
 			elseif ($b instanceof ComparableInterface)
 				return -$b->compare($a);
-
-			if (\is_null($a))
+			elseif (\is_null($a))
 				return \is_null($b) ? 0 : -1;
 			elseif (\is_null($b))
 				return 1;

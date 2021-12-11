@@ -11,6 +11,7 @@ use NoreSources\Type\IntegerRepresentation;
 use NoreSources\Type\TypeComparison;
 use NoreSources\Type\TypeConversion;
 use NoreSources\Type\TypeDescription;
+use PHPUnit\Framework\TestCase;
 
 class TypeComparisonTestInteger implements ComparableInterface,
 	IntegerRepresentation
@@ -34,7 +35,7 @@ class TypeComparisonTestInteger implements ComparableInterface,
 	private $value;
 }
 
-final class TypeComparisonTest extends \PHPUnit\Framework\TestCase
+final class TypeComparisonTest extends TestCase
 {
 
 	public function testComparisons()

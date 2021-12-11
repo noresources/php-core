@@ -150,10 +150,17 @@ class TypeDescription
 	 */
 	public static function hasStringRepresentation($element,
 		$strict = true)
+
 	{
+		// PHP 8
+		if ($element instanceof \Stringable)
+			return true;
+
 		if (!$strict)
 		{
 			if ($element instanceof \DateTimeInterface) // format ()
+				return true;
+			if ($element instanceof \DateTimeZone)
 				return true;
 			elseif ($element instanceof \Serializable) // szerialize()
 				return true;

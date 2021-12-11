@@ -129,6 +129,11 @@ final class TypeDescriptionTest extends \PHPUnit\Framework\TestCase
 				false,
 				true
 			],
+			'DateTimeZone' => [
+				new \DateTimeZone('Europe/Berlin'),
+				false,
+				true
+			],
 			'Serializable' => [
 				new TypeDescriptionSerializableSampleClass(),
 				false,
