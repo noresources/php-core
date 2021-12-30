@@ -5,6 +5,8 @@
  */
 namespace NoreSources\Test;
 
+use NoreSources\Test\Data\TypeDescriptionJsonSerializableSampleClass;
+use NoreSources\Test\Data\TypeDescriptionSerializableSampleClass;
 use NoreSources\Type\TypeDescription;
 
 final class TypeDescriptionTest extends \PHPUnit\Framework\TestCase

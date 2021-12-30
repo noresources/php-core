@@ -10,6 +10,7 @@ use NoreSources\Container\ContainerPropertyInterface;
 use NoreSources\Container\DataTree;
 use NoreSources\Container\DataTreeElementNotFoundException;
 use NoreSources\Text\StructuredText;
+use PHPUnit\Framework\TestCase;
 
 class ElementClass
 {
@@ -33,14 +34,21 @@ class TraversableClass implements ContainerPropertyInterface
 	}
 }
 
-final class DataTreeTest extends \PHPUnit\Framework\TestCase
+final class DataTreeTest extends TestCase
 {
+
+	use DerivedFileTestTrait;
 
 	public function __construct($name = null, array $data = [],
 		$dataName = '')
 	{
 		parent::__construct($name, $data, $dataName);
-		$this->derived = new DerivedFileManager(__DIR__);
+		$this->initializeDerivedFileTest(__DIR__);
+	}
+
+	public function __destruct()
+	{
+		$this->cleanupDerivedFileTest();
 	}
 
 	public function testFromArray()
@@ -114,15 +122,15 @@ final class DataTreeTest extends \PHPUnit\Framework\TestCase
 		$tree = new DataTree();
 		$tree->loadFile(__DIR__ . '/data/a.json');
 		$data = json_encode($tree, JSON_PRETTY_PRINT);
-		$this->derived->assertDerivedFile($data, __METHOD__, 'file',
-			'json', 'json from file');
+		$this->assertDerivedFile($data, __METHOD__, 'file', 'json',
+			'json from file');
 
 		$tree = new DataTree();
 		$input = \file_get_contents(__DIR__ . '/data/a.json');
 		$tree->loadData($input, StructuredText::FORMAT_JSON);
 		$data = json_encode($tree, JSON_PRETTY_PRINT);
-		$this->derived->assertDerivedFile($data, __METHOD__, 'string',
-			'json', 'json from string');
+		$this->assertDerivedFile($data, __METHOD__, 'string', 'json',
+			'json from string');
 	}
 
 	public function testLoadPhp()
@@ -130,8 +138,7 @@ final class DataTreeTest extends \PHPUnit\Framework\TestCase
 		$tree = new DataTree();
 		$tree->loadFile(__DIR__ . '/data/a.php');
 		$data = json_encode($tree, JSON_PRETTY_PRINT);
-		$this->derived->assertDerivedFile($data, __METHOD__, null,
-			'json');
+		$this->assertDerivedFile($data, __METHOD__, null, 'json');
 	}
 
 	public function testLoadYaml()
@@ -145,8 +152,7 @@ final class DataTreeTest extends \PHPUnit\Framework\TestCase
 		$tree = new DataTree();
 		$tree->loadFile(__DIR__ . '/data/a.yaml');
 		$data = json_encode($tree, JSON_PRETTY_PRINT);
-		$this->derived->assertDerivedFile($data, __METHOD__, null,
-			'json');
+		$this->assertDerivedFile($data, __METHOD__, null, 'json');
 	}
 
 	public function testLoadInvalidJson()
@@ -184,9 +190,8 @@ final class DataTreeTest extends \PHPUnit\Framework\TestCase
 				$tree->loadFile(__DIR__ . '/data/a.' . $extension);
 				$tree->loadFile(__DIR__ . '/data/b.' . $extension, $mode);
 				$data = json_encode($tree, JSON_PRETTY_PRINT);
-				$this->derived->assertDerivedFile($data, __METHOD__,
-					$modeName, 'json',
-					'Fusion (' . $modeName . ') ' . $extension);
+				$this->assertDerivedFile($data, __METHOD__, $modeName,
+					'json', 'Fusion (' . $modeName . ') ' . $extension);
 			}
 		}
 	}
@@ -200,8 +205,6 @@ final class DataTreeTest extends \PHPUnit\Framework\TestCase
 
 		return $dt->get('fii');
 	}
-
-	private $derived;
 
 	public function testClassTypePreservation()
 	{

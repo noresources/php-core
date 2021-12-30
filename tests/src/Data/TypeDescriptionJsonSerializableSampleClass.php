@@ -1,5 +1,5 @@
 <?php
-namespace NoreSources\Test;
+namespace NoreSources\Test\Data;
 
 class TypeDescriptionJsonSerializableSampleClass implements
 	\JsonSerializable
