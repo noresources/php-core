@@ -11,7 +11,6 @@ use NoreSources\Type\ArrayRepresentation;
 use NoreSources\Type\FloatRepresentation;
 use NoreSources\Type\IntegerRepresentation;
 use NoreSources\Type\StringRepresentation;
-use DateTimeZone;
 
 /**
  * the <code>[NoreSources\DateTime](NoreSources/DateTime)</code> class extends the built-in
@@ -257,22 +256,18 @@ class DateTime extends \DateTime implements IntegerRepresentation,
 	 *        	<li>float</li> Julian day
 	 *        	</ul>
 	 * @param \DateTimeZone $timezone
+	 *        	Time zone hint.
+	 *        	Use this time zone ONLY if the $time does not provide time zone information
 	 */
 	public function __construct($time = null,
 		\DateTimeZone $timezone = null)
 	{
 		if (\is_integer($time))
-		{
-			parent::__construct('@' . $time, $timezone);
-			if ($timezone instanceof \DateTimeZone)
-				$this->setTimezone($timezone);
-		}
+			parent::__construct('@' . $time);
 		elseif (\is_float($time))
 		{
-			parent::__construct('@0', $timezone);
+			parent::__construct('@0');
 			$this->setJulianDay($time);
-			if ($timezone instanceof \DateTimeZone)
-				$this->setTimezone($timezone);
 		}
 		else
 			parent::__construct($time, $timezone);
@@ -519,28 +514,25 @@ class DateTime extends \DateTime implements IntegerRepresentation,
 		if (self::isDateTimeStateArray($array))
 		{
 			$instance = @\DateTime::__set_state($array);
-			if ($instance instanceof \DateTime)
-			{
+			if ($instance instanceof \DateTimeInterface)
 				$timezone = $instance->getTimezone();
-			}
 		}
 		elseif (Container::keyExists($array, 'format') &&
 			Container::keyExists($array, 'time'))
 		{
 			$timezone = Container::keyValue($array, 'timezone', null);
-			if (\is_string($timezone))
-			{
-				$timezone = new \DateTimeZone($timezone);
-			}
+			if ($timezone)
+				$timezone = \DateTimeZone::createFromDescription(
+					$timezone);
 
 			$instance = \DateTime::createFromFormat(
 				Container::keyValue($array, 'format'),
 				Container::keyValue($array, 'time'), $timezone);
 		}
 
-		if ($instance instanceof \DateTime)
+		if ($instance instanceof \DateTimeInterface)
 		{
-			if ($baseClass)
+			if ($baseClass || ($instance instanceof DateTime))
 				return $instance;
 
 			return new DateTime($instance->format(\DateTime::ISO8601),

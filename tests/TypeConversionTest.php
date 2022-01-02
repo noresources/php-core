@@ -5,6 +5,7 @@
  */
 namespace NoreSources\Test;
 
+use NoreSources\DateTime;
 use NoreSources\Container\Container;
 use NoreSources\Container\DataTree;
 use NoreSources\Type\TypeConversion;
@@ -139,10 +140,19 @@ final class TypeConversionTest extends \PHPUnit\Framework\TestCase
 
 		foreach ($input as $value)
 		{
-			$dt = TypeConversion::toDateTime($value,
-				function ($value) {
-					return 'fallback';
-				});
+			$dt = null;
+			try
+			{
+				$dt = TypeConversion::toDateTime($value,
+					function ($value) {
+						return 'fallback';
+					});
+			}
+			catch (\Exception $e)
+			{
+				$dt = $e->getMessage();
+			}
+
 			$this->assertEquals('fallback', $dt,
 				var_export($value, true));
 		}
@@ -167,9 +177,89 @@ final class TypeConversionTest extends \PHPUnit\Framework\TestCase
 
 		foreach ($input as $value)
 		{
-			$dt = TypeConversion::toDateTime($value);
+			$dt = null;
+			try
+			{
+				$dt = TypeConversion::toDateTime($value);
+			}
+			catch (\Exception $e)
+			{
+				$dt = $e->getMessage();
+			}
 			$this->assertInstanceOf(\DateTIme::class, $dt,
 				var_export($value, true));
+		}
+
+		$tests = [
+			'epoch as UNIX timestamp' => [
+				'value' => 0,
+				'expected' => new DateTime('@0',
+					DateTime::getUTCTimezone())
+			]
+		];
+
+		foreach ($tests as $label => $test)
+		{
+			$value = $test['value'];
+			$actual = TypeConversion::toDateTime($value,
+				DateTime::getUTCTimezone());
+
+			if (($expected = Container::keyValue($test, 'expected')))
+			{
+				$this->assertEquals($expected, $actual, $label);
+			}
+		}
+	}
+
+	public function testToDateTime()
+	{
+		$utc = new \DateTimeZone('UTC');
+		$tokyo = new \DateTimeZone('Asia/Tokyo');
+		$berlin = new \DateTimeZone('Europe/Berlin');
+		$system = new \DateTimeZone(\date_default_timezone_get());
+		$now = new \DateTime('now');
+		$now->setTimezone($utc);
+
+		$tests = [
+			[
+				'input' => '2010-11-12T13:14:15'
+			],
+			[
+				'input' => '2010-11-12T13:14:15',
+				'timezone' => $system
+			],
+			[
+				'input' => '2010-11-12T13:14:15',
+				'inputTimezone' => $system,
+				'timezone' => $tokyo,
+				'expected' => '2010-11-12T13:14:15+0900'
+			],
+			[
+				'input' => '2010-11-12T13:14:15+01:00',
+				'inputTimezone' => $berlin,
+				'timezone' => $tokyo,
+				'expected' => '2010-11-12T21:14:15+0900'
+			]
+		];
+
+		foreach ($tests as $label => $test)
+		{
+			$input = Container::keyValue($test, 'input');
+			$timezone = Container::keyValue($test, 'timezone', $system);
+			$value = TypeConversion::toDateTime($input, $timezone);
+
+			if (($expected = Container::keyValue($test, 'expected')))
+			{
+				$actual = $value->format(DateTime::ISO8601);
+				$this->assertEquals($expected, $actual, $label);
+			}
+
+			$actualOffset = $value->getTimezone()->getOffset($now);
+			$expectedOffset = $timezone->getOffset($now);
+			$text = $label . ' Time zone offset (' .
+				TypeConversion::toString($timezone) . ', ' .
+				$expectedOffset . ')';
+			$this->assertEquals($expectedOffset, $actualOffset, $text);
 		}
 	}
 

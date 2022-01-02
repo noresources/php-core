@@ -13,14 +13,127 @@ use NoreSources\Type\TypeConversion;
 final class DateTimeTest extends \PHPUnit\Framework\TestCase
 {
 
+	public function testConstructorBehavior()
+	{
+		$utc = new \DateTimeZone('UTC');
+		$berlin = new \DateTimeZone('Europe/Berlin');
+		$tokyo = new \DateTimeZone('Asia/Tokyo');
+		$system = new \DateTimeZone(\date_default_timezone_get());
+
+		$now = new \DateTime('now', $utc);
+		$this->assertEquals($utc->getName(),
+			$now->getTimezone()
+				->getName(), 'Now time zone');
+
+		$nowAtTokyo = clone $now;
+		$nowAtTokyo->setTimezone($tokyo);
+		$tokyoStringOffset = $nowAtTokyo->format('P');
+
+		$tests = [
+			'default' => [
+				'arguments' => [],
+				'timezone' => $system
+			],
+			'default with time zone' => [
+				'arguments' => [
+					null,
+					$tokyo
+				],
+				'timezone' => $tokyo
+			],
+			'"now"' => [
+				'arguments' => [
+					"now"
+				],
+				'timezone' => $system
+			],
+			'"now" with time zone' => [
+				'arguments' => [
+					"now",
+					$tokyo
+				],
+				'timezone' => $tokyo
+			],
+			'Epoch' => [
+				'arguments' => [
+					'@0'
+				],
+				'timezone' => $system
+			],
+			'Epoch with time zone' => [
+				'arguments' => [
+					'@0',
+					$tokyo
+				],
+				'timezone' => $utc
+			],
+			'datetime' => [
+				'arguments' => [
+					'2010-11-12T13:14:15'
+				],
+				'timezone' => $system
+			],
+			'datetime with time zone' => [
+				'arguments' => [
+					'2010-11-12T13:14:15',
+					$tokyo
+				],
+				'timezone' => $tokyo
+			],
+			'timestamp' => [
+				'arguments' => [
+					'2010-11-12T13:14:15' . $tokyoStringOffset
+				],
+				'timezone' => $tokyo
+			],
+			'timestamp with (another) time zone' => [
+				'arguments' => [
+					'2010-11-12T13:14:15' . $tokyoStringOffset,
+					$berlin
+				],
+				'timezone' => $tokyo
+			]
+		];
+
+		$builtinClass = new \ReflectionClass(\DateTime::class);
+		$outClass = new \ReflectionClass(DateTime::class);
+
+		foreach ($tests as $label => $test)
+		{
+			$args = Container::keyValue($test, 'arguments');
+
+			$this->assertEquals('array', gettype($args),
+				$label . ' constructor arguments');
+
+			/** @var \DateTimeZone $timezone */
+			$timezone = Container::keyValue($test, 'timezone');
+
+			foreach ([
+				'built-in' => $builtinClass->newInstanceArgs($args),
+				'ours' => $outClass->newInstanceArgs($args)
+			] as $type => $value)
+			{
+				$this->assertInstanceOf(\DateTimeInterface::class,
+					$value);
+
+				$valueTimezone = $value->getTimezone();
+
+				$this->assertEquals($timezone->getOffset($now),
+					$valueTimezone->getOffset($now),
+					$type . ' ' . $label . ' | Time zone offset (' .
+					$timezone->getName() . ')');
+			}
+		}
+	}
+
 	public function testFromInteger()
 	{
 		$tz = new \DateTimeZone('Europe/Berlin');
-		$arbitraryDate = new \DateTime('910-11-12T13:14:15+0400', $tz);
+		$arbitraryDate = new \DateTime('910-11-12T13:14:15+0400');
 		$tests = [
 			'epoch' => [
 				'int' => 0,
-				'text' => new \DateTime('@0', $tz)
+				'text' => new \DateTime('@0')
 			],
 			'arbitrary date' => [
 				'int' => $arbitraryDate->getTimestamp(),
@@ -37,7 +150,8 @@ final class DateTimeTest extends \PHPUnit\Framework\TestCase
 				$test->text = $test->text->format(\DateTime::ISO8601);
 			}
 
-			$dt = new DateTime($test->int, $tz);
+			$dt = new DateTime($test->int);
+			$dt->setTimezone($tz);
 			$this->assertEquals($test->text,
 				$dt->format(\DateTime::ISO8601), $label);
 		}
@@ -65,32 +179,6 @@ final class DateTimeTest extends \PHPUnit\Framework\TestCase
 			$this->assertEquals($dateTime->format(\DateTime::ISO8601),
 				$fromArray->format(\DateTime::ISO8601),
 				$time . ' - From array');
-		}
-	}
-
-	public function testConstructor()
-	{
-		$timezone = new \DateTimeZone('Europe/Berlin');
-		$tests = [
-			'Epoch' => '@0',
-			'Fixed date' => '2010-11-12T13:14:15.654321 +04:30',
-			'Now' => 'now'
-		];
-
-		foreach ($tests as $label => $value)
-		{
-			foreach ([
-				'without timezone' => null,
-				'with time zone' => $timezone
-			] as $t => $timezone)
-			{
-				$builtin = new \DateTIme($value, $timezone);
-				$ours = new DateTime($value, $timezone);
-				$this->assertEquals($builtin->format(DateTime::ISO8601),
-					$ours->format(DateTIme::ISO8601),
-					'Identical constructor behavior for ' . $label . ' ' .
-					$t);
-			}
 		}
 	}
 

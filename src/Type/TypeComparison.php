@@ -10,6 +10,7 @@ namespace NoreSources\Type;
 use NoreSources\ComparableInterface;
 use NoreSources\ComparisonException;
 use NoreSources\DateTime;
+use NoreSources\NotComparableException;
 use NoreSources\Text\Text;
 
 /**
@@ -40,9 +41,6 @@ class TypeComparison
 	 */
 	public static function compare($a, $b)
 	{
-		$ta = TypeDescription::getName($a);
-		$tb = TypeDescription::getName($b);
-
 		try
 		{
 			if ($a instanceof ComparableInterface)
@@ -61,6 +59,8 @@ class TypeComparison
 				return self::compareNumber($a, $b);
 			elseif ($a instanceof \DateTimeInterface)
 				return self::compareDateTime($a, $b);
+			elseif ($b instanceof \DateTimeInterface)
+				return -self::compareDateTime($b, $a);
 			elseif (\is_string($a))
 				return self::compareString($a, $b);
 
@@ -78,6 +78,70 @@ class TypeComparison
 		catch (\Exception $e)
 		{}
 
+		$ta = TypeDescription::getName($a);
+		$tb = TypeDescription::getName($b);
+		throw new ComparisonException(
+			$ta . ' <-> ' . $tb . ' Not comparable');
+	}
+
+	/**
+	 *
+	 * @param \DateTimeInterface $a
+	 *        	First operand
+	 * @param \DateTimeInterface|string|integer|float $b
+	 *        	Second operand. DateTime, string representation of a DateTime, UNIX timestamp or
+	 *        	julian day
+	 * @param number $fractionEpsilon
+	 *        	Threshold to use in \DateTimeInterface fraction field comparison.
+	 *        	If $fractionEpsilon > 1 A UNIX timestamp comparison is made instead.
+	 * @throws NotComparableException
+	 * @return number
+	 */
+	public static function compareDateTime(\DateTimeInterface $a, $b,
+		$fractionEpsilon = 1)
+	{
+		if (\is_string($b))
+			$b = new DateTime($b);
+
+		if ($b instanceof \DateTimeInterface)
+		{
+			if ($fractionEpsilon >= 1)
+				return $a->getTimestamp() - $b->getTimestamp();
+
+			/** @var \DateTimeInterface */
+			$interval = $a->diff($b);
+			$m = -1;
+			if ($interval->invert)
+				$m = 1;
+
+			foreach ([
+				'y',
+				'm',
+				'd',
+				'h',
+				'i',
+				's'
+			] as $property)
+			{
+				$v = $interval->$property;
+				if ($v > 0)
+				{
+					return $m * $v;
+				}
+			}
+
+			if ($interval->f > $fractionEpsilon)
+				return $m * $interval->f;
+
+			return 0;
+		}
+		elseif (\is_float($b))
+			return DateTime::toJulianDay($a) - $b;
+		elseif (\is_integer($b))
+			return $a->getTimestamp() - $b;
+
+		$ta = TypeDescription::getName($a);
+		$tb = TypeDescription::getName($b);
 		throw new ComparisonException(
 			$ta . ' <-> ' . $tb . ' Not comparable');
 	}
@@ -109,41 +173,5 @@ class TypeComparison
 		}
 
 		return \strcmp($a, TypeConversion::toString($b));
-	}
-
-	protected static function compareDateTime(\DateTimeInterface $a, $b)
-	{
-		if (\is_string($b))
-			$b = new DateTime($b);
-
-		if ($b instanceof \DateTimeInterface)
-		{
-			/** @var \DateTimeInterface */
-			$interval = $a->diff($b);
-			if ($interval->invert)
-				return -1;
-
-			foreach ([
-				'y',
-				'm',
-				'd',
-				'h',
-				'i',
-				's',
-				'f'
-			] as $property)
-			{
-				if ($interval->$property > 0)
-					return 1;
-			}
-
-			return 0;
-		}
-		elseif (\is_float($b))
-			return DateTime::toJulianDay($a) - $b;
-		elseif (\is_integer($b))
-			return $a->getTimestamp() - $b;
-
-		throw new \Exception();
 	}
 }

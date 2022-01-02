@@ -74,56 +74,71 @@ class TypeConversion
 	 *
 	 * @param mixed $value
 	 *        	Value to convert
+	 * @param \DateTimeZone $timezone
+	 *        	Time zone of constructed DateTime.
 	 * @param callable $fallback
 	 *        	A cacallback to invoke if the method is nuable to convert the value e
 	 * @throws TypeConversionException
-	 * @return \DateTimeInterface
+	 * @return \DateTimeInterface A DateTime with the given time zone.
 	 */
-	public static function toDateTime($value, $fallback = null)
+	public static function toDateTime($value, $timezone = null,
+		$fallback = null)
 	{
-		if ($value instanceof \DateTime)
-			return $value;
+		// Backward compatibility
+		if (\is_callable($timezone) && !\is_callable($fallback))
+		{
+			$fallback = $timezone;
+			$timezone = null;
+		}
+
+		if ($timezone && !($timezone instanceof \DateTimeZone))
+			$timezone = new \DateTimeZone($timezone);
 
 		$message = null;
-		if (\is_float($value))
+		$d = null;
+		if ($value instanceof \DateTimeInterface)
 		{
-			$d = new DateTime('now', DateTime::getUTCTimezone());
-			$d->setJulianDay($value);
-			return $d;
+			$d = $value;
+			if ($timezone && ($timezone !== $value->getTimezone()))
+				$d = clone $value;
 		}
-		elseif (\is_int($value))
-		{
-			$d = new DateTime('now', DateTime::getUTCTimezone());
-			$d->setTimestamp($value);
-			return $d;
-		}
+		elseif (\is_float($value) || \is_integer($value))
+			$d = new DateTime($value, $timezone);
 		elseif (\is_string($value))
 		{
 			try
 			{
-				$d = new DateTime($value);
-				return $d;
+				$d = new DateTime($value, $timezone);
 			}
 			catch (\Exception $e)
 			{
 				$message = $e->getMessage();
 			}
 		}
+		elseif (DateTime::isDateTimeStateArray($value))
+			$d = DateTime::createFromArray($value);
 		elseif (Container::isArray($value))
 		{
 			try
 			{
 				$d = DateTime::createFromArray($value);
-				return $d;
 			}
 			catch (\Exception $e)
 			{
-				$message = $e->getMessage();
+				$message = 'Unsupported array content. ' .
+					$e->getMessage();
 			}
 		}
 
+		if ($d instanceof \DateTimeInterface)
+		{
+			if ($timezone)
+				$d->setTimezone($timezone);
+			return $d;
+		}
+
 		if (\is_callable($fallback))
-			return call_user_func($fallback, $value);
+			return \call_user_func($fallback, $value, $timezone);
 
 		throw new TypeConversionException($value, __METHOD__, $message);
 	}
