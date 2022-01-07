@@ -6,7 +6,9 @@
 namespace NoreSources\Test;
 
 use NoreSources\DateTime;
+use NoreSources\DateTimeZone;
 use NoreSources\Container\Container;
+use NoreSources\Type\TypeConversion;
 
 final class DateTimeTest extends \PHPUnit\Framework\TestCase
 {
@@ -66,11 +68,30 @@ final class DateTimeTest extends \PHPUnit\Framework\TestCase
 		}
 	}
 
-	public function testToString()
+	public function testConstructor()
 	{
-		$dt = new DateTime('2010-11-12T13:14:15.654321 +04:30',
-			new \DateTimeZone('Europe/Berlin'));
-		$this->assertEquals('2010-11-12T13:14:15+0430', \strval($dt));
+		$timezone = new \DateTimeZone('Europe/Berlin');
+		$tests = [
+			'Epoch' => '@0',
+			'Fixed date' => '2010-11-12T13:14:15.654321 +04:30',
+			'Now' => 'now'
+		];
+
+		foreach ($tests as $label => $value)
+		{
+			foreach ([
+				'without timezone' => null,
+				'with time zone' => $timezone
+			] as $t => $timezone)
+			{
+				$builtin = new \DateTIme($value, $timezone);
+				$ours = new DateTime($value, $timezone);
+				$this->assertEquals($builtin->format(DateTime::ISO8601),
+					$ours->format(DateTIme::ISO8601),
+					'Identical constructor behavior for ' . $label . ' ' .
+					$t);
+			}
+		}
 	}
 
 	public function testToArray()
@@ -211,5 +232,102 @@ final class DateTimeTest extends \PHPUnit\Framework\TestCase
 		$fromJD->setJulianDay($wikipediaExampleJulian);
 		$this->assertEquals($wikipediaExample, \strval($fromJD),
 			'From julian day');
+	}
+
+	public function testTimeZoneCreate()
+	{
+		$tests = [
+			'UTC numeric' => 0,
+			'UTC offset string with a leading minus' => '-00:00',
+			'UTC offset string' => '00:00',
+			'UTC+1 string (P)' => '+01:00',
+			'UTC+1 string (O)' => '+0100',
+			'UTC+1 name' => 'Europe/Berlin',
+			'Offset description' => [
+				'offset' => '+02:00'
+			],
+			'Offset description' => [
+				'offset' => '+0200',
+				'format' => 'O'
+			],
+			'Name description' => [
+				'name' => 'Asia/Tokyo'
+			]
+		];
+
+		foreach ($tests as $label => $description)
+		{
+			$timezone = null;
+			try
+			{
+				$timezone = DateTimeZone::createFromDescription(
+					$description);
+			}
+			catch (\Exception $e)
+			{
+				$timezone = $e->getMessage();
+			}
+			$this->assertInstanceOf(\DateTimeZone::class, $timezone,
+				'Create from ' . $label);
+		}
+	}
+
+	public function testTimezone()
+	{
+		$tests = [
+			[
+				'format' => 'P',
+				'value' => '+01:00'
+			],
+			[
+				'format' => 'O',
+				'value' => '+0100'
+			],
+			[
+				'value' => '+0000'
+			],
+			[
+				'value' => '+00:00'
+			]
+		];
+
+		foreach ($tests as $test)
+		{
+			$format = Container::keyValue($test, 'format');
+			$value = $test['value'];
+
+			if (\is_string($value))
+			{
+				$valueFormat = DateTimeZone::getOffsetFormat($value);
+				if ($format)
+					$this->assertEquals($format, $valueFormat,
+						$value . ' format');
+			}
+
+			$timezone = DateTimeZone::createFromOffset($value, $format);
+			$this->assertInstanceOf(\DateTimeZone::class, $timezone);
+
+			if (\is_string($value) && $format)
+			{
+				$e = new DateTime('2010-11-12T13:14:15', $timezone);
+				$e->setTimezone($timezone);
+				$this->assertEquals($e->format($format), $value,
+					'Convert time zone to string (using DateTime ' .
+					$e->format(DateTime::ISO8601) . ')');
+			}
+		}
+
+		$timezoneName = 'Europe/Paris';
+
+		$timezone = new DateTimeZone($timezoneName);
+		$matches = DateTimeZone::listMatchingOffsetTimezones($timezone,
+			\DateTimeZone::EUROPE, 'FR');
+		$matches = Container::map($matches,
+			function ($k, $v) {
+				return TypeConversion::toString($v);
+			});
+
+		$this->assertContains($timezoneName, $matches,
+			'Time zone with the same offset');
 	}
 }
