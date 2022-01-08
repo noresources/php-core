@@ -2,6 +2,8 @@
 /**
  * Copyright © 2012 - 2021 by Renaud Guillard (dev@nore.fr)
  * Distributed under the terms of the MIT License, see LICENSE
+ *
+ * @package Core
  */
 namespace NoreSources\Test;
 
@@ -169,9 +171,8 @@ final class ComparableTest extends \PHPUnit\Framework\TestCase
 			{
 				$a = $pair[0];
 				$b = $pair[1];
-				$text = $label . ': ' .
-					TypeDescription::getLocalName($a) . ' ' .
-					TypeConversion::toString($a) . ' vs ' .
+				$text = $label . ': ' . TypeDescription::getLocalName(
+					$a) . ' ' . TypeConversion::toString($a) . ' vs ' .
 					TypeDescription::getLocalName($b) . ' ' .
 					TypeConversion::toString($b);
 

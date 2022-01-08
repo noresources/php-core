@@ -2,6 +2,8 @@
 /**
  * Copyright © 2012 - 2021 by Renaud Guillard (dev@nore.fr)
  * Distributed under the terms of the MIT License, see LICENSE
+ *
+ * @package Core
  */
 namespace NoreSources\Test;
 
@@ -173,7 +175,6 @@ final class TextTest extends \PHPUnit\Framework\TestCase
 	final function testStructureTextFromTextFailure()
 	{
 		$this->expectException(TypeConversionException::class);
-		$data = StructuredText::parseFile(
-			__DIR__ . '/data/sample.xml');
+		$data = StructuredText::parseFile(__DIR__ . '/data/sample.xml');
 	}
 }
