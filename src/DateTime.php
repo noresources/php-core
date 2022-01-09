@@ -202,6 +202,14 @@ class DateTime extends \DateTime implements IntegerRepresentation,
 	const FORMAT_TIMEZONE_GMT_OFFSET_COLON = 'P';
 
 	/**
+	 * GMT offset (colon) or Z for UTC offset
+	 * PHP 8+
+	 *
+	 * @var string
+	 */
+	const FORMAT_TIMEZONE_GMT_OFFSET_COLON_Z = 'p';
+
+	/**
 	 * GMT offset
 	 */
 	const FORMAT_TIMEZONE_GMT_OFFSET = 'O';
@@ -861,7 +869,8 @@ class DateTime extends \DateTime implements IntegerRepresentation,
 						self::FORMAT_DESCRIPTION_DETAILS => 'Without colon separator'
 					],
 					self::FORMAT_TIMEZONE_GMT_OFFSET_COLON => [
-						self::FORMAT_DESCRIPTION_LABEL => 'GMT offset'
+						self::FORMAT_DESCRIPTION_LABEL => 'GMT offset',
+						self::FORMAT_DESCRIPTION_DETAILS => 'With colon separator'
 					],
 
 					self::FORMAT_TIMEZONE_ALPHA_3 => [
@@ -898,6 +907,14 @@ class DateTime extends \DateTime implements IntegerRepresentation,
 						self::FORMAT_DESCRIPTION_STRFTIME => '%s'
 					]
 				]);
+
+			if (version_compare(PHP_VERSION, '8.0.0') >= 0)
+			{
+				self::$formatTokenDescriptions[self::FORMAT_TIMEZONE_GMT_OFFSET_COLON_Z] = [
+					self::FORMAT_DESCRIPTION_LABEL => 'GMT offset',
+					self::FORMAT_DESCRIPTION_DETAILS => 'With colon separator or "Z" for UTC'
+				];
+			}
 		}
 
 		if (\is_string($token))
@@ -909,7 +926,7 @@ class DateTime extends \DateTime implements IntegerRepresentation,
 
 	/**
 	 *
-	 * @return DateTimeZone
+	 * @return \DateTimeZone
 	 */
 	public static function getUTCTimezone()
 	{
