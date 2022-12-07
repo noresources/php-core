@@ -128,26 +128,30 @@ class Text
 		return ($upper ? \ucfirst($text) : \lcfirst($text));
 	}
 
-	/**
-	 *
-	 * @param string $text
-	 * @return string
-	 */
 	public static function toCamelCase($text)
 	{
 		return self::toCodeCase($text,
 			[
 				self::CODE_CASE_SEPARATOR => '',
-				self::CODE_CASE_CAPITALIZE => self::CODE_CASE_CAPITALIZE_ALL
+				self::CODE_CASE_CAPITALIZE => self::CODE_CASE_CAPITALIZE_OTHER
 			]);
 	}
 
-	public static function toSmallCamelCase($text)
+	public static function toKebabCase($text)
+	{
+		return self::toCodeCase($text,
+			[
+				self::CODE_CASE_SEPARATOR => '-',
+				self::CODE_CASE_CAPITALIZE => 0
+			]);
+	}
+	
+	public static function toPascalCase($text)
 	{
 		return self::toCodeCase($text,
 			[
 				self::CODE_CASE_SEPARATOR => '',
-				self::CODE_CASE_CAPITALIZE => self::CODE_CASE_CAPITALIZE_OTHER
+				self::CODE_CASE_CAPITALIZE => self::CODE_CASE_CAPITALIZE_ALL
 			]);
 	}
 

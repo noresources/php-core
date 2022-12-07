@@ -84,15 +84,16 @@ final class TextTest extends \PHPUnit\Framework\TestCase
 	{
 		$tests = [
 			'hello world' => [
-				'toCamelCase' => 'HelloWorld'
+				'toPascalCase' => 'HelloWorld'
 			],
 			' Hello?world/' => [
-				'toCamelCase' => 'HelloWorld',
-				'toSmallCamelCase' => 'helloWorld',
+				'toCamelCase' => 'helloWorld',
+				'toKebabCase' => 'hello-world',
+				'toPascalCase' => 'HelloWorld',
 				'toSnakeCase' => 'hello_world'
 			],
 			'M_id' => [
-				'toSmallCamelCase' => 'mId'
+				'toCamelCase' => 'mId'
 			]
 		];
 
