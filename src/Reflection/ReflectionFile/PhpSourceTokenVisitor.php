@@ -56,6 +56,31 @@ class PhpSourceTokenVisitor implements \Iterator, \Countable
 		else
 			throw new \InvalidArgumentException(
 				'Array of token or PHP source code text expected');
+		$this->rangeStart = 0;
+		$this->rangeEnd = $this->tokens->count();
+		$this->rewind();
+	}
+
+	public function setStartIndex($offset)
+	{
+		$this->rangeStart = max(0, min($this->tokens->count(), $offset));
+		$this->rangeEnd = max($this->rangeStart, $this->rangeEnd);
+		$this->rewind();
+	}
+
+	public function setEndIndex($offset)
+	{
+		$this->rangeEnd = max(0, min($this->tokens->count(), $offset));
+		$this->rangeStart = min($this->rangeEnd, $this->rangeStart);
+		$this->rewind();
+	}
+
+	public function setIndexRange($s, $e)
+	{
+		if ($e < $s)
+			throw new \LogicException('START > END');
+		$this->rangeStart = max(0, min($this->tokens->count(), $s));
+		$this->rangeEnd = max(0, min($this->tokens->count(), $e));
 		$this->rewind();
 	}
 
@@ -92,7 +117,7 @@ class PhpSourceTokenVisitor implements \Iterator, \Countable
 	 */
 	public function count()
 	{
-		return $this->tokens->count();
+		return $this->rangeEnd - $this->rangeStart;
 	}
 
 	public function next()
@@ -110,8 +135,7 @@ class PhpSourceTokenVisitor implements \Iterator, \Countable
 
 	public function valid()
 	{
-		return ($this->index >= 0) &&
-			($this->index < $this->tokens->count());
+		return ($this->index >= 0) && ($this->index < $this->rangeEnd);
 	}
 
 	/**
@@ -125,10 +149,10 @@ class PhpSourceTokenVisitor implements \Iterator, \Countable
 
 	public function rewind()
 	{
-		$this->index = 0;
+		$this->index = $this->rangeStart;
 		$this->scope = new Stack();
 		$this->pendingScopeIndex = -1;
-		if ($this->tokens->count())
+		if ($this->rangeEnd)
 			$this->processCurrentToken();
 	}
 
@@ -160,6 +184,53 @@ class PhpSourceTokenVisitor implements \Iterator, \Countable
 	public function getCurrentScope()
 	{
 		return $this->scope->top();
+	}
+
+	/**
+	 *
+	 * @param PhpSourceToken $tokens
+	 *        	Source tokens
+	 * @param integer $index
+	 *        	Start token index
+	 * @return integer Token index of the first non-whitespace token
+	 */
+	public static function skipWhitespace($tokens, $index, $count = -1)
+	{
+		if ($count < 0)
+			$count = Container::count($tokens);
+		do
+		{
+			if ($tokens[$index][0] != T_WHITESPACE)
+				return $index;
+			$index++;
+		}
+		while ($index < $count);
+		return $index;
+	}
+
+	/**
+	 *
+	 * @param PhpSourceToken[] $tokens
+	 *        	Source file tokens
+	 * @param integer $index
+	 *        	Element declaration first token index
+	 * @return string
+	 */
+	public static function getDocComment($tokens, $index)
+	{
+		$comment = '';
+		/** @var PhpSourceToken $token */
+
+		while ($index >= 0)
+		{
+			$token = $tokens[$index];
+			if ($token->getTokenType() == T_DOC_COMMENT)
+				$comment = $token->getTokenValue() . $comment;
+			elseif (!$token->isIgnorable())
+				break;
+			$index--;
+		}
+		return $comment;
 	}
 
 	private function getToken($index)
@@ -257,8 +328,7 @@ class PhpSourceTokenVisitor implements \Iterator, \Countable
 		 * @var PhpSourceTokenScope $scope
 		 */
 		$scope = $this->scope->pop();
-		$scope->endTokenIndex = min($this->index,
-			$this->tokens->count() - 1);
+		$scope->endTokenIndex = min($this->index, $this->rangeEnd - 1);
 		if (\is_callable($this->eventHandler))
 			call_user_func_array($this->eventHandler,
 				[
@@ -274,6 +344,18 @@ class PhpSourceTokenVisitor implements \Iterator, \Countable
 	 * @var \ArrayObject
 	 */
 	private $tokens;
+
+	/**
+	 *
+	 * @var integer
+	 */
+	private $rangeStart;
+
+	/**
+	 *
+	 * @var integer
+	 */
+	private $rangeEnd;
 
 	/**
 	 *

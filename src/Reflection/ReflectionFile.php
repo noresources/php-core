@@ -36,8 +36,7 @@ class ReflectionFile
 	/**
 	 * ReflectionFile inspection flag
 	 *
-	 * The file will be loaded through the
-	 * PHP autoloading system
+	 * Allow use of PHP autoloading system
 	 *
 	 * @var integer
 	 */
@@ -46,7 +45,8 @@ class ReflectionFile
 	/**
 	 * ReflectionFile inspection flag
 	 *
-	 * The file was loaded by a call to require() or include()
+	 * The target file is already loaded
+	 * through require(), include() or autoloading mechanism.
 	 *
 	 * @var integer
 	 */
@@ -111,12 +111,16 @@ class ReflectionFile
 	}
 
 	/**
+	 * Get the constants defined in the file.
 	 *
-	 * @return mixed[] Constant name and values
+	 * otherwise, return an associative array where values are the constant values
+	 *
+	 * @return ReflectionConstant[]
 	 */
 	public function getConstants()
 	{
-		return $this->getElements(T_CONST);
+		$a = $this->getElements(T_CONST);
+		return $a;
 	}
 
 	/**
@@ -145,15 +149,44 @@ class ReflectionFile
 	 * @param string $name
 	 *        	Constant name (local or qualified)
 	 * @throws \ReflectionException
-	 * @return mixed Constant value
+	 * @return ReflectionConstant|mixed Constant value
 	 */
 	public function getConstant($name)
 	{
 		$o = $this->getElement(T_CONST, $name);
 		if ($o === FALSE)
-			throw new \ReflectionException(
-				'Constant ' . $name . ' does not exists.');
+			return false;
 		return $o;
+	}
+
+	/**
+	 *
+	 * @param string $structureName
+	 *        	Class, interface or trait name
+	 * @param string $name
+	 *        	Constant local name
+	 * @return ReflectionConstant
+	 */
+	public function getStructureConstant($structureName, $name)
+	{
+		$structureName = $this->getQualifiedName($structureName);
+		if (isset($this->structureConstants) &&
+			isset($this->structureConstants[$structureName]))
+		{
+			return Container::keyValue(
+				$this->structureConstants[$structureName], $name, false);
+		}
+
+		// Parse structure constants
+
+		$type = $this->getStructureType($structureName);
+		if ($type === false)
+			return false;
+
+		$this->parseStructureConstants($type, $structureName);
+
+		return Container::keyValue(
+			$this->structureConstants[$structureName], $name, false);
 	}
 
 	/**
@@ -187,8 +220,7 @@ class ReflectionFile
 	{
 		$o = $this->getElement(T_FUNCTION, $name);
 		if ($o === FALSE)
-			throw new \ReflectionException(
-				'Function ' . $name . ' does not exists.');
+			return false;
 		if (!($o instanceof \ReflectionFunction))
 			$o = new \ReflectionFunction($name);
 		return $o;
@@ -229,8 +261,7 @@ class ReflectionFile
 		$name = $this->getQualifiedName($name);
 		$o = $this->getElement(T_INTERFACE, $name);
 		if ($o === FALSE)
-			throw new \ReflectionException(
-				'Interface ' . $name . ' does not exists.');
+			return false;
 		if (!($o instanceof \ReflectionClass))
 			$o = new \ReflectionClass($name);
 		return $o;
@@ -281,8 +312,7 @@ class ReflectionFile
 		$name = $this->getQualifiedName($name);
 		$o = $this->getElement(T_TRAIT, $name);
 		if ($o === FALSE)
-			throw new \ReflectionException(
-				'Trait ' . $name . ' does not exists.');
+			return false;
 		if (!($o instanceof \ReflectionClass))
 			$o = new \ReflectionClass($name);
 		return $o;
@@ -330,13 +360,15 @@ class ReflectionFile
 	 *         the file was not loaded nor autoloadable
 	 * @return \ReflectionClass
 	 */
-	public function getClass($name)
+	public function getClass($name, $metadata = false)
 	{
 		$name = $this->getQualifiedName($name);
-		$o = $this->getElement(T_CLASS, $name);
+		$o = $this->getElement(T_CLASS, $name, $metadata);
 		if ($o === FALSE)
-			throw new \ReflectionException(
-				'Class ' . $name . ' does not exists.');
+			return false;
+		if ($metadata)
+			return $o;
+
 		if (!($o instanceof \ReflectionClass))
 			$o = new \ReflectionClass($name);
 		return $o;
@@ -413,11 +445,39 @@ class ReflectionFile
 				break;
 		}
 		if ($o === FALSE)
-			throw new \ReflectionException(
-				'Interface, trait or class ' . $n . ' does not exists.');
-		if (!($o instanceof \ReflectionClass))
+			return false;
+		if (!($o instanceof \ReflectionClass) &&
+			($this->fileFlags & (self::AUTOLOADABLE | self::LOADED)))
 			$o = new \ReflectionClass($name);
 		return $o;
+	}
+
+	/**
+	 * Get the kind of composite element
+	 *
+	 * @param unknown $name
+	 *        	Element name
+	 * @return integer|boolean One of
+	 *         T_CLASS, T_INTERFACE or T_TRAIT
+	 *         or FALSE if element cannot be found
+	 */
+	public function getStructureType($name)
+	{
+		$n = $name;
+		$name = $this->getQualifiedName($name);
+		$o = false;
+		foreach ([
+			T_INTERFACE,
+			T_TRAIT,
+			T_CLASS
+		] as $type)
+		{
+			$o = $this->hasElement($type, $name);
+			if ($o)
+				return $type;
+		}
+
+		return false;
 	}
 
 	/**
@@ -507,11 +567,12 @@ class ReflectionFile
 		return $this->tokens;
 	}
 
-	private function getElements($type)
+	private function getElements($type, $metadata = false)
 	{
 		if (!isset($this->tokens))
 			$this->parseFile();
-		return $this->definitions[$type];
+		$a = ($metadata) ? $this->metadata : $this->definitions;
+		return $a[$type];
 	}
 
 	private function hasElement($type, $name)
@@ -532,15 +593,23 @@ class ReflectionFile
 		return false;
 	}
 
-	private function getElement($type, $name)
+	private function getElement($type, $name, $metadata = false)
 	{
-		if (!$this->hasElement($type, $name))
+		if (($e = Container::keyValue(
+			$this->getElements($type, $metadata), $name)))
+			return $e;
+
+		if (\strpos($name, '\\') !== false)
 			return false;
 
-		if (\strpos($name, '\\') === false) // Local name
-			$name = $this->getQualifiedName($name, $type);
-		return Container::keyValue($this->definitions[$type], $name,
-			false);
+		foreach ($this->getNamespaces() as $ns)
+		{
+			if (($e = Container::keyValue(
+				$this->getElements($type, $metadata), $ns . '\\' . $name)))
+				return $e;
+		}
+
+		return false;
 	}
 
 	private function parseFile()
@@ -557,6 +626,7 @@ class ReflectionFile
 		];
 
 		$this->definitions = $indexes;
+		$this->metadata = $indexes;
 
 		$visitor->setScopeEventHandler(
 			function ($event, PhpSourceTokenScope $scope, $visitor) use (
@@ -585,10 +655,12 @@ class ReflectionFile
 			if ($scope->level == 0 ||
 				($scope->entityToken &&
 				$scope->entityToken->getTokenType() == T_NAMESPACE))
+			{
 				$indexes[$type][] = [
 					$scope,
 					$token
 				];
+			}
 		}
 
 		foreach ($indexes as $type => $elements)
@@ -609,6 +681,7 @@ class ReflectionFile
 				}
 
 				$token = $e[1];
+
 				$name = '';
 				$index = $this->skipWhitespace(
 					$token->getTokenIndex() + 1);
@@ -616,6 +689,7 @@ class ReflectionFile
 
 				$key = \count($this->definitions[$type]);
 				$value = $name;
+				$comment = '';
 
 				if ($type == T_CONST)
 				{
@@ -631,30 +705,12 @@ class ReflectionFile
 						$key = $pn . '\\' . $key;
 					}
 
+					$this->readDocComment($comment,
+						$token->getTokenIndex() - 1);
 					$index = $this->skipWhitespace($index);
-					$token = $this->tokens[$index];
-					if (!($token->getTokenType() == T_STRING &&
-						$token->getTokenValue() == '='))
-						throw new \ReflectionException(
-							'Expect "=" after constant name at line ' .
-							$token->getTokenLine());
-					$index++;
-					$index = $this->skipWhitespace($index);
-					$constantCode = '';
-					while ($index < $this->tokens->count() &&
-						($token = $this->tokens[$index]) &&
-						!($token->getTokenType() == T_STRING &&
-						$token->getTokenValue() == ';'))
-					{
-
-						if (!$token->isIgnorable())
-							$constantCode .= $token->getTokenValue();
-						$index++;
-					}
-					if ($this->fileFlags & self::SAFE)
-						eval('$value = ' . $constantCode . ';');
-					else
-						$value = $constantCode;
+					$index = $this->readConstantValue($value, $index);
+					$value = new ReflectionConstant($name, $value,
+						$comment);
 				}
 				elseif ($type == T_USE)
 				{
@@ -705,19 +761,91 @@ class ReflectionFile
 				}
 
 				$this->definitions[$type][$key] = $value;
+				$this->metadata[$type][$key] = [
+					'scope' => $scope
+				];
 			}
+		}
+	}
+
+	private function parseStructureConstants($type, $structureName)
+	{
+		$metadata = $this->getElement($type, $structureName, true);
+		/** @var PhpSourceTokenScope $scope */
+		$scope = $metadata['scope'];
+
+		if (!isset($this->structureConstants))
+			$this->structureConstants = [];
+		if (!isset($this->structureConstants[$structureName]))
+			$this->structureConstants[$structureName] = [];
+
+		$visitor = new PhpSourceTokenVisitor($this->tokens);
+		$visitor->setIndexRange($scope->startTokenIndex,
+			$scope->endTokenIndex);
+		$cst = null;
+		foreach ($visitor as $index => $token)
+		{
+			/** @var PhpSourceToken $token */
+			if ($token->getTokenType() != T_CONST)
+				continue;
+
+			$comment = '';
+			$value = '';
+
+			$this->readDocComment($comment, $token->getTokenIndex() - 1);
+
+			$index = $this->skipWhitespace($index + 1);
+			$n = $this->tokens[$index]->getTokenValue();
+
+			if (!\preg_match(chr(1) . self::PATTERN_IDENTIFIER . chr(1),
+				$n))
+				throw new \LogicException(
+					'Name expected after const keyword');
+
+			$index = $this->skipWhitespace($index + 1);
+			$this->readConstantValue($value, $index);
+
+			$cst = new ReflectionConstant($n, $value, $comment);
+			$this->structureConstants[$structureName][$n] = $cst;
 		}
 	}
 
 	private function skipWhitespace($index)
 	{
-		do
+		return PhpSourceTokenVisitor::skipWhitespace($this->tokens,
+			$index);
+	}
+
+	private function readDocComment(&$comment, $index)
+	{
+		$comment = PhpSourceTokenVisitor::getDocComment($this->tokens,
+			$index);
+	}
+
+	private function readConstantValue(&$value, $index)
+	{
+		$token = $this->tokens[$index];
+		if (!($token->getTokenType() == T_STRING &&
+			$token->getTokenValue() == '='))
+			throw new \ReflectionException(
+				'Expect "=" after constant name at line ' .
+				$token->getTokenLine());
+		$index++;
+		$index = $this->skipWhitespace($index);
+		$constantCode = '';
+		while ($index < $this->tokens->count() &&
+			($token = $this->tokens[$index]) &&
+			!($token->getTokenType() == T_STRING &&
+			$token->getTokenValue() == ';'))
 		{
-			if ($this->tokens[$index][0] != T_WHITESPACE)
-				return $index;
+			if (!$token->isIgnorable())
+				$constantCode .= $token->getTokenValue();
 			$index++;
 		}
-		while ($index < $this->tokens->count());
+		if (($this->fileFlags & self::SAFE) == self::SAFE)
+			eval('$value = ' . $constantCode . ';');
+		else
+			$value = $constantCode;
 		return $index;
 	}
 
@@ -792,6 +920,20 @@ class ReflectionFile
 	 * @var string[][]
 	 */
 	private $definitions;
+
+	/**
+	 * Per-class constant array
+	 *
+	 * @var array
+	 */
+	private $structureConstants;
+
+	/**
+	 * File elements metadata
+	 *
+	 * @var unknown
+	 */
+	private $metadata;
 
 	/**
 	 * Token array

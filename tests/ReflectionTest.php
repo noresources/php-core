@@ -10,6 +10,7 @@ namespace NoreSources\Test;
 use NoreSources\ComparableInterface;
 use NoreSources\SingletonTrait;
 use NoreSources\Container\Container;
+use NoreSources\Reflection\ReflectionConstant;
 use NoreSources\Reflection\ReflectionDocComment;
 use NoreSources\Reflection\ReflectionFile;
 use NoreSources\Reflection\ReflectionFile\PhpSourceTokenScope;
@@ -20,6 +21,11 @@ use Space\PSR4Class;
 use NamespaceLessClass;
 use ReflectionClass;
 
+/**
+ * Namespace scope constant with string value
+ *
+ * @var string A test string
+ */
 const REFLECTION_TEST_STRING = 'constant-value';
 
 const REFLECTION_TEST_INTEGER = 42;
@@ -43,6 +49,11 @@ function reflectionTestFreeFunction()
 final class ReflectionTest extends \PHPUnit\Framework\TestCase
 {
 
+	/**
+	 * A class constant documentation
+	 *
+	 * @var array It's a complex constant value
+	 */
 	const REFLECTION_CLASS_CONSTANT = [
 		'constant',
 		'in',
@@ -70,7 +81,7 @@ final class ReflectionTest extends \PHPUnit\Framework\TestCase
 			\token_name(T_OPEN_TAG) => 1,
 			\token_name(T_NAMESPACE) => 1,
 			\token_name(T_CLASS) => 1,
-			\token_name(T_FUNCTION) => 1 + 7
+			\token_name(T_FUNCTION) => 1 + 9
 		];
 
 		$first = $visitor->current();
@@ -114,9 +125,9 @@ final class ReflectionTest extends \PHPUnit\Framework\TestCase
 			ReflectionFile::SAFE | ReflectionFile::LOADED |
 			ReflectionFile::AUTOLOADABLE);
 
-		$functions = $file->getFunctions();
+		$allFunctions = $file->getFunctions();
 		$name = __NAMESPACE__ . '\\reflectionTestFreeFunction';
-		$this->assertArrayHasKey($name, $functions,
+		$this->assertArrayHasKey($name, $allFunctions,
 			'File has free function "reflectionTestFreeFunction"');
 
 		$f = $file->getFunction($name);
@@ -163,9 +174,10 @@ final class ReflectionTest extends \PHPUnit\Framework\TestCase
 
 		$this->assertCount(6, $constants, 'Number of file constants');
 
-		$this->assertArrayHasKey(
-			__NAMESPACE__ . '\\REFLECTION_TEST_STRING', $constants,
-			'File constant');
+		$fqn = __NAMESPACE__ . '\\REFLECTION_TEST_STRING';
+		$this->assertArrayHasKey($fqn, $constants, 'File constant');
+		$this->assertTrue($file->hasConstant($fqn), 'hasConstant');
+
 		$this->assertEquals('constant-value', REFLECTION_TEST_STRING,
 			'File constant value');
 		$this->assertArrayHasKey(
@@ -204,7 +216,7 @@ final class ReflectionTest extends \PHPUnit\Framework\TestCase
 			'Space\HELLO'
 		], $file->getConstantNames(), 'Constant names');
 
-		$cst = $file->getConstant('HELLO');
+		$cst = $file->getConstant('HELLO')->getValue();
 		$this->assertEquals('hello world', $cst, 'Constant value');
 
 		$ns = $file->getNamespaces();
@@ -292,6 +304,35 @@ final class ReflectionTest extends \PHPUnit\Framework\TestCase
 				$file->getFullyQualifiedName($name),
 				'Fully qualified name of ' . $name);
 		}
+	}
+
+	public function testReflectionFileConstants()
+	{
+		$file = new ReflectionFile(__FILE__, ReflectionFile::SAFE);
+
+		$fqn = __NAMESPACE__ . '\\REFLECTION_TEST_STRING';
+		$cst = $file->getConstant($fqn);
+		$this->assertInstanceOf(ReflectionConstant::class, $cst,
+			'getConstant');
+		$this->assertFalse(empty($cst->getDocComment()),
+			$fqn . ' has doc comment: ' . $cst->getDocComment());
+	}
+
+	public function testReflectionFileStructureConstants()
+	{
+		$file = new ReflectionFile(__FILE__, ReflectionFile::SAFE);
+		$this->assertTrue($file->hasStructure(self::class));
+
+		$cst = $file->getStructureConstant(self::class,
+			'REFLECTION_CLASS_CONSTANT');
+
+		$this->assertInstanceOf(ReflectionConstant::class, $cst);
+		$value = $cst->getValue();
+
+		$this->assertEquals('array', gettype($value),
+			'Constant value type');
+		$this->assertFalse(empty($cst->getDocComment()),
+			'Constant has comment');
 	}
 
 	public function testReflectionFile()
