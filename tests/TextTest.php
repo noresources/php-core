@@ -80,20 +80,38 @@ final class TextTest extends \PHPUnit\Framework\TestCase
 		}
 	}
 
-	final function testToCamelCase()
+	final function testToCodeCase()
 	{
 		$tests = [
 			'hello world' => [
-				'toPascalCase' => 'HelloWorld'
+				'Camel' => 'helloWorld',
+				'Kebab' => 'hello-world',
+				'Pascal' => 'HelloWorld',
+				'Snake' => 'hello_world'
+			],
+			'helloWorld' => [
+				'Camel' => 'helloWorld',
+				'Kebab' => 'hello-world',
+				'Pascal' => 'HelloWorld',
+				'Snake' => 'hello_world'
 			],
 			' Hello?world/' => [
-				'toCamelCase' => 'helloWorld',
-				'toKebabCase' => 'hello-world',
-				'toPascalCase' => 'HelloWorld',
-				'toSnakeCase' => 'hello_world'
+				'Camel' => 'helloWorld',
+				'Kebab' => 'hello-world',
+				'Pascal' => 'HelloWorld',
+				'Snake' => 'hello_world'
 			],
 			'M_id' => [
-				'toCamelCase' => 'mId'
+				'Camel' => 'mId',
+				'Kebab' => 'm-id',
+				'Pascal' => 'MId',
+				'Snake' => 'm_id'
+			],
+			'PascalThePhilosopher' => [
+				'Camel' => 'pascalThePhilosopher',
+				'Kebab' => 'pascal-the-philosopher',
+				'Pascal' => 'PascalThePhilosopher',
+				'Snake' => 'pascal_the_philosopher'
 			]
 		];
 
@@ -101,9 +119,10 @@ final class TextTest extends \PHPUnit\Framework\TestCase
 		{
 			foreach ($styles as $style => $expected)
 			{
+				$method = 'to' . $style . 'Case';
 				$actual = \call_user_func([
 					Text::class,
-					$style
+					$method
 				], $text);
 				$this->assertEquals($expected, $actual,
 					$style . ' of "' . $text . '"');

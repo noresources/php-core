@@ -128,6 +128,13 @@ class Text
 		return ($upper ? \ucfirst($text) : \lcfirst($text));
 	}
 
+	/**
+	 * Transform text to follow theCamelCase style
+	 *
+	 * @param string $text
+	 *        	Text to transform
+	 * @return string
+	 */
 	public static function toCamelCase($text)
 	{
 		return self::toCodeCase($text,
@@ -137,6 +144,13 @@ class Text
 			]);
 	}
 
+	/**
+	 * Transform text to follow the-kebab-case style
+	 *
+	 * @param string $text
+	 *        	ext to transform
+	 * @return string
+	 */
 	public static function toKebabCase($text)
 	{
 		return self::toCodeCase($text,
@@ -145,7 +159,14 @@ class Text
 				self::CODE_CASE_CAPITALIZE => 0
 			]);
 	}
-	
+
+	/**
+	 * Transform text to follow ThePascalCase style
+	 *
+	 * @param string $text
+	 *        	ext to transform
+	 * @return string
+	 */
 	public static function toPascalCase($text)
 	{
 		return self::toCodeCase($text,
@@ -155,6 +176,13 @@ class Text
 			]);
 	}
 
+	/**
+	 * Transform text to follow the_snake_case style
+	 *
+	 * @param string $text
+	 *        	ext to transform
+	 * @return string
+	 */
 	public static function toSnakeCase($text)
 	{
 		return self::toCodeCase($text,
@@ -174,6 +202,15 @@ class Text
 
 	const CODE_CASE_CAPITALIZE_ALL = 0xFF;
 
+	/**
+	 * Transform text to a user defined code style
+	 *
+	 * @param string $text
+	 *        	ext to transform
+	 * @param array $options
+	 *        	Style options
+	 * @return string
+	 */
 	public static function toCodeCase($text, $options)
 	{
 		$options = \array_merge(
@@ -182,7 +219,9 @@ class Text
 				self::CODE_CASE_CAPITALIZE => self::CODE_CASE_CAPITALIZE_ALL
 			], $options);
 
-		$text = \preg_replace('/\s/', ' ', trim($text));
+		$text = \preg_replace('/(?<=[a-z0-9])([A-Z]+)/', ' $1', $text);
+
+		$text = \preg_replace('/\s+/', ' ', trim($text));
 		$parts = \preg_split('/[^a-zA-Z0-9]/', $text);
 
 		$parts = \array_values(
