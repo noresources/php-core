@@ -22,29 +22,6 @@ class NotFoundException extends \Exception implements
 	{}
 }
 
-$indexedReference = array(
-	"zero",
-	"one",
-	"two",
-	"three"
-);
-$sparseIndexedReference = array(
-	0 => "zero",
-	1 => "one",
-	3 => "three"
-);
-$hashReference = array(
-	"one" => 1,
-	"two" => 2,
-	"the great answer" => "Fourty two"
-);
-$hashReferenceObject = new \ArrayObject($hashReference);
-$indexedReferenceObject = new \ArrayObject($indexedReference);
-$sparseIndexedReferenceObject = new \ArrayObject(
-	$sparseIndexedReference);
-
-$nullValue = null;
-
 class SimpleClass
 {
 
@@ -117,8 +94,6 @@ class ContainerImpl implements ContainerInterface
 	private $table;
 }
 
-$hashReferenceImpl = new ArrayAccessImpl($hashReference);
-
 class TraversableImpl implements \IteratorAggregate
 {
 
@@ -141,6 +116,39 @@ class TraversableImpl implements \IteratorAggregate
 
 final class ContainerTest extends \PHPUnit\Framework\TestCase
 {
+
+	public function __construct($name = null, array $data = [],
+		$dataName = '')
+	{
+		parent::__construct($name, $data, $dataName);
+		$this->indexedReference = array(
+			"zero",
+			"one",
+			"two",
+			"three"
+		);
+		$this->sparseIndexedReference = array(
+			0 => "zero",
+			1 => "one",
+			3 => "three"
+		);
+		$this->hashReference = array(
+			"one" => 1,
+			"two" => 2,
+			"the great answer" => "Fourty two"
+		);
+		$this->hashReferenceObject = new \ArrayObject(
+			$this->hashReference);
+		$this->indexedReferenceObject = new \ArrayObject(
+			$this->indexedReference);
+		$this->sparseIndexedReferenceObject = new \ArrayObject(
+			$this->sparseIndexedReference);
+
+		$this->nullValue = null;
+
+		$this->hashReferenceImpl = new ArrayAccessImpl(
+			$this->hashReference);
+	}
 
 	public function testKeyValue()
 	{
@@ -270,11 +278,10 @@ final class ContainerTest extends \PHPUnit\Framework\TestCase
 
 	public function testValueExists()
 	{
-		global $indexedReference;
 		$this->assertEquals(true,
-			Container::valueExists($indexedReference, 'two'));
+			Container::valueExists($this->indexedReference, 'two'));
 		$this->assertEquals(false,
-			Container::valueExists($indexedReference, 'deux'));
+			Container::valueExists($this->indexedReference, 'deux'));
 	}
 
 	public function testSetValueArray()
@@ -350,58 +357,54 @@ final class ContainerTest extends \PHPUnit\Framework\TestCase
 
 	public function testCountArray()
 	{
-		global $indexedReference;
-		$this->assertEquals(4, Container::count($indexedReference));
+		$this->assertEquals(4, Container::count($this->indexedReference));
 	}
 
 	public function testCountAssociativeArray()
 	{
-		global $sparseIndexedReference;
-		$this->assertEquals(3, Container::count($sparseIndexedReference));
+		$this->assertEquals(3,
+			Container::count($this->sparseIndexedReference));
 	}
 
 	public function testCountHashTable()
 	{
-		global $hashReference;
-		$this->assertEquals(3, Container::count($hashReference));
+		$this->assertEquals(3, Container::count($this->hashReference));
 	}
 
 	public function testCountArrayObject()
 	{
-		global $indexedReferenceObject;
-		$this->assertEquals(4, Container::count($indexedReferenceObject));
+		$this->assertEquals(4,
+			Container::count($this->indexedReferenceObject));
 	}
 
 	public function testCountAssociativeArrayObject()
 	{
-		global $sparseIndexedReferenceObject;
 		$this->assertEquals(3,
-			Container::count($sparseIndexedReferenceObject));
+			Container::count($this->sparseIndexedReferenceObject));
 	}
 
 	public function testCountHashTableObject()
 	{
-		global $hashReferenceObject;
-		$this->assertEquals(3, Container::count($hashReferenceObject));
+		$this->assertEquals(3,
+			Container::count($this->hashReferenceObject));
 	}
 
 	public function testCountHashTableArrayAccess()
 	{
-		global $hashReferenceImpl;
 		if (\is_callable(array(
 			$this,
 			'expectException'
 		)))
 		{
 			$this->expectException(InvalidContainerException::class);
-			Container::count($hashReferenceImpl);
+			Container::count($this->hashReferenceImpl);
 		}
 		else
 		{
 			$result = null;
 			try
 			{
-				$result = Container::count($hashReferenceImpl);
+				$result = Container::count($this->hashReferenceImpl);
 			}
 			catch (\Exception $e)
 			{
@@ -467,9 +470,8 @@ final class ContainerTest extends \PHPUnit\Framework\TestCase
 
 	public function testImplodeValueBasic()
 	{
-		global $indexedReference;
-		$builtin = \implode(', ', $indexedReference);
-		$ns = Container::implodeValues($indexedReference, ', ');
+		$builtin = \implode(', ', $this->indexedReference);
+		$ns = Container::implodeValues($this->indexedReference, ', ');
 
 		$this->assertEquals($builtin, $ns,
 			'implodeValue basically mimics the implode function');
