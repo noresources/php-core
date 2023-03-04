@@ -752,13 +752,15 @@ final class ContainerTest extends \PHPUnit\Framework\TestCase
 			], 15), '3rd value of array');
 	}
 
-	public function testFirst()
+	public function testFirstAndLast()
 	{
 		$tests = [
 			'empty' => [
 				'collection' => [],
 				'key' => null,
-				'value' => null
+				'value' => null,
+				'lastKey' => null,
+				'lastValue' => null
 			],
 			'empty with default' => [
 				'collection' => [],
@@ -767,7 +769,9 @@ final class ContainerTest extends \PHPUnit\Framework\TestCase
 				'default' => [
 					'not a key',
 					'not a value'
-				]
+				],
+				'lastKey' => 'not a key',
+				'lastValue' => 'not a value'
 			],
 			'indexed array' => [
 				'collection' => [
@@ -776,7 +780,9 @@ final class ContainerTest extends \PHPUnit\Framework\TestCase
 					'third item'
 				],
 				'key' => 0,
-				'value' => 'first value'
+				'value' => 'first value',
+				'lastKey' => 2,
+				'lastValue' => 'third item'
 			],
 			'associative array' => [
 				'collection' => [
@@ -785,7 +791,9 @@ final class ContainerTest extends \PHPUnit\Framework\TestCase
 					0 => 'not the first'
 				],
 				'key' => 'foo',
-				'value' => 'bar'
+				'value' => 'bar',
+				'lastKey' => 0,
+				'lastValue' => 'not the first'
 			]
 		];
 
@@ -794,6 +802,8 @@ final class ContainerTest extends \PHPUnit\Framework\TestCase
 			$key = $test['key'];
 			$value = $test['value'];
 			$dflt = Container::keyValue($test, 'default', []);
+			$lastKey = $test['lastKey'];
+			$lastValue = $test['lastValue'];
 
 			$array = $test['collection'];
 			$object = new \ArrayObject($array);
@@ -821,6 +831,20 @@ final class ContainerTest extends \PHPUnit\Framework\TestCase
 					Container::firstValue($container,
 						Container::keyValue($dflt, 1, null)),
 					$label . ' ' . $type . ' firstValue');
+
+				$this->assertEquals([
+					$lastKey,
+					$lastValue
+				], Container::last($container, $dflt),
+					$label . ' ' . $type . ' last');
+				$this->assertEquals($lastKey,
+					Container::lastKey($container,
+						Container::keyValue($dflt, 0, null)),
+					$label . ' ' . $type . ' last key');
+				$this->assertEquals($lastValue,
+					Container::lastValue($container,
+						Container::keyValue($dflt, 1, null)),
+					$label . ' ' . $type . ' last value');
 			}
 
 			$this->assertEquals($current, $iterator->current(),

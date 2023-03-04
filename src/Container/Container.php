@@ -670,6 +670,90 @@ class Container
 	}
 
 	/**
+	 * Get the last key-value pair in the given container
+	 *
+	 * @param mixed $container
+	 *        	Container
+	 * @param array $dflt
+	 *        	Default key-value to return if container is empty
+	 * @throws InvalidContainerException
+	 * @return array
+	 */
+	public static function last($container, $dflt = array())
+	{
+		$key = Container::keyValue($dflt, 0, null);
+		$value = Container::keyValue($dflt, 1, null);
+
+		if ($container instanceof \Iterator)
+		{
+			$i = clone $container;
+			if (!$i->valid())
+				$i->rewind();
+
+			while ($i->valid())
+			{
+				$key = $i->key();
+				$value = $i->current();
+				$i->next();
+			}
+
+			return [
+				$key,
+				$value
+			];
+		}
+
+		if (!self::isTraversable($container))
+			throw new InvalidContainerException($container, __METHOD__);
+
+		foreach ($container as $k => $v)
+		{
+			$key = $k;
+			$value = $v;
+		}
+
+		return [
+			$key,
+			$value
+		];
+	}
+
+	/**
+	 * Get the last key of the given container
+	 *
+	 * @param mixed $container
+	 * @param mixed $key
+	 *        	Value to return if $container is empty
+	 * @return mixed
+	 */
+	public static function lastKey($container, $dflt = null)
+	{
+		list ($k, $v) = self::last($container, [
+			$dflt,
+			null
+		]);
+
+		return $k;
+	}
+
+	/**
+	 * Get the last value of the container.
+	 *
+	 * @param mixed $container
+	 * @param mixed $dflt
+	 *        	Value to return if $container is empty
+	 * @return mixed
+	 */
+	public static function lastValue($container, $dflt = null)
+	{
+		list ($k, $v) = self::last($container, [
+			null,
+			$dflt
+		]);
+		return $v;
+	}
+
+	/**
 	 * Retrieve key value or a default value if key doesn't exists
 	 *
 	 * @param array $container
