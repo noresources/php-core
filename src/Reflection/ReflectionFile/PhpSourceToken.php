@@ -152,6 +152,7 @@ class PhpSourceToken implements StringRepresentation, \ArrayAccess,
 	 */
 	private $token;
 
+	#[\ReturnTypeWillChange]
 	public function offsetGet($offset)
 	{
 		switch ($offset)
@@ -166,16 +167,19 @@ class PhpSourceToken implements StringRepresentation, \ArrayAccess,
 		throw new \InvalidArgumentException();
 	}
 
+	#[\ReturnTypeWillChange]
 	public function offsetExists($offset)
 	{
 		return (\is_integer($offset) && $offset < 3 && $offset >= 0);
 	}
 
+	#[\ReturnTypeWillChange]
 	public function offsetUnset($offset)
 	{
 		throw new \RuntimeException('Read only ArrayAccess');
 	}
 
+	#[\ReturnTypeWillChange]
 	public function offsetSet($offset, $value)
 	{
 		throw new \RuntimeException('Read only ArrayAccess');

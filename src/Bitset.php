@@ -158,12 +158,14 @@ class Bitset implements IntegerRepresentation, StringRepresentation,
 	/**
 	 * Indicates if the given offset can be stored
 	 */
+	#[\ReturnTypeWillChange]
 	public function offsetExists($offset)
 	{
 		return (\is_integer($offset) && $offset >= 0 &&
 			($offset < (PHP_INT_SIZE * 8)));
 	}
 
+	#[\ReturnTypeWillChange]
 	public function offsetGet($offset)
 	{
 		if (!$this->offsetExists($offset))
@@ -171,6 +173,7 @@ class Bitset implements IntegerRepresentation, StringRepresentation,
 		return (($this->value >> $offset) & 0x1);
 	}
 
+	#[\ReturnTypeWillChange]
 	public function offsetSet($offset, $value)
 	{
 		if (!$this->offsetExists($offset))
@@ -181,6 +184,7 @@ class Bitset implements IntegerRepresentation, StringRepresentation,
 			$this->remove(1 << $offset);
 	}
 
+	#[\ReturnTypeWillChange]
 	public function offsetUnset($offset)
 	{
 		if (!$this->offsetExists($offset))

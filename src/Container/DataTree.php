@@ -114,6 +114,7 @@ class DataTree implements \ArrayAccess, \Serializable,
 	 *
 	 * @param string $key
 	 */
+	#[\ReturnTypeWillChange]
 	public function offsetExists($key)
 	{
 		return $this->elements->offsetExists($key);
@@ -136,6 +137,7 @@ class DataTree implements \ArrayAccess, \Serializable,
 	 *        	Key
 	 * @return The element value or <code>NULL</code> if the key does not exists
 	 */
+	#[\ReturnTypeWillChange]
 	public function offsetGet($key)
 	{
 		if ($this->elements->offsetExists($key))
@@ -180,6 +182,7 @@ class DataTree implements \ArrayAccess, \Serializable,
 	 *
 	 * @throws \Exception
 	 */
+	#[\ReturnTypeWillChange]
 	public function offsetSet($key, $value)
 	{
 		$this->setElement($key, $value, self::REPLACE);
@@ -258,6 +261,7 @@ class DataTree implements \ArrayAccess, \Serializable,
 	 * @param mixed $key
 	 *        	Setting key
 	 */
+	#[\ReturnTypeWillChange]
 	public function offsetUnset($key)
 	{
 		$this->elements->offsetUnset($key);
@@ -266,6 +270,7 @@ class DataTree implements \ArrayAccess, \Serializable,
 	// IteratorAggregate ////////////////////
 
 	// TiteratorAggregate
+	#[\ReturnTypeWillChange]
 	public function getIterator()
 	{
 		return $this->elements->getIterator();
@@ -277,6 +282,7 @@ class DataTree implements \ArrayAccess, \Serializable,
 	 *
 	 * @return Number of child element
 	 */
+	#[\ReturnTypeWillChange]
 	public function count()
 	{
 		return $this->elements->count();

@@ -473,6 +473,7 @@ class Container
 	 * @return integer Number of elements in $container
 	 *
 	 */
+	#[\ReturnTypeWillChange]
 	public static function count($container)
 	{
 		if (\is_array($container))

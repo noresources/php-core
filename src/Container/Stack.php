@@ -26,6 +26,7 @@ class Stack implements \Countable, \IteratorAggregate,
 	 *
 	 * @return integer Number of elements in the stack
 	 */
+	#[\ReturnTypeWillChange]
 	public function count()
 	{
 		return \count($this->stackElements);
@@ -45,6 +46,7 @@ class Stack implements \Countable, \IteratorAggregate,
 	 *
 	 * @return StackIterator
 	 */
+	#[\ReturnTypeWillChange]
 	public function getIterator()
 	{
 		return new StackIterator($this->stackElements);

@@ -22,6 +22,7 @@ class ChainElement implements ChainElementInterface, \IteratorAggregate
 		$this->detachElement();
 	}
 
+	#[\ReturnTypeWillChange]
 	public function getIterator()
 	{
 		return new ChainElementIterator($this);

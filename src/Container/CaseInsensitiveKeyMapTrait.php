@@ -30,6 +30,7 @@ trait CaseInsensitiveKeyMapTrait
 	 *
 	 * @return integer
 	 */
+	#[\ReturnTypeWillChange]
 	public function count()
 	{
 		return $this->caseSensitiveMap->count();
@@ -39,6 +40,7 @@ trait CaseInsensitiveKeyMapTrait
 	 *
 	 * @return \ArrayIterator
 	 */
+	#[\ReturnTypeWillChange]
 	public function getIterator()
 	{
 		return $this->caseSensitiveMap->getIterator();
@@ -54,10 +56,12 @@ trait CaseInsensitiveKeyMapTrait
 	}
 
 	/**
+	 * #[\ReturnTypeWillChange]
 	 *
-	 * @param string $name
+	 * @param unknown $name
 	 * @return boolean
 	 */
+	#[\ReturnTypeWillChange]
 	public function offsetExists($name)
 	{
 		return $this->caselessOffsetExists($name);
@@ -68,6 +72,7 @@ trait CaseInsensitiveKeyMapTrait
 	 * @param string $name
 	 * @return mixed|NULL
 	 */
+	#[\ReturnTypeWillChange]
 	public function offsetGet($name)
 	{
 		return $this->caselessOffsetGet($name);
@@ -78,6 +83,7 @@ trait CaseInsensitiveKeyMapTrait
 	 * @param string $name
 	 * @param mixed $value
 	 */
+	#[\ReturnTypeWillChange]
 	public function offsetSet($name, $value)
 	{
 		return $this->caselessOffsetSet($name, $value);
@@ -87,6 +93,7 @@ trait CaseInsensitiveKeyMapTrait
 	 *
 	 * @param string $name
 	 */
+	#[\ReturnTypeWillChange]
 	public function offsetUnset($name)
 	{
 		$this->caselessOffsetUnset($name);

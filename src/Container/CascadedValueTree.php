@@ -61,6 +61,7 @@ class CascadedValueTree implements \ArrayAccess, ArrayRepresentation
 	 *        	Key path
 	 * @return mixed
 	 */
+	#[\ReturnTypeWillChange]
 	public function offsetGet($query)
 	{
 		return $this->query($query);
@@ -74,6 +75,7 @@ class CascadedValueTree implements \ArrayAccess, ArrayRepresentation
 	 * @param mixed $value
 	 *        	Value
 	 */
+	#[\ReturnTypeWillChange]
 	public function offsetSet($query, $value)
 	{
 		return $this->walk($query, null, null, null,
@@ -90,6 +92,7 @@ class CascadedValueTree implements \ArrayAccess, ArrayRepresentation
 	 *        	Key path
 	 * @return boolean
 	 */
+	#[\ReturnTypeWillChange]
 	public function offsetExists($query)
 	{
 		return $this->walk($query, null,
@@ -108,6 +111,7 @@ class CascadedValueTree implements \ArrayAccess, ArrayRepresentation
 	 *        	Key path
 	 * @return true if value was removed
 	 */
+	#[\ReturnTypeWillChange]
 	public function offsetUnset($query)
 	{
 		return $this->walk($query, null,

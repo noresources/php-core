@@ -70,6 +70,7 @@ final class SemanticPostfixedData extends \ArrayObject
 	 * @param string $value
 	 *        	Part value
 	 */
+	#[\ReturnTypeWillChange]
 	public function offsetSet($offset, $value)
 	{
 		if (!(\is_numeric($offset) || \is_null($offset)))

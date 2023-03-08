@@ -47,21 +47,25 @@ class ArrayAccessImpl implements \ArrayAccess
 		$this->table = $t;
 	}
 
+	#[\ReturnTypeWillChange]
 	public function offsetExists($offset)
 	{
 		return \array_key_exists($offset, $this->table);
 	}
 
+	#[\ReturnTypeWillChange]
 	public function offsetGet($offset)
 	{
 		return $this->table[$offset];
 	}
 
+	#[\ReturnTypeWillChange]
 	public function offsetSet($offset, $value)
 	{
 		$this->table[$offset] = $value;
 	}
 
+	#[\ReturnTypeWillChange]
 	public function offsetUnset($offset)
 	{
 		unset($this->table[$offset]);
@@ -102,6 +106,7 @@ class TraversableImpl implements \IteratorAggregate
 		$this->array = new \ArrayObject($array);
 	}
 
+	#[\ReturnTypeWillChange]
 	public function getIterator()
 	{
 		return $this->array->getIterator();

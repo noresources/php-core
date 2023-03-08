@@ -115,6 +115,7 @@ class PhpSourceTokenVisitor implements \Iterator, \Countable
 	 *
 	 * @return Number of tokens
 	 */
+	#[\ReturnTypeWillChange]
 	public function count()
 	{
 		return $this->rangeEnd - $this->rangeStart;
