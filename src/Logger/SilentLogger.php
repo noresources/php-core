@@ -22,6 +22,12 @@ class SilentLogger implements LoggerInterface
 	public function __construct()
 	{}
 
+	/**
+	 * Do nothing
+	 *
+	 * {@inheritdoc}
+	 * @see \Psr\Log\LoggerInterface::log()
+	 */
 	public function log($level, $message, array $context = array())
 	{}
 }

@@ -11,11 +11,23 @@ class DataTreeNotTraversableException extends InvalidContainerException implemen
 	DataTreeExceptionInterface
 {
 
+	/**
+	 *
+	 * @return DataTree
+	 */
 	public function getDataTree()
 	{
 		return $this->dataTree;
 	}
 
+	/**
+	 *
+	 * @param DataTree $tree
+	 *        	DataTree which is not traversable
+	 * @param unknown $data
+	 * @param unknown $forMethod
+	 *        	Method that raised the exception
+	 */
 	public function __construct(DataTree $tree, $data, $forMethod = null)
 	{
 		parent::__construct($data, $forMethod);

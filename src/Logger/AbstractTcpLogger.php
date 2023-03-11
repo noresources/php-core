@@ -43,6 +43,9 @@ abstract class AbstractTcpLogger implements LoggerInterface
 		$this->socket = @fsockopen($host, $port);
 	}
 
+	/**
+	 * Close connection
+	 */
 	public function __destruct()
 	{
 		if (\is_resource($this->socket))
@@ -59,6 +62,12 @@ abstract class AbstractTcpLogger implements LoggerInterface
 		return \is_resource($this->socket);
 	}
 
+	/**
+	 * Send message over TCP
+	 *
+	 * {@inheritdoc}
+	 * @see \Psr\Log\LoggerInterface::log()
+	 */
 	public function log($level, $message, array $context = array())
 	{
 		if (!$this->isConnected())

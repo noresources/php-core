@@ -111,16 +111,29 @@ class Bitset implements IntegerRepresentation, StringRepresentation,
 		return $this;
 	}
 
+	/**
+	 * Get integer value of the bitset flags
+	 *
+	 * @return integer Integer value of the bitset
+	 */
 	public function getIntegerValue()
 	{
 		return $this->value;
 	}
 
+	/**
+	 *
+	 * @return string Binary representation of the bitset
+	 */
 	public function __toString()
 	{
 		return $this->getBinaryString();
 	}
 
+	/**
+	 *
+	 * @return integer[] Value of each bit
+	 */
 	public function getArrayCopy()
 	{
 		return (\array_map(function ($v) {
@@ -165,6 +178,9 @@ class Bitset implements IntegerRepresentation, StringRepresentation,
 			($offset < (PHP_INT_SIZE * 8)));
 	}
 
+	/**
+	 * Get Value of bit at the given offset
+	 */
 	#[\ReturnTypeWillChange]
 	public function offsetGet($offset)
 	{
@@ -173,6 +189,9 @@ class Bitset implements IntegerRepresentation, StringRepresentation,
 		return (($this->value >> $offset) & 0x1);
 	}
 
+	/**
+	 * Set value of bit at the given offset
+	 */
 	#[\ReturnTypeWillChange]
 	public function offsetSet($offset, $value)
 	{

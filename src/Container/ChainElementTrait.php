@@ -13,18 +13,37 @@ namespace NoreSources\Container;
 trait ChainElementTrait
 {
 
+	/**
+	 * Insert the chain element just before another one
+	 *
+	 * @param ChainElementInterface $after
+	 *        	Element to insert before it
+	 */
 	public function insertBefor(ChainElementInterface $after)
 	{
 		$before = $after->getPreviousElement();
 		$this->attachBetween($before, $after);
 	}
 
+	/**
+	 * Insert the instance element just after a given one
+	 *
+	 * @param ChainElementInterface $before
+	 *        	Element to insert after it
+	 */
 	public function insertAfter(ChainElementInterface $before)
 	{
 		$after = $before->getNextElement();
 		$this->attachBetween($before, $after);
 	}
 
+	/**
+	 * Set the previous element in chain
+	 *
+	 * This method shoud be considered as non-public
+	 *
+	 * @param ChainElementInterface $previousElement
+	 */
 	public function setPreviousElement(
 		ChainElementInterface $previousElement = null)
 	{
@@ -40,6 +59,13 @@ trait ChainElementTrait
 		$this->previousChainElement = $previousElement;
 	}
 
+	/**
+	 * Set next element in chain
+	 *
+	 * This method should be considered as non-public.
+	 *
+	 * @param ChainElementInterface $nextElement
+	 */
 	public function setNextElement(
 		ChainElementInterface $nextElement = null)
 	{
@@ -55,6 +81,9 @@ trait ChainElementTrait
 		$this->nextChainElement = $nextElement;
 	}
 
+	/**
+	 * Detach element from owning list
+	 */
 	public function detachElement()
 	{
 		$p = $this->previousChainElement;

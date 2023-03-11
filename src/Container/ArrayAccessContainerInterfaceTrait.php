@@ -22,6 +22,7 @@ trait ArrayAccessContainerInterfaceTrait
 	 *        	Element key
 	 * @return boolean
 	 */
+	#[\ReturnTypeWillChange]
 	public function has($key)
 	{
 		return $this->offsetExists($key);
@@ -34,6 +35,7 @@ trait ArrayAccessContainerInterfaceTrait
 	 * @return mixed Element value
 	 * @throws KeyNotFoundException
 	 */
+	#[\ReturnTypeWillChange]
 	public function get($key)
 	{
 		if (!$this->has($key))

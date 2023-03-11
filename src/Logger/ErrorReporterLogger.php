@@ -23,6 +23,12 @@ class ErrorReporterLogger implements LoggerInterface
 	public function __construct()
 	{}
 
+	/**
+	 * Invoke PHP built-in function \trigger_error
+	 *
+	 * {@inheritdoc}
+	 * @see \Psr\Log\LoggerInterface::log()
+	 */
 	public function log($level, $message, array $context = array())
 	{
 		if (!isset($this))

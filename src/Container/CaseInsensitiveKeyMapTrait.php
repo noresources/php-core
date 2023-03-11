@@ -55,44 +55,24 @@ trait CaseInsensitiveKeyMapTrait
 		return $this->caseSensitiveMap->getArrayCopy();
 	}
 
-	/**
-	 * #[\ReturnTypeWillChange]
-	 *
-	 * @param unknown $name
-	 * @return boolean
-	 */
 	#[\ReturnTypeWillChange]
 	public function offsetExists($name)
 	{
 		return $this->caselessOffsetExists($name);
 	}
 
-	/**
-	 *
-	 * @param string $name
-	 * @return mixed|NULL
-	 */
 	#[\ReturnTypeWillChange]
 	public function offsetGet($name)
 	{
 		return $this->caselessOffsetGet($name);
 	}
 
-	/**
-	 *
-	 * @param string $name
-	 * @param mixed $value
-	 */
 	#[\ReturnTypeWillChange]
 	public function offsetSet($name, $value)
 	{
 		return $this->caselessOffsetSet($name, $value);
 	}
 
-	/**
-	 *
-	 * @param string $name
-	 */
 	#[\ReturnTypeWillChange]
 	public function offsetUnset($name)
 	{

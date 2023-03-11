@@ -66,6 +66,9 @@ class DataTree implements \ArrayAccess, \Serializable,
 			$this->setContent($data, self::REPLACE);
 	}
 
+	/**
+	 * Deep copy of the tree
+	 */
 	public function __clone()
 	{
 		$data = $this->getArrayCopy();

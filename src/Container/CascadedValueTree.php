@@ -49,6 +49,7 @@ class CascadedValueTree implements \ArrayAccess, ArrayRepresentation
 		return $value;
 	}
 
+	#[\ReturnTypeWillChange]
 	public function getArrayCopy()
 	{
 		return $this->valueTree->getArrayCopy();

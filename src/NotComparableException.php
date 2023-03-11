@@ -15,6 +15,13 @@ use NoreSources\Type\TypeDescription;
 class NotComparableException extends \LogicException
 {
 
+	/**
+	 *
+	 * @param mixed $a
+	 *        	First operand of the comparison
+	 * @param mixed $b
+	 *        	Second operand of the comparison
+	 */
 	public function __construct($a, $b)
 	{
 		parent::__construct(

@@ -16,6 +16,10 @@ class InvalidContainerException extends \InvalidArgumentException implements
 	ContainerExceptionInterface
 {
 
+	/**
+	 *
+	 * @return mixed Container
+	 */
 	public function getContainer()
 	{
 		return $this->container;

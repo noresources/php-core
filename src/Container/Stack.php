@@ -36,6 +36,7 @@ class Stack implements \Countable, \IteratorAggregate,
 	 *
 	 * @return array Stack elements (First in, last out)
 	 */
+	#[\ReturnTypeWillChange]
 	public function getArrayCopy()
 	{
 		return \array_reverse($this->stackElements);

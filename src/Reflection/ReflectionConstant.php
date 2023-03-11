@@ -8,7 +8,12 @@
  */
 namespace NoreSources\Reflection;
 
-class ReflectionConstant
+use NoreSources\Type\StringRepresentation;
+
+/**
+ * Class or free constant information
+ */
+class ReflectionConstant implements StringRepresentation
 {
 
 	/**
@@ -27,6 +32,11 @@ class ReflectionConstant
 		$this->comment = $comment;
 	}
 
+	/**
+	 *
+	 * @return String representation of the constant value
+	 */
+	#[\ReturnTypeWillChange]
 	public function __toString()
 	{
 		return \strval($this->value);

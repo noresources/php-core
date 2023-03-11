@@ -9,6 +9,8 @@ namespace NoreSources\Text;
 
 /**
  * Exception raised when a structured text syntax is invalid
+ *
+ * @deprecated
  */
 class StructuredTextSyntaxErrorException extends \ErrorException
 {

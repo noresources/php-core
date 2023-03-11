@@ -108,6 +108,8 @@ class Reporter
 		], $args);
 	}
 
+	/**
+	 */
 	public function __construct()
 	{
 		if (!\is_array($this->loggers))

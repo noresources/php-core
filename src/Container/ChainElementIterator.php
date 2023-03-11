@@ -20,6 +20,13 @@ class ChainElementIterator implements \Iterator
 
 	const DIRECTION_BACKWARD = -1;
 
+	/**
+	 *
+	 * @param ChainElementInterface $chain
+	 *        	Chain to iterate
+	 * @param integer $direction
+	 *        	Direction of iterator
+	 */
 	public function __construct(ChainElementInterface $chain,
 		$direction = self::DIRECTION_FORWARD)
 	{
@@ -27,16 +34,19 @@ class ChainElementIterator implements \Iterator
 		$this->direction = $direction;
 	}
 
+	#[\ReturnTypeWillChange]
 	public function current()
 	{
 		return $this->current;
 	}
 
+	#[\ReturnTypeWillChange]
 	public function next()
 	{
 		$this->current = ($this->direction == self::DIRECTION_FORWARD) ? $this->current->getNextElement() : $this->current->getPreviousElement();
 	}
 
+	#[\ReturnTypeWillChange]
 	public function key()
 	{
 		if ($this->current instanceof IntegerRepresentation)
@@ -46,11 +56,13 @@ class ChainElementIterator implements \Iterator
 		return null;
 	}
 
+	#[\ReturnTypeWillChange]
 	public function valid()
 	{
 		return ($this->current instanceof ChainElementInterface);
 	}
 
+	#[\ReturnTypeWillChange]
 	public function rewind()
 	{
 		$this->current = $this->base;

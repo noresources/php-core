@@ -17,6 +17,9 @@ class ChainElement implements ChainElementInterface, \IteratorAggregate
 	public function __construct()
 	{}
 
+	/**
+	 * Detach element from owning list
+	 */
 	public function __destruct()
 	{
 		$this->detachElement();
