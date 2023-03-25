@@ -10,6 +10,9 @@ namespace NoreSources\Test;
 use NoreSources\DateTime;
 use NoreSources\Container\Container;
 
+/**
+ * Random value generator
+ */
 class Generator
 {
 
