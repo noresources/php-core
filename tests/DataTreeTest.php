@@ -124,14 +124,14 @@ final class DataTreeTest extends TestCase
 		$tree = new DataTree();
 		$tree->loadFile(__DIR__ . '/data/a.json');
 		$data = json_encode($tree, JSON_PRETTY_PRINT);
-		$this->assertDerivedFile($data, __METHOD__, 'file', 'json',
+		$this->assertDataEqualsReferenceFile($data, __METHOD__, 'file', 'json',
 			'json from file');
 
 		$tree = new DataTree();
 		$input = \file_get_contents(__DIR__ . '/data/a.json');
 		$tree->loadData($input, StructuredText::FORMAT_JSON);
 		$data = json_encode($tree, JSON_PRETTY_PRINT);
-		$this->assertDerivedFile($data, __METHOD__, 'string', 'json',
+		$this->assertDataEqualsReferenceFile($data, __METHOD__, 'string', 'json',
 			'json from string');
 	}
 
@@ -140,7 +140,7 @@ final class DataTreeTest extends TestCase
 		$tree = new DataTree();
 		$tree->loadFile(__DIR__ . '/data/a.php');
 		$data = json_encode($tree, JSON_PRETTY_PRINT);
-		$this->assertDerivedFile($data, __METHOD__, null, 'json');
+		$this->assertDataEqualsReferenceFile($data, __METHOD__, null, 'json');
 	}
 
 	public function testLoadYaml()
@@ -154,7 +154,7 @@ final class DataTreeTest extends TestCase
 		$tree = new DataTree();
 		$tree->loadFile(__DIR__ . '/data/a.yaml');
 		$data = json_encode($tree, JSON_PRETTY_PRINT);
-		$this->assertDerivedFile($data, __METHOD__, null, 'json');
+		$this->assertDataEqualsReferenceFile($data, __METHOD__, null, 'json');
 	}
 
 	public function testLoadInvalidJson()
@@ -192,7 +192,7 @@ final class DataTreeTest extends TestCase
 				$tree->loadFile(__DIR__ . '/data/a.' . $extension);
 				$tree->loadFile(__DIR__ . '/data/b.' . $extension, $mode);
 				$data = json_encode($tree, JSON_PRETTY_PRINT);
-				$this->assertDerivedFile($data, __METHOD__, $modeName,
+				$this->assertDataEqualsReferenceFile($data, __METHOD__, $modeName,
 					'json', 'Fusion (' . $modeName . ') ' . $extension);
 			}
 		}

@@ -61,6 +61,25 @@ trait DerivedFileTestTrait
 	}
 
 	/**
+	 * Create file directory tree if not exists and asserts if the path exists
+	 *
+	 * @param string $filepath
+	 *        	File path
+	 * @param string $label
+	 *        	Test message base
+	 * @return boolean TRUE if directory was created successfully or already exists
+	 */
+	public function assertCreateFileDirectoryPath($filepath, $label)
+	{
+		$label = (\strlen($label) ? ': ' : '') .
+			'Create file directory path';
+		$result = $this->createFileDirectoryPath($filepath);
+		if (\method_exists($this, 'assertDirectoryExists'))
+			$this->assertDirectoryExists(\dirname($filepath), $label);
+		return $result;
+	}
+
+	/**
 	 * Compare derived data agains existing reference file content
 	 *
 	 * @param mixed $data
@@ -77,37 +96,32 @@ trait DerivedFileTestTrait
 	 *        	Derived and reference file line endings
 	 * @return string
 	 */
-	public function assertDerivedFile($data, $method, $suffix,
-		$extension, $label = '', $eol = null)
+	public function assertDataEqualsReferenceFile($data, $method,
+		$suffix, $extension, $label = '', $eol = null)
 	{
-		$reference = $this->buildFilename($this->referenceDirectory,
-			$method, $suffix, $extension);
+		$reference = $this->getReferenceFilename($method, $suffix,
+			$extension);
 		$derived = $this->buildFilename($this->derivedDirectory, $method,
 			$suffix, $extension);
 		if (\strlen($label) == 0)
 			$label = \basename($derived);
 		$label = (strlen($label) ? ($label . ': ') : '');
 
-		$result = $this->createDirectoryPath($derived);
+		if (!$this->assertCreateFileDirectoryPath($derived, $label))
+			return false;
+		$result = file_put_contents($derived, $data);
+		if (\method_exists($this, 'assertNotFalse'))
+			$this->assertNotFalse($result, $label . 'Write derived data');
+		if (\method_exists($this, 'assertFileExists'))
+			$this->assertFileExists($derived,
+				$label . 'Derived file exists');
 
 		if ($result)
-		{
-			$result = file_put_contents($derived, $data);
-			if (\method_exists($this, 'assertNotFalse'))
-				$this->assertNotFalse($result,
-					$label . 'Write derived data');
-			if (\method_exists($this, 'assertFileExists'))
-				$this->assertFileExists($derived,
-					$label . 'Derived file exists');
-
-			if ($result)
-				$this->derivedDataFiles->offsetSet($derived, false);
-		}
+			$this->derivedDataFiles->offsetSet($derived, false);
 
 		if (\is_file($reference))
 		{
 			$this->derivedDataFiles->offsetSet($derived, true);
-			// $this->assertFileEquals($reference, $derived, $label . 'Compare with reference');
 			if (\method_exists($this, 'assertEquals'))
 				$this->assertEquals($this->loadFile($reference, 'lf'),
 					$this->convertEndOfLine($data, 'lf'), $label);
@@ -115,58 +129,90 @@ trait DerivedFileTestTrait
 		}
 		else
 		{
-			$result = $this->createDirectoryPath($reference);
+			if (!$this->assertCreateFileDirectoryPath($reference, $label))
+				return false;
 
-			if ($result)
-			{
-				$result = file_put_contents($reference, $data);
-				if (\method_exists($this, 'assertNotFalse'))
-					$this->assertNotFalse($result,
-						$label . 'Write reference data to ' . $reference);
-				if (\method_exists($this, 'assertFileExists'))
-					$this->assertFileExists($reference,
-						$label . 'Reference file exists');
-			}
+			$result = file_put_contents($reference, $data);
+			if (\method_exists($this, 'assertNotFalse'))
+				$this->assertNotFalse($result,
+					$label . 'Write reference data to ' . $reference);
+			if (\method_exists($this, 'assertFileExists'))
+				$this->assertFileExists($reference,
+					$label . 'Reference file exists');
 		}
 
 		return $reference;
 	}
 
-	public function setPersistent($path, $value)
+	public function assertStreamEqualsReferenceFile($stream, $method,
+		$suffix, $extension, $label = '', $eol = null)
 	{
-		if ($this->derivedDataFiles->offsetExists($path))
-			$this->derivedDataFiles->offsetSet($path, $value);
-	}
-
-	public function registerDerivedFile($subDirectory, $method, $suffix,
-		$extension)
-	{
-		$directory = $this->derivedDirectory;
-
-		$path = self::buildFilename($directory, $method, $suffix,
+		$referenceName = $this->getReferenceFilename($method, $suffix,
 			$extension);
+		$derivedName = $this->buildFilename($this->derivedDirectory,
+			$method, $suffix, $extension);
 
-		if (\is_string($subDirectory) && strlen($subDirectory))
+		if (!$this->assertCreateFileDirectoryPath($derivedName, $label))
+			return false;
+
+		$streamPosition = \ftell($stream);
+		fseek($stream, 0);
+		file_put_contents($derivedName, $stream);
+		\fseek($stream, $streamPosition);
+
+		if (!\is_file($referenceName))
 		{
-			$pi = pathinfo($path);
-			$path = $pi['dirname'] . '/' . $subDirectory . '/' .
-				$pi['basename'];
-			$directory .= '/' . $subDirectory;
+			if (!$this->assertCreateFileDirectoryPath($referenceName,
+				$label))
+				return false;
+
+			\copy($derivedName, $referenceName);
+			return true;
 		}
 
-		self::createDirectoryPath($path);
-		$this->derivedDataFiles->offsetSet($path, false);
+		if (\method_exists($this, 'assertFileEquals'))
+			$this->assertFileEquals($referenceName, $derivedName, $label);
+	}
 
-		return $path;
+	/**
+	 *
+	 * @deprecated Ambiguous name. Use assertDataEqualsReferenceFile()
+	 *
+	 */
+	public function assertDerivedFile($data, $method, $suffix,
+		$extension, $label = '', $eol = null)
+	{
+		$this->assertDataEqualsReferenceFile($data, $method, $suffix,
+			$extensionn, $label, $eol);
 	}
 
 	/**
 	 *
 	 * @param string $method
+	 *        	The test method name. Generaly the <code>__METHOD__</code> constant.
 	 * @param string $suffix
+	 *        	File name suffix
 	 * @param string $extension
+	 *        	File extension
 	 *
-	 * @return string
+	 * @return string File full path
+	 */
+	public function getReferenceFilename($method, $suffix, $extension)
+	{
+		return $this->buildFilename($this->referenceDirectory, $method,
+			$suffix, $extension);
+	}
+
+	/**
+	 *
+	 * @param string $method
+	 *        	The test method name. Generaly the <code>__METHOD__</code> constant.
+	 * @param string $suffix
+	 *        	File name suffix
+	 * @param string $extension
+	 *        	File extension
+	 *
+	 * @return string File full path
 	 */
 	public function getDerivedFilename($method, $suffix, $extension)
 	{
@@ -177,32 +223,32 @@ trait DerivedFileTestTrait
 	private function buildFilename($directory, $method, $suffix,
 		$extension)
 	{
-		if (preg_match('/.*\\\\(.*?)Test::test(.*)$/', $method, $m))
+		$pattern = '(?:(?:.*\\\\)?(?<class>.*?)(?:Test)*::)?(?:test)?(?<method>.*)$';
+		$match = [];
+		if (!\preg_match(chr(1) . $pattern . chr(1), $method, $match))
 		{
-			$cls = $m[1];
-			$method = str_replace($cls, '', $m[2]);
+			throw new \InvalidArgumentException('Invalid method name');
 		}
-		elseif (preg_match('/.*\\\\(.*?)Test::(.*)$/', $method, $m))
-		{
-			$cls = $m[1];
-			$method = '';
-		}
-		else
-			throw new \Exception('Invalid method ' . $method);
 
+		$method = $match['method'];
+		$cls = $match['class'];
+		$name = '';
+		if (\strlen($cls))
+			$name .= $cls . '_';
+		$name .= $method;
 		if (\is_string($suffix) && strlen($suffix))
-			$method .= '_' .
-				preg_replace('/[^a-zA-Z0-9._-]/', '_', $suffix);
+			$name .= '_' .
+				\preg_replace('/[^a-zA-Z0-9._-]/', '_', $suffix);
 
-		$name = $cls . '_' . $method . '.' . $extension;
-		$name = preg_replace('/_+/', '_', $name);
+		$name .= '.' . $extension;
+		$name = \preg_replace('/_+/', '_', $name);
 
 		return $this->basePath . '/' . $directory . '/' . $name;
 	}
 
-	private function createDirectoryPath($filepath)
+	private function createFileDirectoryPath($filepath)
 	{
-		$path = dirname($filepath);
+		$path = \dirname($filepath);
 		$result = true;
 		if (!is_dir($path))
 			$result = @mkdir($path, 0777, true);
