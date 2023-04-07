@@ -27,6 +27,9 @@ class ReflectionDocComment
 		foreach ($lines as $line)
 		{
 			$line = \trim($line);
+			if (\preg_match(chr(1) . self::PATTERN_COMMENT_END . chr(1),
+				$line))
+				continue;
 			$line = \preg_replace(
 				chr(1) . self::PATTERN_COMMENT_PREFIX . chr(1), '',
 				$line);
@@ -70,7 +73,11 @@ class ReflectionDocComment
 		{
 			if (\strpos($line, '@' . $name) !== 0)
 				continue;
-			$tags[] = \ltrim(substr($line, \strlen($name) + 1));
+			$content = substr($line, \strlen($name) + 1);
+			$trimmed = \ltrim($content);
+			if ($content == $trimmed) // not $name but $name(AndSomething)
+				continue;
+			$tags[] = $trimmed;
 		}
 		return $tags;
 	}
@@ -102,6 +109,8 @@ class ReflectionDocComment
 	const PATTERN_COMMENT_PREFIX = '^(?:/\*{2}\**\s*)|(\*+\s*)';
 
 	const PATTERN_COMMENT_SUFFIX = '\s*\*+/';
+
+	const PATTERN_COMMENT_END = '^\*+/';
 
 	/**
 	 *
