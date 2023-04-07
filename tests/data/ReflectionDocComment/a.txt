@@ -1,0 +1,17 @@
+/**
+ * Abstract description
+ * 	on two lines
+ * 
+ * More detailed description, remarks, links,
+ * PHPDoc tags etc.
+ *
+ * @tag A tag and its value
+ * éanother-tag Another tag and its value
+ * @tag The same tag as seeen before
+ * @param type $variableName
+ * 		Parameter description
+ * @tag-alternative This is not the same as @tag even if it starts with the same name.
+ * 
+ * @return mixed Seme meaningful, carefully crafted result.
+ * 
+ */
