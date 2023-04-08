@@ -6,6 +6,7 @@ A set of utility components for PHP including:
 * Type conversion.
 * Interfaces to describe object which can be represented/converted to a POD type.
 * Containers.
+* Reflection extensions for constants and documentation comments.
 
 
 ## Installation

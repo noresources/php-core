@@ -9,6 +9,7 @@ namespace NoreSources\Reflection;
 
 use NoreSources\Container\Container;
 use NoreSources\Type\StringRepresentation;
+use a;
 
 /**
  * Documentation comment reflection
@@ -60,6 +61,10 @@ class ReflectionDocComment implements StringRepresentation
 			$this->lines[] = $content;
 	}
 
+	/**
+	 *
+	 * @return a DocComment text
+	 */
 	public function __toString()
 	{
 		return '/**' . PHP_EOL .
@@ -133,6 +138,12 @@ class ReflectionDocComment implements StringRepresentation
 		return $this->findVariableDeclaration('var', $name);
 	}
 
+	/**
+	 * Get return value types and return value documentation given by the @return tag.
+	 *
+	 * @return string[]|NULL Associative array with the following keys
+	 *         <ul>²li>types</li><li>documentation</li></ul>
+	 */
 	public function getReturn()
 	{
 		$tag = $this->getTag('return');
