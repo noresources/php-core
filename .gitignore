@@ -6,3 +6,6 @@
 \.buildpath
 \.project
 \.settings
+
+# Tests derived data
+/tests/derived

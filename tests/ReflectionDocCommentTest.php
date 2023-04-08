@@ -1,6 +1,7 @@
 <?php
 use NoreSources\Container\Container;
 use NoreSources\Reflection\ReflectionDocComment;
+use NoreSources\Test\DerivedFileTestTrait;
 
 /**
  * Copyright © 2023 by Renaud Guillard (dev@nore.fr)
@@ -10,6 +11,7 @@ use NoreSources\Reflection\ReflectionDocComment;
  */
 class ReflectionDocCommentTest extends \PHPUnit\Framework\TestCase
 {
+	use DerivedFileTestTrait;
 
 	public function testLines()
 	{
@@ -34,6 +36,23 @@ class ReflectionDocCommentTest extends \PHPUnit\Framework\TestCase
 			], $textLines, 'Standard lines');
 	}
 
+	public function testToString()
+	{
+		$method = __METHOD__;
+		$suffix = null;
+		$extension = 'txt';
+		$doc = $this->createDocComment('a.txt');
+		$text = \strval($doc);
+		$this->assertDataEqualsReferenceFile($text, $method, $suffix,
+			$extension, 'DocComment string representation');
+
+		$doc2 = new ReflectionDocComment($text);
+		$text2 = \strval($doc2);
+		$this->assertDataEqualsReferenceFile($text2, $method, $suffix,
+			$extension,
+			'DocComment string representation reinterpretation does not change ReflectionDocComment content');
+	}
+
 	public function testTags()
 	{
 		$doc = $this->createDocComment('a.txt');
@@ -44,6 +63,40 @@ class ReflectionDocCommentTest extends \PHPUnit\Framework\TestCase
 		$param = $doc->getTag('param');
 		$this->assertEquals('type $variableName Parameter description',
 			$param, 'Multi line tag value concatenated. ');
+	}
+
+	public function testParams()
+	{
+		$cls = new ReflectionClass(ReflectionDocComment::class);
+		$method = $cls->getMethod('getParameter');
+		$doc = new ReflectionDocComment($method->getDocComment());
+		$name = $doc->getParameter('name');
+		$this->assertEquals('array', \gettype($name),
+			'Has $name parameter');
+		$invalid = $doc->getParameter('Kaoue');
+		$this->assertEquals('NULL', \gettype($invalid),
+			'Not has $kapoue parameter');
+	}
+
+	public function testReturn()
+	{
+		$cls = new ReflectionClass(ReflectionDocComment::class);
+		$method = $cls->getMethod('getParameter');
+		$doc = new ReflectionDocComment($method->getDocComment());
+		$r = $doc->getReturn();
+		$this->assertEquals('array', \gettype($r), 'Has @return');
+		$this->assertArrayHasKey('types', $r);
+		$this->assertEquals([
+			'string[]',
+			'NULL'
+		], $r['types'], 'Return types');
+	}
+
+	public function __construct($name = null, array $data = [],
+		$dataName = '')
+	{
+		parent::__construct($name, $data, $dataName);
+		$this->initializeDerivedFileTest(__DIR__);
 	}
 
 	/**

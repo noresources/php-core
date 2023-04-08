@@ -8,11 +8,12 @@
 namespace NoreSources\Reflection;
 
 use NoreSources\Container\Container;
+use NoreSources\Type\StringRepresentation;
 
 /**
  * Documentation comment reflection
  */
-class ReflectionDocComment
+class ReflectionDocComment implements StringRepresentation
 {
 
 	/**
@@ -59,6 +60,16 @@ class ReflectionDocComment
 			$this->lines[] = $content;
 	}
 
+	public function __toString()
+	{
+		return '/**' . PHP_EOL .
+			Container::implodeValues($this->lines,
+				[
+					Container::IMPLODE_BEFORE => ' * ',
+					Container::IMPLODE_BETWEEN => PHP_EOL . PHP_EOL
+				]) . PHP_EOL . ' */' . PHP_EOL;
+	}
+
 	/**
 	 * Get all lines starting with the given documentation tag
 	 *
@@ -97,6 +108,51 @@ class ReflectionDocComment
 	}
 
 	/**
+	 * Get type and documentation of the given function parameter.
+	 *
+	 * @param string $name
+	 *        	Parameter name
+	 * @return string[]|NULL Associative array with the following keys
+	 *         <ul>²li>types</li><li>documentation</li></ul>
+	 */
+	public function getParameter($name)
+	{
+		return $this->findVariableDeclaration('param', $name);
+	}
+
+	/**
+	 * Get variable type and documentation.
+	 *
+	 * @param string $name
+	 *        	Variable name
+	 * @return string[]|NULL Associative array with the following keys
+	 *         <ul>²li>types</li><li>documentation</li></ul>
+	 */
+	public function getVariable($name)
+	{
+		return $this->findVariableDeclaration('var', $name);
+	}
+
+	public function getReturn()
+	{
+		$tag = $this->getTag('return');
+		if (!$tag)
+			return NULL;
+		$p = chr(1) . '(?<type>.*?)(?:(?:\s+(?<documentation>.*))|$)' .
+			chr(1);
+		if (\preg_match($p, $tag, $m))
+		{
+			return [
+				'types' => \explode('|', $m['type']),
+				'documentation' => $m['documentation']
+			];
+		}
+		return [
+			'documentation' => $tag
+		];
+	}
+
+	/**
 	 * Get cleaned documentation lines
 	 *
 	 * @return string[]
@@ -111,6 +167,35 @@ class ReflectionDocComment
 	const PATTERN_COMMENT_SUFFIX = '\s*\*+/';
 
 	const PATTERN_COMMENT_END = '^\*+/';
+
+	const PATTERN_VARIABLE_DECLARATION = '(?<type>.*?)\s+\$(?<name>[a-zA-Z_][a-zA-Z0-9_]*)(?:\s+(?<documentation>.*))?';
+
+	/**
+	 *
+	 * @param string $tag
+	 *        	Tag name
+	 * @param string $name
+	 *        	Variable name
+	 * @return string[]|NULL Associative array with the following keys
+	 *         <ul>²li>types</li><li>documentation</li></ul>
+	 */
+	private function findVariableDeclaration($tag, $name)
+	{
+		$tags = $this->getTags($tag);
+		$p = chr(1) . self::PATTERN_VARIABLE_DECLARATION . chr(1);
+		foreach ($tags as $text)
+		{
+			if (\preg_match($p, $text, $m))
+			{
+				if ($m['name'] == $name)
+					return [
+						'types' => \explode('|', $m['type']),
+						'documentation' => $m['documentation']
+					];
+			}
+		}
+		return null;
+	}
 
 	/**
 	 *

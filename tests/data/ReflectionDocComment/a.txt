@@ -12,6 +12,6 @@
  * 		Parameter description
  * @tag-alternative This is not the same as @tag even if it starts with the same name.
  * 
- * @return mixed Seme meaningful, carefully crafted result.
+ * @return mixed Same meaningful, carefully crafted result.
  * 
  */
