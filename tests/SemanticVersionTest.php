@@ -8,6 +8,7 @@
 namespace NoreSources\Test;
 
 use NoreSources\SemanticVersion;
+use NoreSources\Container\Container;
 
 final class SemanticVersionTest extends \PHPUnit\Framework\TestCase
 {
@@ -57,7 +58,7 @@ final class SemanticVersionTest extends \PHPUnit\Framework\TestCase
 				$this->assertLessThan(0, $previous->compare($v),
 					'Version comparison');
 				$this->assertLessThan(0,
-					SemanticVersion::compare($previous, $v,
+					SemanticVersion::compareVersions($previous, $v,
 						'Version comparison (static method)'),
 					'Version comparison (static)');
 			}
@@ -66,7 +67,7 @@ final class SemanticVersionTest extends \PHPUnit\Framework\TestCase
 		}
 	}
 
-	public function testToNumber()
+	public function testToInteger()
 	{
 		$tests = [
 			[
@@ -92,18 +93,22 @@ final class SemanticVersionTest extends \PHPUnit\Framework\TestCase
 			[
 				'version' => '0.1.23',
 				'value' => 123
+			],
+			[
+				'version' => '123.456.789',
+				'exponent' => 3,
+				'value' => 123456789
 			]
 		];
 
 		foreach ($tests as $test)
 		{
-
-			$version = null;
-			$version = new SemanticVersion($test['version']);
+			$e = Container::keyValue($test, 'exponent', 2);
+			$version = new SemanticVersion($test['version'], $e);
 
 			$this->assertEquals($test['value'],
 				$version->getIntegerValue(),
-				'Integer conversion of ' . $version);
+				'Integer conversion of ' . $version . '(' . $e . ')');
 		}
 	}
 
