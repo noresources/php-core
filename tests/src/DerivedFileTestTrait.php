@@ -231,7 +231,7 @@ trait DerivedFileTestTrait
 		$extension, $label = '', $eol = null)
 	{
 		$this->assertDataEqualsReferenceFile($data, $method, $suffix,
-			$extensionn, $label, $eol);
+			$extension, $label, $eol);
 	}
 
 	/**
