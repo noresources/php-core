@@ -14,6 +14,13 @@ class TypeDescription
 {
 
 	/**
+	 * Constant for unknown type or type family
+	 *
+	 * @var string
+	 */
+	const UNKNOWN = 'unknown';
+
+	/**
 	 *
 	 * @param mixed $element
 	 * @return string $element Full class name or data type name
@@ -110,6 +117,87 @@ class TypeDescription
 		}
 
 		return \is_a($element, $parent, $isClassName);
+	}
+
+	/**
+	 * Indicates if the type name refer to a PHP primitive type
+	 *
+	 * @param stringown $typename
+	 *        	Type name
+	 * @return boolean TRUE if $typename is the name of a PHP primitive type
+	 */
+	public static function isPrimitiveType($typename)
+	{
+		return \in_array(\strtolower($typename),
+			[
+				'string',
+				'int',
+				'integer',
+				'scalar',
+				'float',
+				'double',
+				'bool',
+				'boolean',
+				'array',
+				'object',
+				'callable',
+				'iterable',
+				'resource',
+				'null'
+			]);
+	}
+
+	/**
+	 * Indicates if the given type name refer to a pseudo-type.
+	 *
+	 * Pseudo-types may appear in PHPDoc blocks or in function definitions.
+	 *
+	 * @param string $typename
+	 *        	Type name
+	 * @return boolean TRUE if $typename is the name of a pseudo-type.
+	 */
+	public static function isPseudoType($typename)
+	{
+		return \in_array(\strtolower($typename),
+			[
+				'mixed',
+				'void',
+				'true',
+				'false',
+				'self',
+				'static',
+				'$this'
+			]);
+	}
+
+	/**
+	 * PHP primitive type
+	 *
+	 * @var string
+	 */
+	const FAMILY_PRIMITIVE = 'primitive';
+
+	/**
+	 * Pseudo type (void, mixed)
+	 *
+	 * @var string
+	 */
+	const FAMILY_PSEUDO_TYPE = 'pseudo-type';
+
+	/**
+	 * Get type name family
+	 *
+	 * @param string $typename
+	 *        	Type name
+	 * @return string Type family. One of FAMILY_* constant values
+	 */
+	public static function getTypenameFamily($typename)
+	{
+		if (self::isPrimitiveType($typename))
+			return self::FAMILY_PRIMITIVE;
+		elseif (self::isPseudoType($typename))
+			return self::FAMILY_PRIMITIVE;
+		return self::UNKNOWN;
 	}
 
 	/**
