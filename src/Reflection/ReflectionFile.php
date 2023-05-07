@@ -481,6 +481,42 @@ class ReflectionFile
 	}
 
 	/**
+	 * Global lookup option.
+	 *
+	 * class_exists () will be used to check if the
+	 * class exists.
+	 *
+	 * <dl>
+	 * <dt>Expected value</tt>
+	 * <dd>boolean</dd>
+	 * <dt>Default behavior</dt>
+	 * <dd>No global lookup</dd>
+	 * </dl>
+	 *
+	 *
+	 * @var string
+	 */
+	const LOOKUP_GLOBAL = 'global';
+
+	/**
+	 * List of namespaces to search the class into.
+	 *
+	 * Namespaces MUST be part of the file namespaces.
+	 *
+	 * <dl>
+	 * <dt>
+	 * <dt>Expected value</dt>
+	 * <dd>string[]</dd>
+	 * <dt>Default behavior</dt>
+	 * <dd>Use all file namespaces</dd>
+	 * </dt>
+	 * </dl>
+	 *
+	 * @var string
+	 */
+	const LOOKUP_NAMESPACES = 'namespaces';
+
+	/**
 	 * Get the qualified name of a class, interface or trait
 	 * declared or used in this file.
 	 *
@@ -488,12 +524,14 @@ class ReflectionFile
 	 *        	Local PHP entity name
 	 * @param
 	 *        	array|string|NULL Kind of element to look for.
+	 * @param array $options
+	 *        	Lookup options
 	 * @return string Qualified entity name. Name is resolved by looking into "use" statements
 	 *         first,
 	 *         then by assuming the class is part of the file namespace.
 	 *
 	 */
-	public function getQualifiedName($name, $types = null)
+	public function getQualifiedName($name, $types = null, $options = [])
 	{
 		if (\substr($name, 0, 1) == '\\')
 			return \substr($name, 1);
@@ -506,7 +544,8 @@ class ReflectionFile
 		$names = [
 			$name
 		];
-		$namespaces = $this->getNamespaces();
+		$namespaces = Container::keyValue($options,
+			self::LOOKUP_NAMESPACES, $this->getNamespaces());
 		foreach ($namespaces as $ns)
 			$names[] = $ns . '\\' . $name;
 
@@ -523,6 +562,7 @@ class ReflectionFile
 				T_CONST
 			];
 
+		// LOcal file lookup
 		foreach ($names as $expected)
 		{
 			foreach ($types as $type)
@@ -535,6 +575,14 @@ class ReflectionFile
 			}
 		}
 
+		// Global lookup
+		if (Container::keyValue($options, self::LOOKUP_GLOBAL, false))
+			foreach ($names as $expected)
+			{
+				if (\class_exists($expected))
+					return $expected;
+			}
+
 		throw new \InvalidArgumentException($name . ' not found');
 	}
 
@@ -546,16 +594,19 @@ class ReflectionFile
 	 *        	Local PHP entity name
 	 * @param
 	 *        	array|string|NULL Kind of element to look for.
+	 * @param array $options
+	 *        	Lookup options
 	 * @return string Qualified entity name. Name is resolved by looking into "use" statements
 	 *         first,
 	 *         then by assuming the class is part of the file namespace.
 	 *
 	 */
-	public function getFullyQualifiedName($name, $types = null)
+	public function getFullyQualifiedName($name, $types = null,
+		$options = array())
 	{
 		if (\substr($name, 0, 1) == '\\')
 			return $name;
-		return '\\' . $this->getQualifiedName($name, $types);
+		return '\\' . $this->getQualifiedName($name, $types, $options);
 	}
 
 	private function getTokens()
