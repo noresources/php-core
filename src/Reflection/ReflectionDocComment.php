@@ -18,6 +18,45 @@ class ReflectionDocComment implements StringRepresentation
 {
 
 	/**
+	 * Get information on PHPDoc type declaration
+	 *
+	 * @param string $declaration
+	 *        	A type declaration appearing in @param, @var or @return
+	 * @return string[] A Type properties
+	 *         <ul>
+	 *         <li>type: The type name without decoration</li>
+	 *         * <li>key: For array type, the array keys type/li>
+	 *         * <li>value: For array type, The array values type</li>
+	 *         </ul>
+	 */
+	public static function getTypeDeclarationProperties($declaration)
+	{
+		if (\preg_match(
+			chr(1) . self::PATTERN_TYPE_ARRAY_OF_TYPE . chr(1),
+			$declaration, $m))
+		{
+			return [
+				'type' => 'array',
+				'key' => 'integer',
+				'value' => $m['type']
+			];
+		}
+		elseif (\preg_match(chr(1) . self::PATTERN_TYPE_MAP . chr(1),
+			$declaration, $m))
+		{
+			return [
+				'type' => 'array',
+				'key' => $m['key'],
+				'value' => $m['value']
+			];
+		}
+
+		return [
+			'type' => $declaration
+		];
+	}
+
+	/**
 	 *
 	 * @param string $text
 	 *        	Documentation comment
@@ -85,17 +124,93 @@ class ReflectionDocComment implements StringRepresentation
 	public function getTags($name)
 	{
 		$tags = [];
+		$prefix = '@' . $name;
+		$length = \strlen($prefix);
 		foreach ($this->lines as $line)
 		{
-			if (\strpos($line, '@' . $name) !== 0)
+			if (\strpos($line, $prefix) !== 0)
 				continue;
-			$content = substr($line, \strlen($name) + 1);
-			$trimmed = \ltrim($content);
-			if ($content == $trimmed) // not $name but $name(AndSomething)
-				continue;
-			$tags[] = $trimmed;
+			$content = \substr($line, $length);
+			if (\strlen($content))
+			{
+				$trimmed = \ltrim($content);
+				if ($content == $trimmed) // not $name but $name(AndSomething)
+					continue;
+				$content = $trimmed;
+			}
+			$tags[] = $content;
 		}
 		return $tags;
+	}
+
+	/**
+	 * Get all lines which are not tags
+	 *
+	 * @return string[] Text lines
+	 */
+	public function getTextLines()
+	{
+		return Container::filterValues($this->lines,
+			function ($line) {
+				return (\strpos($line, '@') !== 0);
+			});
+	}
+
+	/**
+	 * Get first text line
+	 *
+	 * @return string|NULL First text line if any
+	 */
+	public function getAbstract()
+	{
+		return Container::keyValue($this->getTextLines(), 0);
+	}
+
+	/**
+	 * Get detailed description lines.
+	 *
+	 * The detailed description lines are all text lines except the first one.
+	 *
+	 * @param string|NULL $glue
+	 *        	If set, merge line with this glue.
+	 * @return NULL|string|string[] Text lines corresponding to the detailed description.
+	 */
+	public function getDetails($glue = null)
+	{
+		$textLines = $this->getTextLines();
+		\array_shift($textLines);
+		if (\count($textLines) == 0)
+			return NULL;
+		if ($glue)
+			return \implode($glue, $textLines);
+		return $textLines;
+	}
+
+	/**
+	 * Indicates if the DocComment has at least one occurence of the given tag.
+	 *
+	 * @param string $name
+	 *        	Tag name.
+	 * @return boolean
+	 */
+	public function hasTag($name)
+	{
+		$prefix = '@' . $name;
+		$length = \strlen($prefix);
+		foreach ($this->lines as $line)
+		{
+			if (\strpos($line, $prefix) !== 0)
+				continue;
+			$content = \substr($line, $length);
+			if (\strlen($content))
+			{
+				$trimmed = \ltrim($content);
+				if ($content == $trimmed) // not $name but $name(AndSomething)
+					continue;
+			}
+			return true;
+		}
+		return false;
 	}
 
 	/**
@@ -128,14 +243,36 @@ class ReflectionDocComment implements StringRepresentation
 	/**
 	 * Get variable type and documentation.
 	 *
-	 * @param string $name
-	 *        	Variable name
+	 * @param string|NULL $name
+	 *        	Variable name. If NULL, Find the first @var tag.
 	 * @return string[]|NULL Associative array with the following keys
 	 *         <ul>²li>types</li><li>documentation</li></ul>
 	 */
-	public function getVariable($name)
+	public function getVariable($name = null)
 	{
-		return $this->findVariableDeclaration('var', $name);
+		if ($name)
+			return $this->findVariableDeclaration('var', $name);
+
+		$var = $this->getTag('var');
+		if (\is_null($var))
+			return NULL;
+
+		$type = $var;
+		$documentation = '';
+		if (\preg_match(
+			chr(1) . self::PATTERN_PROPERTY_DECLARATION . chr(1), $var,
+			$m))
+		{
+
+			$type = $m['types'];
+			$documentation = Container::keyValue($m, 'documentation',
+				$documentation);
+		}
+
+		return [
+			'types' => \explode('|', $type),
+			'documentation' => $documentation
+		];
 	}
 
 	/**
@@ -179,7 +316,13 @@ class ReflectionDocComment implements StringRepresentation
 
 	const PATTERN_COMMENT_END = '^\*+/';
 
+	const PATTERN_PROPERTY_DECLARATION = '(?<types>[^\s]+)(?:\s+(?<documentation>.*))?';
+
 	const PATTERN_VARIABLE_DECLARATION = '(?<type>.*?)\s+\$(?<name>[a-zA-Z_][a-zA-Z0-9_]*)(?:\s+(?<documentation>.*))?';
+
+	const PATTERN_TYPE_ARRAY_OF_TYPE = '^(?<type>(?:\\\\)?[a-zA-Z_][a-zA-Z0-9_]*(?:\\\\[a-zA-Z_][a-zA-Z0-9_]*)*)\[\]$';
+
+	const PATTERN_TYPE_MAP = 'array<(?<key>(?:\\\\)?[a-zA-Z_][a-zA-Z0-9_]*(?:\\\\[a-zA-Z_][a-zA-Z0-9_]*)*),(?<value>(?:\\\\)?[a-zA-Z_][a-zA-Z0-9_]*(?:\\\\[a-zA-Z_][a-zA-Z0-9_]*)*)>';
 
 	/**
 	 *
