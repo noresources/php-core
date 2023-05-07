@@ -11,6 +11,10 @@
  * @param type $variableName
  * 		Parameter description
  * @tag-alternative This is not the same as @tag even if it starts with the same name.
+ *
+ * @text-less-tag
+ * @orm-data type="integer", foo="bar"
+ *  	extension="pia"
  * 
  * @return mixed Same meaningful, carefully crafted result.
  * 

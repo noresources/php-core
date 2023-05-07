@@ -1,14 +1,16 @@
 <?php
-use NoreSources\Container\Container;
-use NoreSources\Reflection\ReflectionDocComment;
-use NoreSources\Test\DerivedFileTestTrait;
-
 /**
- * Copyright © 2023 by Renaud Guillard (dev@nore.fr)
+ * Copyright © 2012 - 2021 by Renaud Guillard (dev@nore.fr)
  * Distributed under the terms of the MIT License, see LICENSE
  *
  * @package Core
  */
+namespace NoreSources\Test\Reflection;
+
+use NoreSources\Reflection\ReflectionDocComment;
+use NoreSources\Test\DerivedFileTestTrait;
+use ReflectionClass;
+
 class ReflectionDocCommentTest extends \PHPUnit\Framework\TestCase
 {
 	use DerivedFileTestTrait;
@@ -18,22 +20,24 @@ class ReflectionDocCommentTest extends \PHPUnit\Framework\TestCase
 		$doc = $this->createDocComment('a.txt');
 		$lines = $doc->getLines();
 
-		$textLines = Container::filterValues($lines,
-			function ($v) {
-				$f = \substr($v, 0, 1);
-				return !\in_array($f, [
-					'@'
-				]);
-			});
+		$textLines = $doc->getTextLines();
 
 		$this->assertEquals('array', \gettype($lines),
 			'getLines() return type');
 
-		$this->assertEquals(
-			[
-				'Abstract description on two lines',
-				'More detailed description, remarks, links, PHPDoc tags etc.'
-			], $textLines, 'Standard lines');
+		$abstract = 'Abstract description on two lines';
+		$details = [
+			'More detailed description, remarks, links, PHPDoc tags etc.'
+		];
+		$all = \array_merge([
+			$abstract
+		], $details);
+
+		$this->assertEquals($all, $textLines, 'Standard lines');
+
+		$this->assertEquals($abstract, $doc->getAbstract(), 'Abstract');
+		$this->assertEquals($details, $doc->getDetails(),
+			'Details (array)');
 	}
 
 	public function testToString()
@@ -57,12 +61,19 @@ class ReflectionDocCommentTest extends \PHPUnit\Framework\TestCase
 	{
 		$doc = $this->createDocComment('a.txt');
 
+		$this->assertTrue($doc->hasTag('tag'), 'Has @tag');
 		$theTags = $doc->getTags('tag');
 		$this->assertCount(2, $theTags, 'All @tag');
 
+		$this->assertTrue($doc->hasTag('param'), 'Has @param');
 		$param = $doc->getTag('param');
 		$this->assertEquals('type $variableName Parameter description',
 			$param, 'Multi line tag value concatenated. ');
+
+		$this->assertTrue($doc->hasTag('text-less-tag'),
+			'Textless tag exists');
+		$this->assertEquals('', $doc->getTag('text-less-tag'),
+			'Textless tag content is an empty string');
 	}
 
 	public function testParams()
@@ -92,11 +103,54 @@ class ReflectionDocCommentTest extends \PHPUnit\Framework\TestCase
 		], $r['types'], 'Return types');
 	}
 
+	public function testTypeProperties()
+	{
+		$tests = [
+			'basic' => [
+				'declaration' => 'string',
+				'properties' => [
+					'type' => 'string'
+				]
+			],
+			'class' => [
+				'declaration' => ReflectionDocComment::class,
+				'properties' => [
+					'type' => ReflectionDocComment::class
+				]
+			],
+			'array of class' => [
+				'declaration' => ReflectionDocComment::class . '[]',
+				'properties' => [
+					'type' => 'array',
+					'key' => 'integer',
+					'value' => ReflectionDocComment::class
+				]
+			],
+			'map of bool' => [
+				'declaration' => 'array<string,bool>',
+				'properties' => [
+					'type' => 'array',
+					'key' => 'string',
+					'value' => 'bool'
+				]
+			]
+		];
+		foreach ($tests as $label => $test)
+		{
+			$declaration = $test['declaration'];
+			$expected = $test['properties'];
+			$actual = ReflectionDocComment::getTypeDeclarationProperties(
+				$declaration);
+
+			$this->assertEquals($expected, $actual, $label);
+		}
+	}
+
 	public function __construct($name = null, array $data = [],
 		$dataName = '')
 	{
 		parent::__construct($name, $data, $dataName);
-		$this->initializeDerivedFileTest(__DIR__);
+		$this->initializeDerivedFileTest(__DIR__ . '/..');
 	}
 
 	/**
@@ -107,7 +161,7 @@ class ReflectionDocCommentTest extends \PHPUnit\Framework\TestCase
 	 */
 	protected function createDocComment($filename)
 	{
-		$p = __DIR__ . '/data/ReflectionDocComment/' . $filename;
+		$p = __DIR__ . '/../data/ReflectionDocComment/' . $filename;
 		$this->assertFileExists($p,
 			$filename . ' doc comment test file exists');
 		$c = \file_get_contents($p);

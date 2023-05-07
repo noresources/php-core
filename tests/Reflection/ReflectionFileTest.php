@@ -5,7 +5,7 @@
  *
  * @package Core
  */
-namespace NoreSources\Test;
+namespace NoreSources\Test\Reflection;
 
 use NoreSources\ComparableInterface;
 use NoreSources\SingletonTrait;
@@ -46,7 +46,7 @@ function reflectionTestFreeFunction()
 	return "I'm a poor lonesome function";
 }
 
-final class ReflectionTest extends \PHPUnit\Framework\TestCase
+final class ReflectionFileTest extends \PHPUnit\Framework\TestCase
 {
 
 	/**
@@ -138,7 +138,8 @@ final class ReflectionTest extends \PHPUnit\Framework\TestCase
 			'Has local function name');
 
 		{
-			$filename = __DIR__ . '/data/Root/Space/PSR4Class.php';
+			$filename = \realpath(
+				__DIR__ . '/../data/Root/Space/PSR4Class.php');
 			require_once ($filename);
 			$file = new ReflectionFile($filename,
 				ReflectionFile::LOADED | ReflectionFile::AUTOLOADABLE |
@@ -208,7 +209,8 @@ final class ReflectionTest extends \PHPUnit\Framework\TestCase
 			'constant'
 		], REFLECTION_TEST_ARRAY, 'File constant value');
 
-		$filename = __DIR__ . '/data/Root/Space/PSR4Class.php';
+		$filename = \realpath(
+			__DIR__ . '/../data/Root/Space/PSR4Class.php');
 		$file = new ReflectionFile($filename,
 			ReflectionFile::AUTOLOADABLE | ReflectionFile::SAFE);
 
@@ -236,18 +238,19 @@ final class ReflectionTest extends \PHPUnit\Framework\TestCase
 			ReflectionFile::SAFE | ReflectionFile::LOADED |
 			ReflectionFile::AUTOLOADABLE);
 
-		$this->assertTrue($file->hasClass(ReflectionTest::class),
+		$this->assertTrue($file->hasClass(ReflectionFileTest::class),
 			'Has qualified class name');
-		$this->assertTrue($file->hasClass('ReflectionTest'),
+		$this->assertTrue($file->hasClass('ReflectionFileTest'),
 			'Has local class name');
 
-		$cls = $file->getClass('ReflectionTest');
+		$cls = $file->getClass('ReflectionFileTest');
 		$this->assertInstanceOf(\ReflectionClass::class, $cls,
-			'Get ReflectionTest ReflectionClass');
+			'Get ReflectionFileTest ReflectionClass');
 
 		// ////////
 
-		$filename = __DIR__ . '/data/Root/Space/PSR4Class.php';
+		$filename = \realpath(
+			__DIR__ . '/../data/Root/Space/PSR4Class.php');
 		$file = new ReflectionFile($filename,
 			ReflectionFile::AUTOLOADABLE | ReflectionFile::SAFE);
 
@@ -270,7 +273,8 @@ final class ReflectionTest extends \PHPUnit\Framework\TestCase
 		] as $type)
 		{
 			$name = 'PSR4' . $type;
-			$filename = __DIR__ . '/data/Root/Space/' . $name . '.php';
+			$filename = \realpath(
+				__DIR__ . '/../data/Root/Space/' . $name . '.php');
 			$file = new ReflectionFile($filename,
 				ReflectionFile::AUTOLOADABLE | ReflectionFile::SAFE);
 			$hasMethod = 'has' . $type;
@@ -349,7 +353,7 @@ final class ReflectionTest extends \PHPUnit\Framework\TestCase
 
 		$classes = $file->getClassnames();
 		$this->assertEquals([
-			ReflectionTest::class
+			ReflectionFileTest::class
 		], $classes, 'List of classes');
 
 		$ns = $file->getNamespaces();
@@ -363,11 +367,12 @@ final class ReflectionTest extends \PHPUnit\Framework\TestCase
 			$file->getQualifiedName('ReflectionFile'),
 			'Qualified name using "use" statement');
 
-		$this->assertEquals(ReflectionTest::class,
-			$file->getQualifiedName('ReflectionTest'),
+		$this->assertEquals(ReflectionFileTest::class,
+			$file->getQualifiedName('ReflectionFileTest'),
 			'Qualified name using file namespace');
 
-		$file = new ReflectionFile(__DIR__ . '/data/MultiNamespace.php',
+		$file = new ReflectionFile(
+			\realpath(__DIR__ . '/../data/MultiNamespace.php'),
 			ReflectionFile::SAFE);
 
 		$this->assertTrue($file->hasInterface('AggressiveInterface'),
@@ -452,7 +457,7 @@ final class ReflectionTest extends \PHPUnit\Framework\TestCase
 
 		$namespaceLessClassFilename = $namespaceLessClass->getFileName();
 		$this->assertEquals(
-			__DIR__ . '/data/Root/NamespaceLessClass.php',
+			\realpath(__DIR__ . '/../data/Root/NamespaceLessClass.php'),
 			$namespaceLessClassFilename);
 
 		$file = new ReflectionFile($namespaceLessClassFilename,
