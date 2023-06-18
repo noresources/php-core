@@ -161,6 +161,22 @@ class Text
 	}
 
 	/**
+	 * Transform text to follow the MACRO_CASE style
+	 *
+	 * @param string $text
+	 *        	ext to transform
+	 * @return string
+	 */
+	public static function toMacroCase($text)
+	{
+		return self::toCodeCase($text,
+			[
+				self::CODE_CASE_SEPARATOR => '_',
+				self::CODE_CASE_UPPER => true
+			]);
+	}
+
+	/**
 	 * Transform text to follow ThePascalCase style
 	 *
 	 * @param string $text
@@ -194,12 +210,32 @@ class Text
 
 	const CODE_CASE_SEPARATOR = 'separator';
 
+	/**
+	 * Non-initial word letter case option
+	 *
+	 * Expected value is a boolean.
+	 * The default value is FALSE.
+	 */
+	const CODE_CASE_UPPER = 'uppercase';
+
+	/**
+	 * Initial word letter case option
+	 */
 	const CODE_CASE_CAPITALIZE = 'capitalize';
 
+	/**
+	 * Capitalize first letter of the first word
+	 */
 	const CODE_CASE_CAPITALIZE_FIRST = 0x1;
 
+	/**
+	 * Capitalize first letter of other words
+	 */
 	const CODE_CASE_CAPITALIZE_OTHER = 0xFE;
 
+	/**
+	 * Capitalize first letter of all words
+	 */
 	const CODE_CASE_CAPITALIZE_ALL = 0xFF;
 
 	/**
@@ -216,12 +252,24 @@ class Text
 		$options = \array_merge(
 			[
 				self::CODE_CASE_SEPARATOR => '',
-				self::CODE_CASE_CAPITALIZE => self::CODE_CASE_CAPITALIZE_ALL
+				self::CODE_CASE_CAPITALIZE => self::CODE_CASE_CAPITALIZE_ALL,
+				self::CODE_CASE_UPPER => false
 			], $options);
 
+		$text = \trim($text);
+
+		// Add space between camel/pascaled names
 		$text = \preg_replace('/(?<=[a-z0-9])([A-Z]+)/', ' $1', $text);
 
-		$text = \preg_replace('/\s+/', ' ', trim($text));
+		// // Replace any non-alnum by a single space
+		$text = \preg_replace('/[^a-z0-9]+/i', ' ', $text);
+
+		if ($options[self::CODE_CASE_UPPER])
+			$text = \strtoupper($text);
+		else
+			$text = \strtolower($text);
+
+		// Split words
 		$parts = \preg_split('/[^a-zA-Z0-9]/', $text);
 
 		$parts = \array_values(

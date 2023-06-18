@@ -86,32 +86,51 @@ final class TextTest extends \PHPUnit\Framework\TestCase
 			'hello world' => [
 				'Camel' => 'helloWorld',
 				'Kebab' => 'hello-world',
+				'Macro' => 'HELLO_WORLD',
 				'Pascal' => 'HelloWorld',
 				'Snake' => 'hello_world'
 			],
 			'helloWorld' => [
 				'Camel' => 'helloWorld',
 				'Kebab' => 'hello-world',
+				'Macro' => 'HELLO_WORLD',
 				'Pascal' => 'HelloWorld',
 				'Snake' => 'hello_world'
 			],
 			' Hello?world/' => [
 				'Camel' => 'helloWorld',
 				'Kebab' => 'hello-world',
+				'Macro' => 'HELLO_WORLD',
 				'Pascal' => 'HelloWorld',
 				'Snake' => 'hello_world'
 			],
 			'M_id' => [
 				'Camel' => 'mId',
 				'Kebab' => 'm-id',
+				'Macro' => 'M_ID',
 				'Pascal' => 'MId',
 				'Snake' => 'm_id'
 			],
 			'PascalThePhilosopher' => [
 				'Camel' => 'pascalThePhilosopher',
 				'Kebab' => 'pascal-the-philosopher',
+				'Macro' => 'PASCAL_THE_PHILOSOPHER',
 				'Pascal' => 'PascalThePhilosopher',
 				'Snake' => 'pascal_the_philosopher'
+			],
+			'ACME' => [
+				'Camel' => 'acme',
+				'Kebab' => 'acme',
+				'Macro' => 'ACME',
+				'Pascal' => 'Acme',
+				'Snake' => 'acme'
+			],
+			'UBER ACME' => [
+				'Camel' => 'uberAcme',
+				'Kebab' => 'uber-acme',
+				'Macro' => 'UBER_ACME',
+				'Pascal' => 'UberAcme',
+				'Snake' => 'uber_acme'
 			]
 		];
 
