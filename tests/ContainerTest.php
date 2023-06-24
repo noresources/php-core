@@ -1027,6 +1027,97 @@ final class ContainerTest extends \PHPUnit\Framework\TestCase
 				$f . ' ArrayObject');
 		}
 	}
+
+	public function testUniqueValues()
+	{
+		$tests = [
+			'no changes' => [
+				'input' => [
+					'a',
+					'b',
+					'c',
+					'd'
+				]
+			],
+			'duplicate' => [
+				'input' => [
+					'a',
+					'b',
+					'a',
+					'd'
+				],
+				'expected' => [
+					'a',
+					'b',
+					'd'
+				]
+			],
+			'even or ...' => [
+				'input' => [
+					1,
+					2,
+					2,
+					3,
+					3,
+					4,
+					4,
+					5,
+					5,
+					6,
+					6
+				],
+				'expected' => [
+					1,
+					2,
+					2,
+					3,
+					3,
+					4,
+					4,
+					5,
+					6,
+					6
+				],
+				'comparer' => function ($a, $b, $orValue) {
+					$c = ($a == $b) && (($a % 2 == 1) && ($a != 3));
+					return $c;
+				},
+				'arguments' => [
+					3
+				]
+			]
+		];
+		foreach ($tests as $label => $test)
+		{
+			$container = $test['input'];
+			$expected = Container::keyValue($test, 'expected',
+				$container);
+			$comparer = Container::keyValue($test, 'comparer');
+			$arguments = Container::keyValue($test, 'arguments', []);
+
+			$actual = \call_user_func_array(
+				[
+					Container::class,
+					'uniqueValues'
+				], \array_merge([
+					$container,
+					$comparer
+				], $arguments));
+
+			if ($comparer === null && \count($arguments) == 0)
+			{
+				$arrayUnique = \array_unique($container);
+				$this->assertEquals($arrayUnique, $actual,
+					$label .
+					' should returns the same result as array_unique');
+			}
+
+			$expected = \implode(', ', $expected);
+			$actual = \implode(', ', $actual);
+
+			$this->assertEquals($expected, $actual, $label);
+		}
+	}
 }
 
 

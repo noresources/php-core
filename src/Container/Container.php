@@ -8,6 +8,7 @@
 namespace NoreSources\Container;
 
 use NoreSources\Type\ArrayRepresentation;
+use NoreSources\Type\TypeConversion;
 use NoreSources\Type\TypeDescription;
 use Psr\Container\ContainerInterface;
 
@@ -1138,7 +1139,7 @@ class Container
 	 * @param callable $callable
 	 *        	Callable to apply on each $container elements.
 	 *        	The callable receives as arguments the current array element value and
-	 *        	all supplementary arguments given to the mapValues() method
+	 *        	all additional arguments given to the mapValues() method
 	 * @throws InvalidContainerException
 	 * @return array
 	 *
@@ -1316,6 +1317,93 @@ class Container
 		elseif ($container instanceof \ArrayObject)
 			return $container->uksort($callable);
 		throw new InvalidContainerException($container, __METHOD__);
+	}
+
+	/**
+	 * Removes duplicate values from an container
+	 *
+	 * @param unknown $container
+	 *        	Input container
+	 * @param unknown $comparer
+	 *        	User-defined comparision function.
+	 *        	The callback will receive in arguments the current candidate to insertion, one of
+	 *        	the already inserted element and any additional argument given to the uniqueValues
+	 *        	method.
+	 * @throws InvalidContainerException
+	 * @throws \InvalidArgumentException
+	 * @return mixed[]
+	 */
+	public static function uniqueValues($container, $comparer = null)
+	{
+		$properties = self::properties($container);
+		$expected = self::TRAVERSABLE;
+		if (($properties & $expected) != $expected)
+			throw new InvalidContainerException($container);
+
+		if ($comparer === null)
+			$comparer = [
+				self::class,
+				'defaultElementComparer'
+			];
+
+		if (!\is_callable($comparer))
+			throw new \InvalidArgumentException(
+				'Invalid comparison function');
+
+		$args = \array_slice(func_get_args(), 2);
+
+		$map = [];
+
+		if (\count($args) > 0)
+		{
+			foreach ($container as $key => $a)
+			{
+				$found = false;
+				foreach ($map as $b)
+				{
+					$c = \call_user_func_array($comparer,
+						\array_merge([
+							$a,
+							$b
+						], $args));
+					if ($c === 0 || $c === true)
+					{
+						$found = true;
+						break;
+					}
+				}
+				if ($found)
+					continue;
+				$map[$key] = $a;
+			}
+		}
+		else
+		{
+			foreach ($container as $key => $a)
+			{
+				$found = false;
+				foreach ($map as $b)
+				{
+					$c = \call_user_func($comparer, $a, $b);
+					if ($c === 0 || $c === true)
+					{
+						$found = true;
+						break;
+					}
+				}
+				if ($found)
+					continue;
+				$map[$key] = $a;
+			}
+		}
+
+		return $map;
+	}
+
+	public static function defaultElementComparer($a, $b)
+	{
+		return TypeConversion::toString($a) ==
+			TypeConversion::toString($b);
 	}
 
 	private static function implodeParts($parts, $b, $i, $p, $a)
