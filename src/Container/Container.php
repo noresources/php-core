@@ -1130,6 +1130,45 @@ class Container
 	}
 
 	/**
+	 * Returns an array containing the results of applying the callback to each of input container
+	 * elements.
+	 *
+	 * @param mixed $container
+	 *        	Container
+	 * @param callable $callable
+	 *        	Callable to apply on each $container elements.
+	 *        	The callable receives as arguments the current array element value and
+	 *        	all supplementary arguments given to the mapValues() method
+	 * @throws InvalidContainerException
+	 * @return array
+	 *
+	 * @see https://www.php.net/manual/en/function.array-map.phpValueValue
+	 */
+	public static function mapValues($container, $callable)
+	{
+		$properties = self::properties($container);
+		$expected = self::TRAVERSABLE;
+		if (($properties & $expected) != $expected)
+			throw new InvalidContainerException($container);
+
+		$args = \array_slice(func_get_args(), 2);
+
+		$result = [];
+
+		if (self::count($args))
+			foreach ($container as $value)
+				$result[$key] = \call_user_func_array($callable,
+					\array_merge([
+						$value
+					], $args));
+		else
+			foreach ($container as $key => $value)
+				$result[$key] = \call_user_func($callable, $value);
+
+		return $result;
+	}
+
+	/**
 	 * Applies the user-defined callback function to each element of the container $container.
 	 *
 	 * @param mixed $container

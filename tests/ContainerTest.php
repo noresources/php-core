@@ -909,6 +909,19 @@ final class ContainerTest extends \PHPUnit\Framework\TestCase
 		$this->assertEquals($expected, $actual,
 			'map without aadditional arguments');
 
+		// mapValues
+		$expected = [
+			'foo' => 'BAR',
+			'bar' => 'BAZ'
+		];
+
+		$actual = Container::mapValues($input, '\strtoupper');
+
+		$this->assertEquals($expected, $actual,
+			'mapValues without aadditional arguments');
+
+		// map with args
+
 		$expected = [
 			'foo' => 'foo.BAR.suffix',
 			'bar' => 'bar.BAZ.suffix'
