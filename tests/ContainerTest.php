@@ -644,9 +644,13 @@ final class ContainerTest extends \PHPUnit\Framework\TestCase
 	public function testAssoc()
 	{
 		$this->assertTrue(Container::isIndexed([]),
-			'Empty container is indexed');
+			'Empty container is indexed by default');
 		$this->assertTrue(Container::isAssociative([]),
-			'Empty container is associative');
+			'Empty container is associative by default');
+		$this->assertFalse(Container::isIndexed([], false, false),
+			'Empty container is indexed if asked');
+		$this->assertFalse(Container::isAssociative([], false, false),
+			'Empty container is associative if asked');
 
 		$indexed = [
 			'zero',

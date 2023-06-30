@@ -359,11 +359,13 @@ class Container
 	 * @param boolean $strict
 	 *        	Only accept pure integer type as valid key.
 	 *        	Otherwise, a string key containing only digits is accepted.
-	 *
+	 * @param boolean $allowEmpty
+	 *        	Assumes empty array is indexed
 	 * @return boolean true if the container keys is a non-sparse sequence of integer
 	 *         starting from 0 to n-1 (where n is the number of elements of the container).
 	 */
-	public static function isIndexed($container, $strict = false)
+	public static function isIndexed($container, $strict = false,
+		$allowEmpty = true)
 	{
 		if (!self::isTraversable($container))
 			throw new InvalidContainerException($container, __METHOD__);
@@ -372,15 +374,17 @@ class Container
 		{
 			$c = Container::count($container);
 			if ($c == 0)
-				return true;
+				return $allowEmpty;
 			$range = \range(0, $c - 1);
 			$keys = Container::keys($container);
 			return ($keys === $range);
 		}
 
 		$i = 0;
+		$c = 0;
 		foreach ($container as $key => $value)
 		{
+			$c++;
 			if (!(\is_integer($key) || \ctype_digit($key)))
 				return false;
 			if ($i != \intval($key))
@@ -388,7 +392,7 @@ class Container
 			$i++;
 		}
 
-		return true;
+		return $allowEmpty || ($c > 0);
 	}
 
 	/**
@@ -426,21 +430,26 @@ class Container
 	 *        	Any traversable container
 	 * @param boolean $strict
 	 *        	If true, only consider
+	 * @param boolean $allowEmpty
+	 *        	Assumes empty array is associative
 	 * @throws InvalidContainerException
 	 * @return boolean @true if at least one of $container keys is not a integer
 	 *         or if the array keys are not consecutive values. An empty container is considered as
 	 *         associative
 	 */
-	public static function isAssociative($container, $strict = false)
+	public static function isAssociative($container, $strict = false,
+		$allowEmpty = true)
 	{
 		if (!self::isTraversable($container))
 			throw new InvalidContainerException($container, __METHOD__);
 
 		$i = 0;
+		$c = 0;
 		if ($strict)
 		{
 			foreach ($container as $key => $value)
 			{
+				$c++;
 				if (!\is_integer($key))
 					return true;
 
@@ -454,6 +463,7 @@ class Container
 		{
 			foreach ($container as $key => $value)
 			{
+				$c++;
 				if (!(\is_integer($key) || \ctype_digit($key)))
 					return true;
 				if ($i != \intval($key))
@@ -461,7 +471,8 @@ class Container
 				$i++;
 			}
 		}
-
+		if ($c == 0)
+			return $allowEmpty;
 		return ($i == 0);
 	}
 
