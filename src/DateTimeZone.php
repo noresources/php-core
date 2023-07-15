@@ -13,6 +13,17 @@ class DateTimeZone extends \DateTimeZone
 {
 
 	/**
+	 *
+	 * @return string Timezone abbreviation
+	 */
+	public function getAbbreviation()
+	{
+		$dateTime = new \DateTime();
+		$dateTime->setTimezone($this);
+		return $dateTime->format('T');
+	}
+
+	/**
 	 * Get all time zone with the same UTC offset
 	 *
 	 * @param \DateTimeZone $timezone
