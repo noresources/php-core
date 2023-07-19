@@ -133,7 +133,7 @@ class Text
 	 *
 	 * @param string $text
 	 *        	Text to transform
-	 * @return string
+	 * @return string Transformed text
 	 */
 	public static function toCamelCase($text)
 	{
@@ -145,11 +145,27 @@ class Text
 	}
 
 	/**
+	 * Transform text to "Something a normal human is happy to read"
+	 *
+	 * @param string $text
+	 *        	Text to transform
+	 * @return string Transformed text
+	 */
+	public static function toHumanCase($text)
+	{
+		return self::toCodeCase($text,
+			[
+				self::CODE_CASE_SEPARATOR => ' ',
+				self::CODE_CASE_CAPITALIZE => self::CODE_CASE_CAPITALIZE_FIRST
+			]);
+	}
+
+	/**
 	 * Transform text to follow the-kebab-case style
 	 *
 	 * @param string $text
 	 *        	ext to transform
-	 * @return string
+	 * @return string Transformed text
 	 */
 	public static function toKebabCase($text)
 	{
@@ -164,8 +180,8 @@ class Text
 	 * Transform text to follow the MACRO_CASE style
 	 *
 	 * @param string $text
-	 *        	ext to transform
-	 * @return string
+	 *        	Text to transform
+	 * @return string Transformed text
 	 */
 	public static function toMacroCase($text)
 	{
@@ -180,8 +196,8 @@ class Text
 	 * Transform text to follow ThePascalCase style
 	 *
 	 * @param string $text
-	 *        	ext to transform
-	 * @return string
+	 *        	Text to transform
+	 * @return string Transformed text
 	 */
 	public static function toPascalCase($text)
 	{
@@ -196,8 +212,8 @@ class Text
 	 * Transform text to follow the_snake_case style
 	 *
 	 * @param string $text
-	 *        	ext to transform
-	 * @return string
+	 *        	Text to transform
+	 * @return string Transformed text
 	 */
 	public static function toSnakeCase($text)
 	{
@@ -242,10 +258,10 @@ class Text
 	 * Transform text to a user defined code style
 	 *
 	 * @param string $text
-	 *        	ext to transform
+	 *        	Text to transform
 	 * @param array $options
 	 *        	Style options
-	 * @return string
+	 * @return string Transformed text
 	 */
 	public static function toCodeCase($text, $options)
 	{

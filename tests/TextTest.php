@@ -85,6 +85,7 @@ final class TextTest extends \PHPUnit\Framework\TestCase
 		$tests = [
 			'hello world' => [
 				'Camel' => 'helloWorld',
+				'Human' => 'Hello world',
 				'Kebab' => 'hello-world',
 				'Macro' => 'HELLO_WORLD',
 				'Pascal' => 'HelloWorld',
@@ -92,6 +93,7 @@ final class TextTest extends \PHPUnit\Framework\TestCase
 			],
 			'helloWorld' => [
 				'Camel' => 'helloWorld',
+				'Human' => 'Hello world',
 				'Kebab' => 'hello-world',
 				'Macro' => 'HELLO_WORLD',
 				'Pascal' => 'HelloWorld',
@@ -99,6 +101,7 @@ final class TextTest extends \PHPUnit\Framework\TestCase
 			],
 			' Hello?world/' => [
 				'Camel' => 'helloWorld',
+				'Human' => 'Hello world',
 				'Kebab' => 'hello-world',
 				'Macro' => 'HELLO_WORLD',
 				'Pascal' => 'HelloWorld',
@@ -106,6 +109,7 @@ final class TextTest extends \PHPUnit\Framework\TestCase
 			],
 			'M_id' => [
 				'Camel' => 'mId',
+				'Human' => 'M id',
 				'Kebab' => 'm-id',
 				'Macro' => 'M_ID',
 				'Pascal' => 'MId',
@@ -113,6 +117,7 @@ final class TextTest extends \PHPUnit\Framework\TestCase
 			],
 			'PascalThePhilosopher' => [
 				'Camel' => 'pascalThePhilosopher',
+				'Human' => 'Pascal the philosopher',
 				'Kebab' => 'pascal-the-philosopher',
 				'Macro' => 'PASCAL_THE_PHILOSOPHER',
 				'Pascal' => 'PascalThePhilosopher',
@@ -120,6 +125,7 @@ final class TextTest extends \PHPUnit\Framework\TestCase
 			],
 			'ACME' => [
 				'Camel' => 'acme',
+				'Human' => 'Acme',
 				'Kebab' => 'acme',
 				'Macro' => 'ACME',
 				'Pascal' => 'Acme',
@@ -127,6 +133,7 @@ final class TextTest extends \PHPUnit\Framework\TestCase
 			],
 			'UBER ACME' => [
 				'Camel' => 'uberAcme',
+				'Human' => 'Uber acme',
 				'Kebab' => 'uber-acme',
 				'Macro' => 'UBER_ACME',
 				'Pascal' => 'UberAcme',
