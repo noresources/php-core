@@ -11,6 +11,8 @@ namespace NoreSources\Reflection;
 /**
  * An interface to create ReflectionProperty with
  * certain capabilities.
+ *
+ * @deprecated Use ReflectionService and ReflectionData
  */
 interface ReflectionPropertyFactoryInterface
 {

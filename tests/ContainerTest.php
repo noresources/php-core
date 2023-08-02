@@ -22,10 +22,22 @@ class NotFoundException extends \Exception implements
 	{}
 }
 
-class SimpleClass
+/**
+ * The class is, by default not traversable because it does not have any public prperty
+ */
+class OpaqueClass
 {
 
-	public $number;
+	private $number;
+}
+
+/**
+ * This class is traversable because it has a public property
+ */
+class PublicClass
+{
+
+	public $value = 'public';
 }
 
 class MetaVariable implements ContainerPropertyInterface
@@ -232,9 +244,15 @@ final class ContainerTest extends \PHPUnit\Framework\TestCase
 					Container::TRAVERSABLE
 				]
 			],
-			'SimpleClassobject' => [
-				'container' => new SimpleClass(),
+			'OpaqueClassobject' => [
+				'container' => new OpaqueClass(),
 				'expected' => []
+			],
+			'PublicClassobject' => [
+				'container' => new PublicClass(),
+				'expected' => [
+					Container::TRAVERSABLE
+				]
 			]
 		];
 
@@ -277,7 +295,7 @@ final class ContainerTest extends \PHPUnit\Framework\TestCase
 
 	public function testClassInstanceIsArray()
 	{
-		$o = new SimpleClass();
+		$o = new OpaqueClass();
 		$this->assertEquals(false, Container::isArray($o));
 	}
 
@@ -864,7 +882,7 @@ final class ContainerTest extends \PHPUnit\Framework\TestCase
 	public function testCreateArrayException()
 	{
 		$this->expectException(InvalidContainerException::class);
-		$o = new SimpleClass();
+		$o = new OpaqueClass();
 		$a = Container::createArray($o);
 	}
 

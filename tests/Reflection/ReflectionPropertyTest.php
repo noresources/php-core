@@ -26,7 +26,7 @@ class ReflectionPropertyTest extends \PHPUnit\Framework\TestCase
 	private $privateValue;
 
 	/**
-	 * Getter will be ignored because method has a parameter
+	 * ReadMethod will be ignored because method has a parameter
 	 *
 	 * @param unknown $option
 	 * @return string
@@ -59,10 +59,10 @@ class ReflectionPropertyTest extends \PHPUnit\Framework\TestCase
 			ReflectionPropertyFactory::MODE_RW, $value, $expected,
 			'No refix set');
 
-		$factory->setSetterMethodNamePrefixes([
+		$factory->setWriteMethodNamePrefixes([
 			'set'
 		]);
-		$factory->setGetterMethodNamePrefixes([
+		$factory->setReadMethodNamePrefixes([
 			'get',
 			'is'
 		]);
@@ -75,10 +75,10 @@ class ReflectionPropertyTest extends \PHPUnit\Framework\TestCase
 	public function testPrivateWithInvalidMethods()
 	{
 		$factory = new ReflectionPropertyFactory();
-		$factory->setSetterMethodNamePrefixes([
+		$factory->setWriteMethodNamePrefixes([
 			'set'
 		]);
-		$factory->setGetterMethodNamePrefixes([
+		$factory->setReadMethodNamePrefixes([
 			'get',
 			'is'
 		]);
@@ -126,10 +126,10 @@ class ReflectionPropertyTest extends \PHPUnit\Framework\TestCase
 	public function testPropertySetGet()
 	{
 		$factory = new ReflectionPropertyFactory();
-		$factory->setSetterMethodNamePrefixes([
+		$factory->setWriteMethodNamePrefixes([
 			'set'
 		]);
-		$factory->setGetterMethodNamePrefixes([
+		$factory->setReadMethodNamePrefixes([
 			'get',
 			'is'
 		]);

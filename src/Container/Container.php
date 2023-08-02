@@ -7,6 +7,7 @@
  */
 namespace NoreSources\Container;
 
+use NoreSources\Reflection\ReflectionService;
 use NoreSources\Type\ArrayRepresentation;
 use NoreSources\Type\TypeConversion;
 use NoreSources\Type\TypeDescription;
@@ -167,6 +168,23 @@ class Container
 			$properties |= self::TRAVERSABLE;
 		if ($container instanceof \Countable)
 			$properties |= self::COUNTABLE;
+
+		if (\is_object($container))
+		{
+			if (($properties & self::TRAVERSABLE) != self::TRAVERSABLE)
+			{
+				$reflection = ReflectionService::getInstance();
+				$class = $reflection->getReflectionClass($container);
+				foreach ($class->getProperties() as $property)
+				{
+					if ($property->IsPublic())
+					{
+						$properties |= self::TRAVERSABLE;
+						break;
+					}
+				}
+			}
+		}
 
 		return $properties;
 	}

@@ -10,6 +10,8 @@ namespace NoreSources\Reflection;
 
 /**
  * A ReflectionProperty that may use ReflectionMethod as setter and getter.
+ *
+ * @deprecated Use ReflectionService and ReflectionData
  */
 class ReflectionPropertyMethod extends \ReflectionProperty
 {
@@ -21,9 +23,9 @@ class ReflectionPropertyMethod extends \ReflectionProperty
 	 * @param string $name
 	 *        	Property name
 	 * @param object $get
-	 *        	Getter
+	 *        	ReadMethod
 	 * @param object $set
-	 *        	Setter
+	 *        	WriteMethod
 	 */
 	public function __construct($class, $name, $get = null, $set = null)
 	{

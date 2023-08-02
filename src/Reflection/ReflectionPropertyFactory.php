@@ -14,6 +14,8 @@ use NoreSources\Container\Container;
  * Default ReflectionPropertyFactory implementation
  * taht use basic method name prefix strategy to find getters and setters
  * for a given property.
+ *
+ * @deprecated Use ReflectionService and ReflectionData
  */
 class ReflectionPropertyFactory implements
 	ReflectionPropertyFactoryInterface
@@ -26,7 +28,7 @@ class ReflectionPropertyFactory implements
 	 *
 	 * @param string[] $prefixes
 	 */
-	public function setGetterMethodNamePrefixes($prefixes, $access = 0)
+	public function setReadMethodNamePrefixes($prefixes, $access = 0)
 	{
 		if (!isset($this->methodNamePrefixes))
 			$this->methodNamePrefixes = [];
@@ -41,7 +43,7 @@ class ReflectionPropertyFactory implements
 	 * @param string $prefixes
 	 *        	List of prefixes.
 	 */
-	public function setSetterMethodNamePrefixes($prefixes)
+	public function setWriteMethodNamePrefixes($prefixes)
 	{
 		if (!isset($this->methodNamePrefixes))
 			$this->methodNamePrefixes = [];
