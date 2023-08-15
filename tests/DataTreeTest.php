@@ -45,12 +45,12 @@ final class DataTreeTest extends TestCase
 		$dataName = '')
 	{
 		parent::__construct($name, $data, $dataName);
-		$this->initializeDerivedFileTest(__DIR__);
+		$this->setUpDerivedFileTestTrait(__DIR__);
 	}
 
 	public function __destruct()
 	{
-		$this->cleanupDerivedFileTest();
+		$this->tearDownDerivedFileTestTrait();
 	}
 
 	public function testFromArray()

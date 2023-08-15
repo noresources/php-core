@@ -15,7 +15,7 @@ class DerivedFileTestTraitTest extends \PHPUnit\Framework\TestCase
 		$dataName = '')
 	{
 		parent::__construct($name, $data, $dataName);
-		$this->initializeDerivedFileTest(__DIR__);
+		$this->setUpDerivedFileTestTrait(__DIR__);
 	}
 
 	public function testAssertAnyEqualsReferenceFile()
@@ -32,6 +32,6 @@ class DerivedFileTestTraitTest extends \PHPUnit\Framework\TestCase
 
 	public function __destruct()
 	{
-		$this->cleanupDerivedFileTest();
+		$this->tearDownDerivedFileTestTrait();
 	}
 }

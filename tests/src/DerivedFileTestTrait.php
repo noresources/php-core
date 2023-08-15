@@ -28,13 +28,24 @@ trait DerivedFileTestTrait
 	 *        	Derived files directory
 	 *
 	 */
-	public function initializeDerivedFileTest($basePath = null,
+	public function setUpDerivedFileTestTrait($basePath = null,
 		$referenceDirectory = null, $derivedDirectory = null)
 	{
-		$this->derivedDataFiles = new \ArrayObject();
+		$this->temporaryFiles = new \ArrayObject();
 		$this->basePath = ($basePath ? $basePath : __DIR__ . '/..');
 		$this->referenceDirectory = ($referenceDirectory ? $referenceDirectory : 'reference');
 		$this->derivedDirectory = ($derivedDirectory ? $derivedDirectory : 'derived');
+	}
+
+	/**
+	 *
+	 * @deprecated Use setUpDerivedFileTestTrait
+	 */
+	public function initializeDerivedFileTest($basePath = null,
+		$referenceDirectory = null, $derivedDirectory = null)
+	{
+		$this->setUpDerivedFileTestTrait($basePath, $referenceDirectory,
+			$derivedDirectory);
 	}
 
 	/**
@@ -42,11 +53,11 @@ trait DerivedFileTestTrait
 	 *
 	 * Should be called in TestCase desctructor or tearDown function
 	 */
-	public function cleanupDerivedFileTest()
+	public function tearDownDerivedFileTestTrait()
 	{
-		if (count($this->derivedDataFiles))
+		if (count($this->temporaryFiles))
 		{
-			foreach ($this->derivedDataFiles as $path => $persistent)
+			foreach ($this->temporaryFiles as $path => $persistent)
 			{
 				if ($persistent)
 					continue;
@@ -58,6 +69,15 @@ trait DerivedFileTestTrait
 
 			@rmdir($this->basePath . '/' . $this->derivedDirectory);
 		}
+	}
+
+	/**
+	 *
+	 * @deprecated Use tearDownDerivedFileTestTrait
+	 */
+	public function cleanupDerivedFileTest()
+	{
+		$this->tearDownDerivedFileTestTrait();
 	}
 
 	/**
@@ -117,15 +137,15 @@ trait DerivedFileTestTrait
 			$label . 'Derived file exists');
 
 		if ($result)
-			$this->derivedDataFiles->offsetSet($derived, false);
+			$this->temporaryFiles->offsetSet($derived, false);
 
 		if (\is_file($reference))
 		{
-			$this->derivedDataFiles->offsetSet($derived, true);
+			$this->temporaryFiles->offsetSet($derived, true);
 			$this->tryAssert('assertEquals',
 				$this->loadFile($reference, 'lf'),
 				$this->convertEndOfLine($data, 'lf'), $label);
-			$this->derivedDataFiles->offsetSet($derived, false);
+			$this->temporaryFiles->offsetSet($derived, false);
 		}
 		else
 		{
@@ -236,6 +256,24 @@ trait DerivedFileTestTrait
 
 	/**
 	 *
+	 * @return string Absolute path of derived files location
+	 */
+	public function getDerivedFileDirectory()
+	{
+		return ($this->basePath . '/' . $this->derivedDirectory);
+	}
+
+	/**
+	 *
+	 * @return string Absolute path of reference files location
+	 */
+	public function getReferenceFileDirectory()
+	{
+		return ($this->basePath . '/' . $this->referenceDirectory);
+	}
+
+	/**
+	 *
 	 * @param string $method
 	 *        	The test method name. Generaly the <code>__METHOD__</code> constant.
 	 * @param string $suffix
@@ -268,6 +306,19 @@ trait DerivedFileTestTrait
 			$suffix, $extension);
 	}
 
+	/**
+	 * Append the given file to the list of derived files.
+	 *
+	 * Derived files will be automatically removed when calling cleanup
+	 *
+	 * @param unknown $filename
+	 *        	File path
+	 */
+	public function appendDerivedFilename($filename)
+	{
+		$this->temporaryFiles[] = $filename;
+	}
+
 	private function tryAssert (/* ... */)
 	{
 		$args = \func_get_args();
@@ -285,9 +336,7 @@ trait DerivedFileTestTrait
 		$pattern = '(?:(?:.*\\\\)?(?<class>.*?)(?:Test)*::)?(?:test)?(?<method>.*)$';
 		$match = [];
 		if (!\preg_match(chr(1) . $pattern . chr(1), $method, $match))
-		{
 			throw new \InvalidArgumentException('Invalid method name');
-		}
 
 		$method = $match['method'];
 		$cls = $match['class'];
@@ -343,7 +392,7 @@ trait DerivedFileTestTrait
 	 *
 	 * @var array
 	 */
-	private $derivedDataFiles;
+	private $temporaryFiles;
 
 	private $referenceDirectory;
 

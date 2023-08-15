@@ -150,7 +150,12 @@ class ReflectionDocCommentTest extends \PHPUnit\Framework\TestCase
 		$dataName = '')
 	{
 		parent::__construct($name, $data, $dataName);
-		$this->initializeDerivedFileTest(__DIR__ . '/..');
+		$this->setUpDerivedFileTestTrait(__DIR__ . '/..');
+	}
+
+	public function __destruct()
+	{
+		$this->tearDownDerivedFileTestTrait();
 	}
 
 	/**
