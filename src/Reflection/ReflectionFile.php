@@ -54,14 +54,26 @@ class ReflectionFile
 
 	/**
 	 *
-	 * @param string $filename
-	 *        	PHP source file path
+	 * @param \ReflectionClass|string $filenameOrClass
+	 *        	PHP source file path or ReflectionClass
 	 * @param integer $flags
 	 *        	Option flags
 	 * @throws \ReflectionException::
 	 */
-	public function __construct($filename, $flags = 0)
+	public function __construct($filenameOrReflectionClass, $flags = 0)
 	{
+		$filename = $filenameOrReflectionClass;
+		if ($filenameOrReflectionClass instanceof \ReflectionClass)
+		{
+			$filename = $filenameOrReflectionClass->getFileName();
+			$flags |= self::LOADED;
+		}
+
+		if (!\is_string($filename))
+			throw new \InvalidArgumentException(
+				'Expected string or ' . \ReflectionClass::class .
+				'. Got ' . TypeDescription::getName($filename));
+
 		if (!\file_exists($filename))
 			throw new \ReflectionException(
 				$filename . ': File not found', 404);
