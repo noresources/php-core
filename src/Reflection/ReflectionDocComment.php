@@ -123,6 +123,8 @@ class ReflectionDocComment implements StringRepresentation
 	 */
 	public function getTags($name)
 	{
+		if (!Container::isTraversable($this->lines))
+			return [];
 		$tags = [];
 		$prefix = '@' . $name;
 		$length = \strlen($prefix);
@@ -195,6 +197,8 @@ class ReflectionDocComment implements StringRepresentation
 	 */
 	public function hasTag($name)
 	{
+		if (!Container::isTraversable($this->lines))
+			return false;
 		$prefix = '@' . $name;
 		$length = \strlen($prefix);
 		foreach ($this->lines as $line)
