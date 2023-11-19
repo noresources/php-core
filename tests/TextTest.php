@@ -80,6 +80,40 @@ final class TextTest extends \PHPUnit\Framework\TestCase
 		}
 	}
 
+	final function testWord()
+	{
+		foreach ([
+			'Hello world' => [
+				'Hello',
+				'world'
+			],
+			'MACRO_CASE' => [
+				'MACRO',
+				'CASE'
+			],
+			'A real assertion.' => [
+				'A',
+				'real',
+				'assertion'
+			],
+			'someSkunkFunk()' => [
+				'some',
+				'Skunk',
+				'Funk'
+			],
+			'pide-or-durum' => [
+				'pide',
+				'or',
+				'durum'
+			]
+		] as $text => $expected)
+		{
+			$actual = Text::explodeCodeWords($text);
+			$this->assertEquals(\implode(', ', $expected),
+				\implode(', ', $actual), $text);
+		}
+	}
+
 	final function testToCodeCase()
 	{
 		$tests = [
@@ -89,7 +123,8 @@ final class TextTest extends \PHPUnit\Framework\TestCase
 				'Kebab' => 'hello-world',
 				'Macro' => 'HELLO_WORLD',
 				'Pascal' => 'HelloWorld',
-				'Snake' => 'hello_world'
+				'Snake' => 'hello_world',
+				'Train' => 'hello_World'
 			],
 			'helloWorld' => [
 				'Camel' => 'helloWorld',
@@ -97,7 +132,8 @@ final class TextTest extends \PHPUnit\Framework\TestCase
 				'Kebab' => 'hello-world',
 				'Macro' => 'HELLO_WORLD',
 				'Pascal' => 'HelloWorld',
-				'Snake' => 'hello_world'
+				'Snake' => 'hello_world',
+				'Train' => 'hello_World'
 			],
 			' Hello?world/' => [
 				'Camel' => 'helloWorld',
@@ -105,7 +141,8 @@ final class TextTest extends \PHPUnit\Framework\TestCase
 				'Kebab' => 'hello-world',
 				'Macro' => 'HELLO_WORLD',
 				'Pascal' => 'HelloWorld',
-				'Snake' => 'hello_world'
+				'Snake' => 'hello_world',
+				'Train' => 'hello_World'
 			],
 			'M_id' => [
 				'Camel' => 'mId',
@@ -113,7 +150,8 @@ final class TextTest extends \PHPUnit\Framework\TestCase
 				'Kebab' => 'm-id',
 				'Macro' => 'M_ID',
 				'Pascal' => 'MId',
-				'Snake' => 'm_id'
+				'Snake' => 'm_id',
+				'Train' => 'm_Id'
 			],
 			'PascalThePhilosopher' => [
 				'Camel' => 'pascalThePhilosopher',
@@ -121,7 +159,8 @@ final class TextTest extends \PHPUnit\Framework\TestCase
 				'Kebab' => 'pascal-the-philosopher',
 				'Macro' => 'PASCAL_THE_PHILOSOPHER',
 				'Pascal' => 'PascalThePhilosopher',
-				'Snake' => 'pascal_the_philosopher'
+				'Snake' => 'pascal_the_philosopher',
+				'Train' => 'pascal_The_Philosopher'
 			],
 			'ACME' => [
 				'Camel' => 'acme',
@@ -129,15 +168,50 @@ final class TextTest extends \PHPUnit\Framework\TestCase
 				'Kebab' => 'acme',
 				'Macro' => 'ACME',
 				'Pascal' => 'Acme',
-				'Snake' => 'acme'
+				'Snake' => 'acme',
+				'Train' => 'acme'
 			],
 			'UBER ACME' => [
-				'Camel' => 'uberAcme',
-				'Human' => 'Uber acme',
+				'Camel' => [
+					0 => 'uberAcme',
+					Text::CODE_CASE_PRESERVE_CAPITAL_WORDS => 'uberACME'
+				],
+				'Human' => [
+					0 => 'Uber acme',
+					Text::CODE_CASE_PRESERVE_CAPITAL_WORDS => 'UBER ACME'
+				],
 				'Kebab' => 'uber-acme',
 				'Macro' => 'UBER_ACME',
-				'Pascal' => 'UberAcme',
-				'Snake' => 'uber_acme'
+				'Pascal' => [
+					0 => 'UberAcme',
+					Text::CODE_CASE_PRESERVE_CAPITAL_WORDS => 'UBERACME'
+				],
+				'Snake' => 'uber_acme',
+				'Train' => [
+					0 => 'uber_Acme',
+					Text::CODE_CASE_PRESERVE_CAPITAL_WORDS => 'uber_ACME'
+				]
+			],
+			'MIDI is more rich than the DMX protocol' => [
+				'Camel' => [
+					0 => 'midiIsMoreRichThanTheDmxProtocol',
+					Text::CODE_CASE_PRESERVE_CAPITAL_WORDS => 'midiIsMoreRichThanTheDMXProtocol'
+				],
+				'Human' => [
+					0 => 'Midi is more rich than the dmx protocol',
+					Text::CODE_CASE_PRESERVE_CAPITAL_WORDS => 'MIDI is more rich than the DMX protocol'
+				],
+				'Kebab' => 'midi-is-more-rich-than-the-dmx-protocol',
+				'Macro' => 'MIDI_IS_MORE_RICH_THAN_THE_DMX_PROTOCOL',
+				'Pascal' => [
+					0 => 'MidiIsMoreRichThanTheDmxProtocol',
+					Text::CODE_CASE_PRESERVE_CAPITAL_WORDS => 'MIDIIsMoreRichThanTheDMXProtocol'
+				],
+				'Snake' => 'midi_is_more_rich_than_the_dmx_protocol',
+				'Train' => [
+					0 => 'midi_Is_More_Rich_Than_The_Dmx_Protocol',
+					Text::CODE_CASE_PRESERVE_CAPITAL_WORDS => 'midi_Is_More_Rich_Than_The_DMX_Protocol'
+				]
 			]
 		];
 
@@ -146,12 +220,34 @@ final class TextTest extends \PHPUnit\Framework\TestCase
 			foreach ($styles as $style => $expected)
 			{
 				$method = 'to' . $style . 'Case';
-				$actual = \call_user_func([
-					Text::class,
-					$method
-				], $text);
-				$this->assertEquals($expected, $actual,
-					$style . ' of "' . $text . '"');
+
+				$options = [];
+				if (\is_array($expected))
+					$options = $expected;
+				else
+					$options = [
+						$expected
+					];
+
+				foreach ($options as $option => $expected)
+				{
+					$label = $style . ' of "' . $text . '"';
+					$arguments = [
+						$text
+					];
+					if ($option > 0)
+					{
+						$arguments[] = $option;
+						$label .= ' with additional option ' .
+							sprintf('%02X', $option);
+					}
+					$actual = \call_user_func_array(
+						[
+							Text::class,
+							$method
+						], $arguments);
+					$this->assertEquals($expected, $actual, $label);
+				}
 			}
 		}
 	}

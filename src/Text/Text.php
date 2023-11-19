@@ -128,19 +128,112 @@ class Text
 		return ($upper ? \ucfirst($text) : \lcfirst($text));
 	}
 
+	public static function explodeCodeWords($text, $options = 0)
+	{
+		$parts = \preg_split('/[^a-zA-Z0-9]+/', $text);
+		$parts = \array_filter($parts, '\strlen');
+
+		if ($options & self::WORD_CASELESS)
+			return $parts;
+
+		$words = [];
+		foreach ($parts as $part)
+		{
+			if (\ctype_lower($part) || \ctype_upper($part) ||
+				\ctype_digit($part))
+			{
+				$words[] = $part;
+				continue;
+			}
+
+			//
+			// 1 lowercase
+			// 2 uppercase
+			// 3 number
+			$characterType = 0;
+			$word = '';
+			$chars = \preg_split('//', $part);
+
+			foreach ($chars as $c)
+			{
+				if ($characterType == 0)
+				{
+					if (\ctype_digit($c))
+						$characterType = 3;
+					elseif (\ctype_upper($c))
+						$characterType = 2;
+					elseif (\ctype_lower($c))
+						$characterType = 1;
+
+					$word = $c;
+					continue;
+				}
+
+				if (\ctype_lower($c))
+				{
+					if ($characterType == 3)
+					{
+						$words[] = $word;
+						$word = '';
+					}
+
+					$characterType = 1;
+				}
+				elseif (\ctype_upper($c))
+				{
+					// Digit -³ upper
+					if ($characterType == 3)
+					{
+						$words[] = $word;
+						$word = '';
+					}
+					// lower -> upper
+					elseif ($characterType != 2 &&
+						($options & self::WORD_CASELESS) == 0)
+					{
+						$words[] = $word;
+						$word = '';
+					}
+
+					$characterType = 2;
+				}
+				elseif (\ctype_digit($c))
+				{
+					if ($characterType != 3)
+					{
+						$words[] = $word;
+						$word = '';
+					}
+
+					$characterType = 3;
+				}
+
+				$word .= $c;
+			} // caracters of part
+
+			$words[] = $word;
+		} // each parts
+
+		return $words;
+	}
+
 	/**
 	 * Transform text to follow theCamelCase style
 	 *
 	 * @param string $text
 	 *        	Text to transform
+	 * @param $capitalizationOptions Additional
+	 *        	apitalization options.
 	 * @return string Transformed text
 	 */
-	public static function toCamelCase($text)
+	public static function toCamelCase($text, $capitalizationOptions = 0)
 	{
+		$capitalizationOptions &= self::CODE_CASE_PRESERVE_CAPITAL_WORDS;
 		return self::toCodeCase($text,
 			[
 				self::CODE_CASE_SEPARATOR => '',
-				self::CODE_CASE_CAPITALIZE => self::CODE_CASE_CAPITALIZE_OTHER
+				self::CODE_CASE_CAPITALIZE => ($capitalizationOptions |
+				self::CODE_CASE_CAPITALIZE_FOLLOWING_INITIALS)
 			]);
 	}
 
@@ -149,14 +242,18 @@ class Text
 	 *
 	 * @param string $text
 	 *        	Text to transform
+	 * @param $capitalizationOptions Additional
+	 *        	apitalization options.
 	 * @return string Transformed text
 	 */
-	public static function toHumanCase($text)
+	public static function toHumanCase($text, $capitalizationOptions = 0)
 	{
+		$capitalizationOptions &= self::CODE_CASE_PRESERVE_CAPITAL_WORDS;
 		return self::toCodeCase($text,
 			[
 				self::CODE_CASE_SEPARATOR => ' ',
-				self::CODE_CASE_CAPITALIZE => self::CODE_CASE_CAPITALIZE_FIRST
+				self::CODE_CASE_CAPITALIZE => ($capitalizationOptions |
+				self::CODE_CASE_CAPITALIZE_FIRST_INITIAL)
 			]);
 	}
 
@@ -188,7 +285,7 @@ class Text
 		return self::toCodeCase($text,
 			[
 				self::CODE_CASE_SEPARATOR => '_',
-				self::CODE_CASE_UPPER => true
+				self::CODE_CASE_CAPITALIZE => self::CODE_CASE_CAPITALIZE_WORDS
 			]);
 	}
 
@@ -197,14 +294,19 @@ class Text
 	 *
 	 * @param string $text
 	 *        	Text to transform
+	 * @param $capitalizationOptions Additional
+	 *        	apitalization options.
 	 * @return string Transformed text
 	 */
-	public static function toPascalCase($text)
+	public static function toPascalCase($text,
+		$capitalizationOptions = 0)
 	{
+		$capitalizationOptions &= self::CODE_CASE_PRESERVE_CAPITAL_WORDS;
 		return self::toCodeCase($text,
 			[
 				self::CODE_CASE_SEPARATOR => '',
-				self::CODE_CASE_CAPITALIZE => self::CODE_CASE_CAPITALIZE_ALL
+				self::CODE_CASE_CAPITALIZE => ($capitalizationOptions |
+				self::CODE_CASE_CAPITALIZE_INITIALS)
 			]);
 	}
 
@@ -213,6 +315,8 @@ class Text
 	 *
 	 * @param string $text
 	 *        	Text to transform
+	 * @param $capitalizationOptions Additional
+	 *        	apitalization options.
 	 * @return string Transformed text
 	 */
 	public static function toSnakeCase($text)
@@ -224,6 +328,19 @@ class Text
 			]);
 	}
 
+	public static function toTrainCase($text, $capitalizationOptions = 0)
+	{
+		$capitalizationOptions &= self::CODE_CASE_PRESERVE_CAPITAL_WORDS;
+		return self::toCodeCase($text,
+			[
+				self::CODE_CASE_SEPARATOR => '_',
+				self::CODE_CASE_CAPITALIZE => ($capitalizationOptions |
+				self::CODE_CASE_CAPITALIZE_FOLLOWING_INITIALS)
+			]);
+	}
+
+	const WORD_CASELESS = 0x01;
+
 	const CODE_CASE_SEPARATOR = 'separator';
 
 	/**
@@ -231,6 +348,8 @@ class Text
 	 *
 	 * Expected value is a boolean.
 	 * The default value is FALSE.
+	 *
+	 * @deprecated Replaced by CODE_CASE_CAPITALIZE_WORDS
 	 */
 	const CODE_CASE_UPPER = 'uppercase';
 
@@ -242,17 +361,41 @@ class Text
 	/**
 	 * Capitalize first letter of the first word
 	 */
-	const CODE_CASE_CAPITALIZE_FIRST = 0x1;
+	const CODE_CASE_CAPITALIZE_FIRST_INITIAL = 0x01;
+
+	/**
+	 *
+	 * @deprecated
+	 */
+	const CODE_CASE_CAPITALIZE_FIRST = self::CODE_CASE_CAPITALIZE_FIRST_INITIAL;
 
 	/**
 	 * Capitalize first letter of other words
 	 */
-	const CODE_CASE_CAPITALIZE_OTHER = 0xFE;
+	const CODE_CASE_CAPITALIZE_FOLLOWING_INITIALS = 0x02;
+
+	/**
+	 *
+	 * @deprecated
+	 */
+	const CODE_CASE_CAPITALIZE_OTHER = self::CODE_CASE_CAPITALIZE_FOLLOWING_INITIALS;
 
 	/**
 	 * Capitalize first letter of all words
 	 */
-	const CODE_CASE_CAPITALIZE_ALL = 0xFF;
+	const CODE_CASE_CAPITALIZE_INITIALS = 0x03;
+
+	/**
+	 *
+	 * @deprecated
+	 */
+	const CODE_CASE_CAPITALIZE_ALL = self::CODE_CASE_CAPITALIZE_INITIALS;
+
+	const CODE_CASE_CAPITALIZE_WORDS = 0x07;
+
+	const CODE_CASE_PRESERVE_CAPITAL_WORDS = 0x08;
+
+	const CODE_CASE_WORD_OPTIONS = 'wordOptions';
 
 	/**
 	 * Transform text to a user defined code style
@@ -268,50 +411,58 @@ class Text
 		$options = \array_merge(
 			[
 				self::CODE_CASE_SEPARATOR => '',
-				self::CODE_CASE_CAPITALIZE => self::CODE_CASE_CAPITALIZE_ALL,
-				self::CODE_CASE_UPPER => false
+				self::CODE_CASE_CAPITALIZE => self::CODE_CASE_CAPITALIZE_INITIALS,
+				self::CODE_CASE_UPPER => false,
+				self::CODE_CASE_WORD_OPTIONS => 0
 			], $options);
 
-		$text = \trim($text);
-
-		// Add space between camel/pascaled names
-		$text = \preg_replace('/(?<=[a-z0-9])([A-Z]+)/', ' $1', $text);
-
-		// // Replace any non-alnum by a single space
-		$text = \preg_replace('/[^a-z0-9]+/i', ' ', $text);
-
+		// Legacy
 		if ($options[self::CODE_CASE_UPPER])
-			$text = \strtoupper($text);
-		else
-			$text = \strtolower($text);
+			$options[self::CODE_CASE_CAPITALIZE] |= self::CODE_CASE_CAPITALIZE_WORDS;
 
-		// Split words
-		$parts = \preg_split('/[^a-zA-Z0-9]/', $text);
-
-		$parts = \array_values(
-			\array_filter($parts,
-				function ($v) {
-					return \strlen($v) > 0;
-				}));
-
-		if (\count($parts) == 0)
+		$words = self::explodeCodeWords($text,
+			$options[self::CODE_CASE_WORD_OPTIONS]);
+		$first = true;
+		if (\count($words) == 0)
 			return '';
 
-		$count = \count($parts);
+		if (($options[self::CODE_CASE_CAPITALIZE] &
+			self::CODE_CASE_CAPITALIZE_WORDS) ==
+			self::CODE_CASE_CAPITALIZE_WORDS)
+			return \implode($options[self::CODE_CASE_SEPARATOR],
+				\array_map('\strtoupper', $words));
+
+		$count = \count($words);
 		$i = 0;
-		$parts[$i] = self::firstLetterCase($parts[$i],
-			(($options[self::CODE_CASE_CAPITALIZE] &
-			self::CODE_CASE_CAPITALIZE_FIRST) ==
-			self::CODE_CASE_CAPITALIZE_FIRST));
+		$keepCapitalWord = ($options[self::CODE_CASE_CAPITALIZE] &
+			self::CODE_CASE_PRESERVE_CAPITAL_WORDS);
+		$capitalizeInitial = (($options[self::CODE_CASE_CAPITALIZE] &
+			self::CODE_CASE_CAPITALIZE_FIRST_INITIAL) ==
+			self::CODE_CASE_CAPITALIZE_FIRST_INITIAL);
+
+		$words[$i] = self::applyWordCodeCase($words[$i],
+			$capitalizeInitial, $capitalizeInitial && $keepCapitalWord);
+
+		$capitalizeInitial = (($options[self::CODE_CASE_CAPITALIZE] &
+			self::CODE_CASE_CAPITALIZE_FOLLOWING_INITIALS) ==
+			self::CODE_CASE_CAPITALIZE_FOLLOWING_INITIALS);
 
 		for ($i = 1; $i < $count; $i++)
 		{
-			$parts[$i] = self::firstLetterCase($parts[$i],
-				(($options[self::CODE_CASE_CAPITALIZE] &
-				self::CODE_CASE_CAPITALIZE_OTHER) ==
-				self::CODE_CASE_CAPITALIZE_OTHER));
+			$words[$i] = self::applyWordCodeCase($words[$i],
+				$capitalizeInitial, $keepCapitalWord);
 		}
 
-		return \implode($options[self::CODE_CASE_SEPARATOR], $parts);
+		return \implode($options[self::CODE_CASE_SEPARATOR], $words);
+	}
+
+	protected static function applyWordCodeCase($word,
+		$capitalizeInitial = false, $keepCapitalWord = false)
+	{
+		if ($keepCapitalWord && \ctype_upper($word))
+			return $word;
+		$word = \strtolower($word);
+
+		return self::firstLetterCase($word, $capitalizeInitial);
 	}
 }
