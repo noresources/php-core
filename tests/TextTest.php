@@ -212,6 +212,21 @@ final class TextTest extends \PHPUnit\Framework\TestCase
 					0 => 'midi_Is_More_Rich_Than_The_Dmx_Protocol',
 					Text::CODE_CASE_PRESERVE_CAPITAL_WORDS => 'midi_Is_More_Rich_Than_The_DMX_Protocol'
 				]
+			],
+			'HTTPSIsSaferThanHTTP' => [
+				'Camel' => [
+					0 => 'httpsIsSaferThanHttp',
+					Text::CODE_CASE_PRESERVE_CAPITAL_WORDS => 'httpsIsSaferThanHTTP'
+				],
+				'Human' => [
+					0 => 'Https is safer than http',
+					Text::CODE_CASE_PRESERVE_CAPITAL_WORDS => 'HTTPS is safer than HTTP'
+				]
+			],
+			'itIsAGoodDayToCode' => [
+				"Camel" => 'itIsAGoodDayToCode',
+				'Kebab' => 'it-is-a-good-day-to-code',
+				'Pascal' => 'ItIsAGoodDayToCode'
 			]
 		];
 

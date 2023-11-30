@@ -176,6 +176,13 @@ class Text
 						$words[] = $word;
 						$word = '';
 					}
+					elseif (\ctype_upper($word) &&
+						($length = \strlen($word)) > 1)
+					{
+						// ACMEIsCool -> ACME / IS / ...
+						$words[] = \substr($word, 0, $length - 1);
+						$word = \substr($word, $length - 1);
+					}
 
 					$characterType = 1;
 				}
