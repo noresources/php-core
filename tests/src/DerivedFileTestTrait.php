@@ -313,10 +313,12 @@ trait DerivedFileTestTrait
 	 *
 	 * @param unknown $filename
 	 *        	File path
+	 * @param $persist If
+	 *        	TRUE, persist on filesystem after end of test.
 	 */
-	public function appendDerivedFilename($filename)
+	public function appendDerivedFilename($filename, $persist = true)
 	{
-		$this->temporaryFiles[] = $filename;
+		$this->temporaryFiles[$filename] = $persist;
 	}
 
 	private function tryAssert (/* ... */)
