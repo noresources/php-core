@@ -317,6 +317,48 @@ class Container
 	}
 
 	/**
+	 * Remove first entry from container and return its value.
+	 *
+	 * @param mixed $container
+	 *        	The container
+	 * @throws EmptyContainerException
+	 * @return mixed Value of the first entry of the container
+	 *
+	 * @used-by Container::treeValue()
+	 */
+	public static function shift(&$container)
+	{
+		if (self::count($container) == 0)
+			throw new EmptyContainerException($container);
+		if (\is_array($container))
+			return \array_shift($container);
+		list ($key, $value) = self::first($container);
+		self::removeKey($container, $key);
+		return $value;
+	}
+
+	/**
+	 * Remove last entry from container and return its value.
+	 *
+	 * @param mixed $container
+	 *        	The container
+	 * @throws EmptyContainerException
+	 * @return mixed Value of the last entry of the container
+	 *
+	 * @used-by Container::treeValue()
+	 */
+	public static function pop(&$container)
+	{
+		if (self::count($container) == 0)
+			throw new EmptyContainerException($container);
+		if (\is_array($container))
+			return \array_pop($container);
+		list ($key, $value) = self::last($container);
+		self::removeKey($container, $key);
+		return $value;
+	}
+
+	/**
 	 * Transform any type to a plain PHP array
 	 *
 	 * @param mixed $anything
@@ -390,11 +432,11 @@ class Container
 
 		if ($strict)
 		{
-			$c = Container::count($container);
+			$c = self::count($container);
 			if ($c == 0)
 				return $allowEmpty;
 			$range = \range(0, $c - 1);
-			$keys = Container::keys($container);
+			$keys = self::keys($container);
 			return ($keys === $range);
 		}
 
@@ -646,8 +688,8 @@ class Container
 				];
 
 			return [
-				Container::keyValue($dflt, 0, null),
-				Container::keyValue($dflt, 1, null)
+				self::keyValue($dflt, 0, null),
+				self::keyValue($dflt, 1, null)
 			];
 		}
 
@@ -661,8 +703,8 @@ class Container
 			];
 
 		return [
-			Container::keyValue($dflt, 0, null),
-			Container::keyValue($dflt, 1, null)
+			self::keyValue($dflt, 0, null),
+			self::keyValue($dflt, 1, null)
 		];
 	}
 
@@ -712,14 +754,27 @@ class Container
 	 */
 	public static function last($container, $dflt = array())
 	{
-		$key = Container::keyValue($dflt, 0, null);
-		$value = Container::keyValue($dflt, 1, null);
+		$key = self::keyValue($dflt, 0, null);
+		$value = self::keyValue($dflt, 1, null);
 
-		if ($container instanceof \Iterator)
+		if (\is_array($container))
+		{
+			if (\count($container))
+			{
+				$keys = \array_keys($container);
+				$key = \array_pop($keys);
+				$value = $container[$key];
+			}
+		}
+
+		elseif ($container instanceof \IteratorAggregate)
+		{
+			// Use default case
+		}
+		elseif ($container instanceof \Iterator)
 		{
 			$i = clone $container;
-			if (!$i->valid())
-				$i->rewind();
+			$i->rewind();
 
 			while ($i->valid())
 			{
@@ -825,6 +880,38 @@ class Container
 		}
 
 		throw new InvalidContainerException($container, __METHOD__);
+	}
+
+	/**
+	 *
+	 * @param array $container
+	 * @param array|string|integer $keyTree
+	 *        	Container key or key path
+	 * @param mixed $defaultValue
+	 *        	Value to return if $keyTree does not exists in $container
+	 *
+	 * @throws InvalidContainerException
+	 *
+	 * @return mixed Value associated to $keyTree or $defaultValue if the key does not exists
+	 */
+	public static function treeValue($container, $keyTree, $dflt = null,
+		$keySeparator = '.')
+	{
+		if (\is_string($keyTree) && !empty($keySeparator))
+			$keyTree = \explode($keySeparator, $keyTree);
+
+		if (!\is_array($keyTree))
+			return self::keyValue($container, $keyTree, $dflt);
+		$key = self::shift($keyTree);
+		if (!Container::keyExists($container, $key))
+			return $dflt;
+		$container = self::keyValue($container, $key);
+
+		if (\count($keyTree) == 0)
+			return $container;
+
+		return self::treeValue($container, $keyTree, $dflt,
+			$keySeparator);
 	}
 
 	/**
@@ -1427,6 +1514,83 @@ class Container
 		}
 
 		return $map;
+	}
+
+	const MERGE_RECURSE = 0x01;
+
+	const MERGE_LIST_REPLACE = 0x02;
+
+	/**
+	 * Merge two or more container
+	 *
+	 * @param \Traversable ...$container
+	 *        	Containers to merge
+	 *        	#param integer $options Merge option flags.. Default is 0.
+	 * @throws InvalidContainerException
+	 * @return array A new array, containing the merged content of all input containers.
+	 */
+	public static function merge(/*$arrays..., $options */)
+	{
+		$argv = \func_get_args();
+		$argc = \func_num_args();
+		$options = 0;
+		$output = [];
+
+		if ($argc > 0)
+		{
+			if (\is_integer($argv[$argc - 1]))
+			{
+				$options = \array_pop($argv);
+				$argc--;
+			}
+		}
+
+		if ($argc == 0)
+			return $output;
+
+		$recurse = ($options & self::MERGE_RECURSE) ==
+			self::MERGE_RECURSE;
+		$replace = ($options & self::MERGE_LIST_REPLACE) ==
+			self::MERGE_LIST_REPLACE;
+
+		foreach ($argv as $i => $container)
+		{
+			if (!self::isTraversable($container))
+				throw new InvalidContainerException($container,
+					'Argument #' . $i);
+
+			$isList = self::isIndexed($container);
+
+			if ($replace && $isList && self::isIndexed($output))
+			{
+				$output = [];
+				foreach ($container as $value)
+					$output[] = $value;
+				continue;
+			}
+
+			if ($isList)
+			{
+				foreach ($container as $value)
+					$output[] = $value;
+				continue;
+			}
+
+			foreach ($container as $key => $value)
+			{
+				if ($recurse && self::keyExists($output, $key) &&
+					($existing = self::keyValue($output, $key)) &&
+					self::isTraversable($existing) &&
+					self::isTraversable($value))
+				{
+					$value = self::merge($existing, $value, $options);
+				}
+
+				$output[$key] = $value;
+			}
+		}
+
+		return $output;
 	}
 
 	public static function defaultElementComparer($a, $b)

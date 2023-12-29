@@ -193,6 +193,88 @@ final class ContainerTest extends \PHPUnit\Framework\TestCase
 		}
 	}
 
+	public function testTreeValue()
+	{
+		$tests = [
+			'Basic =ey value' => [
+				'container' => [
+					'key' => 'value'
+				],
+				'tree' => 'key',
+				'expected' => 'value'
+			],
+			'Missing key' => [
+				'container' => [
+					'key' => 'value'
+				],
+				'tree' => 'not-a-key',
+				'expected' => 'not-found'
+			],
+			'Valid key tree' => [
+				'container' => [
+					'foo' => [
+						'bar' => [
+							'baz' => 'meta'
+						]
+					]
+				],
+				'tree' => 'foo.bar.baz',
+				'expected' => 'meta'
+			],
+			'Partial key tree' => [
+				'container' => [
+					'foo' => [
+						'bar' => [
+							'bouzz' => 'pun'
+						]
+					]
+				],
+				'tree' => 'foo.bar.baz',
+				'expected' => 'not-found'
+			],
+			'Invalid key tree' => [
+				'container' => [
+					'foo' => [
+						'bar' => 'baz'
+					]
+				],
+				'tree' => 'foo.bar.baz',
+				'expected' => InvalidContainerException::class
+			]
+		];
+
+		foreach ($tests as $label => $test)
+		{
+			$container = $test['container'];
+			$keyTree = $test['tree'];
+			$expected = $test['expected'];
+
+			$dflt = \array_key_exists('default', $test) ? $test['default'] : 'not-found';
+			$keySeparator = \array_key_exists('separator', $test) ? $test['separator'] : '.';
+			$actual = null;
+
+			foreach ([
+				$container,
+				new \ArrayObject($container)
+			] as $container)
+			{
+
+				try
+				{
+					$actual = Container::treeValue($container, $keyTree,
+						$dflt, $keySeparator);
+				}
+				catch (\Exception $e)
+				{
+					$actual = TypeDescription::getName($e);
+				}
+				$this->assertEquals($expected, $actual,
+					$label . '(' . TypeDescription::getName($container) .
+					')');
+			}
+		}
+	}
+
 	public function testPropertines()
 	{
 		$properties = [
@@ -272,6 +354,34 @@ final class ContainerTest extends \PHPUnit\Framework\TestCase
 					$name;
 				$this->assertEquals($expectedValue, $actual & $property,
 					$text);
+			}
+		}
+	}
+
+	public function testPop()
+	{
+		$container = [
+			'foo',
+			'bar',
+			'baz'
+		];
+
+		foreach ([
+			$container,
+			new \ArrayObject($container)
+		] as $container)
+		{
+			foreach ([
+				'baz',
+				'bar',
+				'foo'
+			] as $pass => $expected)
+			{
+				$label = TypeDescription::getName($container) . ' pass ' .
+					($pass + 1) . ' (' .
+					Container::implodeValues($container, ', ') . ')';
+				$actual = Container::pop($container);
+				$this->assertEquals($expected, $actual, $label);
 			}
 		}
 	}
@@ -1139,6 +1249,104 @@ final class ContainerTest extends \PHPUnit\Framework\TestCase
 
 			$this->assertEquals($expected, $actual, $label);
 		}
+	}
+
+	public function testMerge()
+	{
+		$mapA = [
+			'key' => 'value',
+			'foo' => 'bar'
+		];
+		$mapB = [
+			'bar' => 'baz'
+		];
+		$listA = [
+			'a',
+			'b',
+			'c'
+		];
+
+		$listB = [
+			'apple',
+			'banana',
+			'tomato'
+		];
+
+		$expected = \array_merge($mapA, $mapB, $listA, $listB);
+		$expected = \json_encode($expected, JSON_PRETTY_PRINT);
+
+		$actual = Container::merge($mapA, $mapB, $listA, $listB);
+		$actual = \json_encode($actual, JSON_PRETTY_PRINT);
+
+		$this->assertEquals($expected, $actual,
+			'Default merge option mimics array_merge');
+
+		$options = Container::MERGE_LIST_REPLACE;
+		$expected = [
+			'key' => 'value',
+			'foo' => 'bar',
+			'bar' => 'baz',
+			'a',
+			'b',
+			'c',
+			'apple',
+			'banana',
+			'tomato'
+		];
+
+		$actual = Container::merge($mapA, $mapB, $listA, $listB,
+			$options);
+
+		$this->assertEquals($expected, $actual, 'Merge / replace list');
+		$expected = [
+			'apple',
+			'banana',
+			'tomato',
+			'key' => 'value',
+			'foo' => 'bar',
+			'bar' => 'baz'
+		];
+		$expected = \json_encode($expected, JSON_PRETTY_PRINT);
+
+		$actual = Container::merge($listA, $listB, $mapA, $mapB,
+			$options);
+		$actual = \json_encode($actual, JSON_PRETTY_PRINT);
+
+		$this->assertEquals($expected, $actual,
+			'Merge / replace list (2)');
+	}
+
+	public function testMergeRecursive()
+	{
+		$a = [
+			'key' => 'value',
+			'a' => [
+				'b' => [
+					'C'
+				],
+				'd' => 'Dis'
+			]
+		];
+		$b = [
+			'a' => [
+				'b' => [
+					'Sea'
+				],
+				'g' => [
+					'Dji'
+				]
+			]
+		];
+		$options = Container::MERGE_RECURSE;
+
+		$expected = \array_merge_recursive($a, $b);
+		$expected = \json_encode($expected, JSON_PRETTY_PRINT);
+
+		$actual = Container::merge($a, $b, $options);
+		$actual = \json_encode($actual, JSON_PRETTY_PRINT);
+
+		$this->assertEquals($expected, $actual,
+			'Default recursive merge mimics array_merge_recursive');
 	}
 }
 
