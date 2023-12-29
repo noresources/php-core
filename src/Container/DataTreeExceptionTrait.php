@@ -7,6 +7,11 @@
  */
 namespace NoreSources\Container;
 
+/**
+ *
+ * @deprecated
+ *
+ */
 trait DataTreeExceptionTrait
 {
 

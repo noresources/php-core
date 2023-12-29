@@ -7,6 +7,11 @@
  */
 namespace NoreSources\Container;
 
+/**
+ *
+ * @deprecated
+ *
+ */
 interface DataTreeExceptionInterface extends
 	ContainerExceptionInterface
 {

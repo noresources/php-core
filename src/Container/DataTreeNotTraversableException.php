@@ -7,6 +7,11 @@
  */
 namespace NoreSources\Container;
 
+/**
+ *
+ * @deprecated
+ *
+ */
 class DataTreeNotTraversableException extends InvalidContainerException implements
 	DataTreeExceptionInterface
 {

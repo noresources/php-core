@@ -13,6 +13,8 @@ use NoreSources\Type\TypeConversion;
 
 /**
  * Serializable data tree structure
+ *
+ * @deprecated Use Container methods and noresources/ns-php-data package
  */
 class DataTree implements \ArrayAccess, \Serializable,
 	\IteratorAggregate, \Countable, ArrayRepresentation,
