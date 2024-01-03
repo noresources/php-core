@@ -397,53 +397,14 @@ class DateTime extends \DateTime implements IntegerRepresentation,
 		$jdn = \intval(\floor($jd));
 		$s = \floor(($jd - $jdn) * (60 * 60 * 24));
 
-		if (1) // Method 1 using interval shifting
-		{
-			$this->setDate(-4713, 11, 24);
-			$this->setTime(12, 0, 0);
+		$this->setDate(-4713, 11, 24);
+		$this->setTime(12, 0, 0);
 
-			$interval = 'P' . abs($jdn) . 'DT' . $s . 'S';
-			$interval = new \DateInterval($interval);
-			if ($jdn < 0)
-				$interval->invert = true;
-			$this->add($interval);
-		}
-		else // Using Richards algotithm
-		{
-			$y = 4716;
-			$j = 1401;
-			$m = 2;
-			$n = 12;
-			$r = 4;
-			$p = 1461;
-			$v = 3;
-			$u = 5;
-			$s = 153;
-			$w = 2;
-			$B = 274277;
-			$C = -38;
-
-			$J = $jd;
-
-			// For gregorian calendar
-			// $f = $J + $j + \floor((\floor((4 * $J + $B) / 146097) * 3)) / 4 + $C;
-			$f = $J + $j;
-
-			// Common part
-			$e = $r * $f + $v;
-			$g = \floor(($e % $p) / $r);
-			$h = $u * $g + $w;
-			$D = \floor(($h % $s) / $u) + 1;
-			$M = ((\floor($h / $s) + $m) % $n) + 1;
-			$Y = \floor($e / $p) - $y + ($n + $m - $M);
-
-			$this->setDate($Y, $M, $D);
-			$this->setTime(12, 0, 0);
-
-			$interval = 'PT' . $s . 'S';
-			$interval = new \DateInterval($interval);
-			$this->add($interval);
-		}
+		$interval = 'P' . abs($jdn) . 'DT' . $s . 'S';
+		$interval = new \DateInterval($interval);
+		if ($jdn < 0)
+			$interval->invert = true;
+		$this->add($interval);
 
 		if ($tz instanceof \DateTimeZone)
 			$this->setTimezone($tz);

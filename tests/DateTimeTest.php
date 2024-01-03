@@ -220,6 +220,10 @@ final class DateTimeTest extends \PHPUnit\Framework\TestCase
 
 	public function testToJulian()
 	{
+		if (!\extension_loaded('calendar'))
+			return $this->assertFalse(\extension_loaded('calendar'),
+				'Cannot test this without calendar extension');
+
 		$timezones = [
 			'UTC' => DateTIme::getUTCTimezone(),
 			'Europe/Berlin' => new \DateTimeZone('Europe/Berlin')

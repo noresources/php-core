@@ -29,7 +29,8 @@
 		"psr/log": "^1.1"
 	}, 
 	"suggest": {
-		"ext-yaml": "Needed to load DataTree content from YAML encoded file"
+		"ext-yaml": "Needed to load DataTree content from YAML encoded file", 
+		"ext-calendar": "Needed to test DateTime::toJulianDay against PHP calendar functions"
 	}, 
 	"scripts": {
 		"test": "@php  ./vendor/bin/phpunit --color=never --strict-coverage --bootstrap vendor/autoload.php tests"
@@ -45,8 +46,8 @@
 	}, 
 	"extra": {
 		"branch-alias": {
-			"dev-2.5.x": "2.5.x-dev",
-			"dev-2.6.x": "2.6.x-dev",
+			"dev-2.5.x": "2.5.x-dev", 
+			"dev-2.6.x": "2.6.x-dev", 
 			"dev-master": "2.7.x-dev"
 		}
 	}
