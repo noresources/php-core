@@ -512,6 +512,7 @@ final class SemanticPostfixedData extends \ArrayObject implements
 	/**
 	 * Append part
 	 */
+	#[\ReturnTypeWillChange]
 	public function append($value)
 	{
 		self::validate($value);
@@ -601,6 +602,7 @@ final class SemanticPostfixedData extends \ArrayObject implements
 	 * @param mixed $value
 	 * @throws SemanticVersionRuleException
 	 */
+	#[\ReturnTypeWillChange]
 	private static function validate($value)
 	{
 		if (preg_match(chr(1) . '^0+[0-9]*$' . chr(1), $value))

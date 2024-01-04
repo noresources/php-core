@@ -121,6 +121,7 @@ class PhpSourceTokenVisitor implements \Iterator, \Countable
 		return $this->rangeEnd - $this->rangeStart;
 	}
 
+	#[\ReturnTypeWillChange]
 	public function next()
 	{
 		$this->index++;
@@ -134,6 +135,7 @@ class PhpSourceTokenVisitor implements \Iterator, \Countable
 		$this->processCurrentToken();
 	}
 
+	#[\ReturnTypeWillChange]
 	public function valid()
 	{
 		return ($this->index >= 0) && ($this->index < $this->rangeEnd);
@@ -143,11 +145,13 @@ class PhpSourceTokenVisitor implements \Iterator, \Countable
 	 *
 	 * @return PhpSourceToken
 	 */
+	#[\ReturnTypeWillChange]
 	public function current()
 	{
 		return $this->getToken($this->index);
 	}
 
+	#[\ReturnTypeWillChange]
 	public function rewind()
 	{
 		$this->index = $this->rangeStart;
@@ -157,6 +161,7 @@ class PhpSourceTokenVisitor implements \Iterator, \Countable
 			$this->processCurrentToken();
 	}
 
+	#[\ReturnTypeWillChange]
 	public function key()
 	{
 		return $this->index;
@@ -269,7 +274,7 @@ class PhpSourceTokenVisitor implements \Iterator, \Countable
 				[
 					T_OPEN_TAG, // Free function
 					T_NAMESPACE, // Free function in namespace
-					              // T_INTERFACE,
+					// T_INTERFACE,
 					T_TRAIT, // Class method in trait
 					T_CLASS // Class method
 				]))

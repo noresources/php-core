@@ -34,6 +34,7 @@ class ReflectionPropertyMethod extends \ReflectionProperty
 		$this->setter = $set;
 	}
 
+	#[\ReturnTypeWillChange]
 	public function getValue($object = null)
 	{
 		if ($this->getter)
@@ -41,6 +42,7 @@ class ReflectionPropertyMethod extends \ReflectionProperty
 		return parent::getValue($object);
 	}
 
+	#[\ReturnTypeWillChange]
 	public function setValue($object, $value = null)
 	{
 		if ($this->setter)

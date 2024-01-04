@@ -300,6 +300,7 @@ class DataTree implements \ArrayAccess, \Serializable,
 	 *
 	 * @return array
 	 */
+	#[\ReturnTypeWillChange]
 	public function jsonSerialize()
 	{
 		return $this->getArrayCopy();
@@ -389,6 +390,7 @@ class DataTree implements \ArrayAccess, \Serializable,
 	 * @param mixed $value
 	 * @return New number of settings
 	 */
+	#[\ReturnTypeWillChange]
 	public function append($value)
 	{
 		$this->elements->append($value);

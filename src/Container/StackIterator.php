@@ -29,6 +29,7 @@ class StackIterator implements \Iterator
 	 * {@inheritdoc}
 	 * @see Iterator::next()
 	 */
+	#[\ReturnTypeWillChange]
 	public function next()
 	{
 		return $this->index--;
@@ -39,6 +40,7 @@ class StackIterator implements \Iterator
 	 * {@inheritdoc}
 	 * @see Iterator::valid()
 	 */
+	#[\ReturnTypeWillChange]
 	public function valid()
 	{
 		return ($this->index >= 0);
@@ -49,6 +51,7 @@ class StackIterator implements \Iterator
 	 * {@inheritdoc}
 	 * @see Iterator::current()
 	 */
+	#[\ReturnTypeWillChange]
 	public function current()
 	{
 		return $this->stackElements[$this->index];
@@ -59,11 +62,13 @@ class StackIterator implements \Iterator
 	 * {@inheritdoc}
 	 * @see Iterator::rewind()
 	 */
+	#[\ReturnTypeWillChange]
 	public function rewind()
 	{
 		$this->index = \count($this->stackElements) - 1;
 	}
 
+	#[\ReturnTypeWillChange]
 	public function key()
 	{
 		return $this->index;

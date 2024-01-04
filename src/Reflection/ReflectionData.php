@@ -112,6 +112,7 @@ class ReflectionData implements \Reflector
 	 * @throws \ReflectionException
 	 * @return mixed
 	 */
+	#[\ReturnTypeWillChange]
 	public function getValue($object = null)
 	{
 		if (isset($this->readMethod))
@@ -125,6 +126,7 @@ class ReflectionData implements \Reflector
 		return $this->reflectionProperty->getValue($object);
 	}
 
+	#[\ReturnTypeWillChange]
 	public function setValue($object, $value = null)
 	{
 		if ($this->writeMethod)
