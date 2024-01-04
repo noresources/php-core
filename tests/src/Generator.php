@@ -88,14 +88,15 @@ class Generator
 		$range = $yearRange[1] - $yearRange[0];
 		if ($y < $yearRange[0])
 		{
-			$offset = \abs($yearRange[0] - $y) + rand(0, $range / 2);
+			$offset = \abs($yearRange[0] - $y) +
+				rand(0, \floor($range / 2));
 			$interval = new \DateInterval('P' . $offset . 'Y');
 			$dt->add($interval);
 		}
 
 		if ($y > $yearRange[1])
 		{
-			$offset = $y - $yearRange[1] + rand(0, $range / 2);
+			$offset = $y - $yearRange[1] + rand(0, \floor($range / 2));
 			$interval = new \DateInterval('P' . $offset . 'Y');
 			$interval->invert = true;
 			$dt->add($interval);
