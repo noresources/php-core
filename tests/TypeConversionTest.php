@@ -273,10 +273,8 @@ final class TypeConversionTest extends \PHPUnit\Framework\TestCase
 
 		$epoch100 = new \DateTime(null);
 		$epoch100->setTimestamp(100);
-		$epoch100j = unixtojd($epoch100->getTimestamp());
 		$epoch100s = $epoch100->format(\DateTIme::ISO8601);
-
-		foreach ([
+		$tests = [
 			[
 				'456',
 				'integer',
@@ -291,11 +289,6 @@ final class TypeConversionTest extends \PHPUnit\Framework\TestCase
 				$epoch100,
 				'integer',
 				100
-			],
-			[
-				$epoch100,
-				'float',
-				$epoch100j
 			],
 			[
 				100,
@@ -338,7 +331,17 @@ final class TypeConversionTest extends \PHPUnit\Framework\TestCase
 				'boolean',
 				false
 			]
-		] as $test)
+		];
+		if (\extension_loaded('calendar'))
+		{
+			$epoch100j = \unixtojd($epoch100->getTimestamp());
+			$tests[] = [
+				$epoch100,
+				'float',
+				$epoch100j
+			];
+		}
+		foreach ($tests as $test)
 		{
 			$value = Container::keyValue($test, 0);
 			$type = Container::keyValue($test, 1);

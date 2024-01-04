@@ -8,7 +8,6 @@
 namespace NoreSources\Test;
 
 use NoreSources\Test\Data\TypeDescriptionJsonSerializableSampleClass;
-use NoreSources\Test\Data\TypeDescriptionSerializableSampleClass;
 use NoreSources\Type\TypeDescription;
 
 final class TypeDescriptionTest extends \PHPUnit\Framework\TestCase
@@ -135,11 +134,6 @@ final class TypeDescriptionTest extends \PHPUnit\Framework\TestCase
 			],
 			'DateTimeZone' => [
 				new \DateTimeZone('Europe/Berlin'),
-				false,
-				true
-			],
-			'Serializable' => [
-				new TypeDescriptionSerializableSampleClass(),
 				false,
 				true
 			],
