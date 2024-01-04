@@ -36,16 +36,16 @@ final class DateTimeTest extends \PHPUnit\Framework\TestCase
 				'arguments' => [],
 				'timezone' => $system
 			],
-			'default with time zone' => [
+			'now with time zone' => [
 				'arguments' => [
-					null,
+					'now',
 					$tokyo
 				],
 				'timezone' => $tokyo
 			],
 			'"now"' => [
 				'arguments' => [
-					"now"
+					'now'
 				],
 				'timezone' => $system
 			],

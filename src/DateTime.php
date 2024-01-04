@@ -271,7 +271,8 @@ class DateTime extends \DateTime implements IntegerRepresentation,
 			$this->setJulianDay($time);
 		}
 		else
-			parent::__construct($time, $timezone);
+			parent::__construct(($time === NULL) ? 'now' : $time,
+				$timezone);
 	}
 
 	/**

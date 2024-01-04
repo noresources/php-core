@@ -271,7 +271,7 @@ final class TypeConversionTest extends \PHPUnit\Framework\TestCase
 			return 'fallback';
 		};
 
-		$epoch100 = new \DateTime(null);
+		$epoch100 = new \DateTime('now');
 		$epoch100->setTimestamp(100);
 		$epoch100s = $epoch100->format(\DateTIme::ISO8601);
 		$tests = [
