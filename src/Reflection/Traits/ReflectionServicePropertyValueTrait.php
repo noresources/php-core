@@ -24,7 +24,7 @@ trait ReflectionServicePropertyValueTrait
 		 */
 		$class = $this->getReflectionClass($object);
 		$properties = [];
-		foreach ($class->getProperties() as $prpperty)
+		foreach ($class->getProperties() as $property)
 		{
 			/**
 			 *
@@ -33,6 +33,7 @@ trait ReflectionServicePropertyValueTrait
 			$properties[$property->getName()] = $this->getPropertyValue(
 				$object, $property, $flags);
 		}
+		return $properties;
 	}
 
 	public function getPropertyValue($object, $property, $flags = 0)
@@ -89,5 +90,21 @@ trait ReflectionServicePropertyValueTrait
 		}
 
 		return null;
+	}
+
+	public function setPropertyValues($object, $values, $flags = 0)
+	{
+		$class = $this->getReflectionClass($object);
+		foreach ($values as $property => $value)
+		{
+			try
+			{
+				$property = $this->getReflectionProperty($class,
+					$property, $flags);
+				$property->setValue($object, $value);
+			}
+			catch (\Exception $e)
+			{}
+		}
 	}
 }

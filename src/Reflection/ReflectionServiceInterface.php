@@ -44,7 +44,8 @@ interface ReflectionServiceInterface
 	 */
 	const ALLOW_WRITE_METHOD = 0x20;
 
-	const ALLOW_RW_METHODS = (self::ALLOW_READ_METHOD | self::ALLOW_WRITE_METHOD);
+	const ALLOW_RW_METHODS = (self::ALLOW_READ_METHOD |
+		self::ALLOW_WRITE_METHOD);
 
 	/**
 	 * When retrieving property value.
@@ -105,6 +106,17 @@ interface ReflectionServiceInterface
 	 * @return mixed[] Dictionary of prperty values.
 	 */
 	function getPropertyValues($object, $flags = 0);
+
+	/**
+	 *
+	 * @param object $object
+	 *        	Output object
+	 * @param array $values
+	 *        	Property values
+	 * @param number $flags
+	 *        	ReflectionProperty flags
+	 */
+	function setPropertyValues($object, $values, $flags = 0);
 
 	/**
 	 * Find the method matching getter naming convention for the given property name.

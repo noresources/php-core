@@ -59,6 +59,9 @@ class ReflectionServiceTest extends \PHPUnit\Framework\TestCase
 		$readOnly = new ReadOnlyClass();
 		$publicReadMethod = new PublicPropertyWithReadMethodClass();
 
+		$properties = $reflectionService->getPropertyValues($opaque);
+		$this->assertIsArray($properties, 'Get all properties');
+
 		$tests = [
 			'public property' => [
 				'object' => $public,
@@ -117,5 +120,29 @@ class ReflectionServiceTest extends \PHPUnit\Framework\TestCase
 				$property, $flags);
 			$this->assertEquals($expected, $actual, $description);
 		}
+	}
+
+	public function testSet()
+	{
+		$reflectionService = ReflectionService::getInstance();
+		$object = new OpaqueClass();
+
+		$expected = [
+			'secret' => "I'm a teapot"
+		];
+		$flags = ReflectionServiceInterface::RW |
+			ReflectionServiceInterface::EXPOSE_HIDDEN_PROPERTY;
+
+		$actual = $reflectionService->getPropertyValues($object, $flags);
+		$this->assertEquals($expected, $actual, 'Opaque initial values');
+
+		$values = [
+			'secret' => 'No so secret'
+		];
+
+		$reflectionService->setPropertyValues($object, $values, $flags);
+		$actual = $reflectionService->getPropertyValues($object, $flags);
+		$this->assertEquals($values, $actual,
+			'Set opaque object properties');
 	}
 }
