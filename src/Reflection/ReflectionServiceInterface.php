@@ -11,21 +11,57 @@ namespace NoreSources\Reflection;
 use ReflectionClass;
 use ReflectionProperty;
 
+/**
+ * Reflection utility service
+ */
 interface ReflectionServiceInterface
 {
-
-	const READABLE = 0x04;
-
-	const WRITABLE = 0x02;
-
-	const RW = self::READABLE | self::WRITABLE;
 
 	/**
 	 * Expose non-public prpeerties when retrieving property values.
 	 *
-	 * @var number
+	 * @var integer
 	 */
-	const EXPOSE_HIDDEN_PROPERTY = 0x81;
+	const EXPOSE_HIDDEN_PROPERTY = 0x01;
+
+	/**
+	 * Require write permission to value.
+	 *
+	 *
+	 * @var integer
+	 */
+	const WRITABLE = 0x02;
+
+	/**
+	 * Require public value access
+	 *
+	 *
+	 *
+	 * @var integer
+	 */
+	const READABLE = 0x04;
+
+	/**
+	 * Require full access to value.
+	 *
+	 * @var integer
+	 */
+	const RW = self::READABLE | self::WRITABLE;
+
+	/**
+	 * Expose private properties of parent classes
+	 *
+	 *
+	 * @var integer
+	 */
+	const EXPOSE_INHERITED_PROPERTY = 0x08;
+
+	/**
+	 * Use class instance method to alter property value.
+	 *
+	 * @var integer
+	 */
+	const ALLOW_WRITE_METHOD = 0x20;
 
 	/**
 	 * Use a class instance method to read access property value.
@@ -33,30 +69,39 @@ interface ReflectionServiceInterface
 	 * When retrieving non-public property value.
 	 * Invoke method matching getter naming convention if any.
 	 *
-	 * @var number
+	 * @var integer
 	 */
 	const ALLOW_READ_METHOD = 0x40;
 
 	/**
-	 * Use class instance method to alter property value.
+	 * Use class instance methods to set and get values.
 	 *
-	 * @var number
+	 * @var integer
 	 */
-	const ALLOW_WRITE_METHOD = 0x20;
-
 	const ALLOW_RW_METHODS = (self::ALLOW_READ_METHOD |
 		self::ALLOW_WRITE_METHOD);
+
+	/**
+	 * When assigning property value.
+	 * Always use mettong matching getter naming convention if possible.
+	 *
+	 * @var integer
+	 */
+	const FORCE_WRITE_METHOD = (0x200 | self::ALLOW_WRITE_METHOD);
 
 	/**
 	 * When retrieving property value.
 	 * Always use mettong matching getter naming convention if possible.
 	 *
-	 * @var number
+	 * @var integer
 	 */
 	const FORCE_READ_METHOD = (0x400 | self::ALLOW_READ_METHOD);
 
-	const FORCE_WRITE_METHOD = (0x200 | self::ALLOW_WRITE_METHOD);
-
+	/**
+	 * Force use of setter and getter methods even if property has public access.
+	 *
+	 * @var integer
+	 */
 	const FORCE_RW_METHODS = (self::FORCE_READ_METHOD |
 		self::FORCE_WRITE_METHOD);
 

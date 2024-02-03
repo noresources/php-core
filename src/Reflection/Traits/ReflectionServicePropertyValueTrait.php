@@ -8,7 +8,9 @@
  */
 namespace NoreSources\Reflection\Traits;
 
+use NoreSources\Reflection\ReflectionService;
 use NoreSources\Reflection\ReflectionServiceInterface;
+use ReflectionClass;
 
 /**
  * Implements methods of ReflectionServiceInterface related to property values
@@ -18,25 +20,57 @@ trait ReflectionServicePropertyValueTrait
 
 	public function getPropertyValues($object, $flags = 0)
 	{
+		$properties = [];
+
 		/**
 		 *
 		 * @var \ReflectionClass $class
 		 */
 		$class = $this->getReflectionClass($object);
 		$properties = [];
+		$this->populateClassPropertiyValues($properties, $class, $object,
+			$flags);
+		return $properties;
+	}
+
+	protected function populateClassPropertiyValues(&$properties,
+		ReflectionClass $class, $object, $flags = 0,
+		ReflectionClass $derivedClass = null)
+	{
+		if (($flags & ReflectionService::EXPOSE_INHERITED_PROPERTY) &&
+			($parent = $class->getParentClass()))
+		{
+
+			$this->populateClassPropertiyValues($properties, $parent,
+				$object,
+				($flags |
+				ReflectionServiceInterface::EXPOSE_HIDDEN_PROPERTY),
+				($derivedClass ? $derivedClass : $class));
+		}
+		/**
+		 *
+		 * @var \ReflectionProperty $property
+		 */
+
 		foreach ($class->getProperties() as $property)
 		{
-			/**
-			 *
-			 * @var \ReflectionProperty $property
-			 */
-			$properties[$property->getName()] = $this->getPropertyValue(
-				$object, $property, $flags);
+			$value = null;
+			if ($this->populatePropertyValue($value, $object, $property,
+				$flags, ($derivedClass ? $derivedClass : $class)))
+				$properties[$property->getName()] = $value;
 		}
 		return $properties;
 	}
 
 	public function getPropertyValue($object, $property, $flags = 0)
+	{
+		$value = null;
+		$this->populatePropertyValue($value, $object, $property, $flags);
+		return $value;
+	}
+
+	protected function populatePropertyValue(&$value, $object, $property,
+		$flags = 0, ReflectionClass $derivedClass = null)
 	{
 		$isPublic = false;
 		try
@@ -63,22 +97,40 @@ trait ReflectionServicePropertyValueTrait
 				 *
 				 * @var \ReflectionMethod $method
 				 */
-				$method = $this->findReadMethodForProperty(
-					$property->getDeclaringClass(), $property->getName());
+				$method = null;
+				if ($derivedClass)
+					$method = $this->findReadMethodForProperty(
+						$derivedClass, $property->getName());
+				if (!$method)
+					$method = $this->findReadMethodForProperty(
+						$property->getDeclaringClass(),
+						$property->getName());
 				if ($method)
-					return $method->invoke($object);
+				{
+					$value = $method->invoke($object);
+					return true;
+				}
 			}
 
-			return $property->getValue($object);
+			$value = $property->getValue($object);
+			return true;
 		}
 
 		if (($flags & ReflectionServiceInterface::ALLOW_READ_METHOD) ==
 			ReflectionServiceInterface::ALLOW_READ_METHOD)
 		{
-			$method = $this->findReadMethodForProperty(
-				$property->getDeclaringClass(), $property->getName());
+			$method = null;
+			if ($derivedClass)
+				$method = $this->findReadMethodForProperty(
+					$derivedClass, $property->getName());
+			if (!$method)
+				$method = $this->findReadMethodForProperty(
+					$property->getDeclaringClass(), $property->getName());
 			if ($method)
-				return $method->invoke($object);
+			{
+				$value = $method->invoke($object);
+				return true;
+			}
 		}
 
 		if ((($flags & ReflectionServiceInterface::EXPOSE_HIDDEN_PROPERTY) ==
@@ -86,10 +138,11 @@ trait ReflectionServicePropertyValueTrait
 			$property)
 		{
 			$property->setAccessible(true);
-			return $property->getValue($object);
+			$value = $property->getValue($object);
+			return true;
 		}
 
-		return null;
+		return false;
 	}
 
 	public function setPropertyValues($object, $values, $flags = 0)
