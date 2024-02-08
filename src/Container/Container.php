@@ -853,32 +853,53 @@ class Container
 	public static function keyValue($container, $key,
 		$defaultValue = null)
 	{
+		$validContainer = false;
 		if (\is_array($container))
 			return (\array_key_exists($key, $container)) ? $container[$key] : $defaultValue;
-		elseif ($container instanceof \ArrayAccess)
-			return ($container->offsetExists($key) ? $container->offsetGet(
-				$key) : $defaultValue);
-		elseif ($container instanceof ContainerInterface)
-			return ($container->has($key) ? $container->get($key) : $defaultValue);
-		elseif ($container instanceof \Traversable)
+
+		if (!\is_object($container))
+			throw new InvalidContainerException($container, __METHOD__);
+
+		if ($container instanceof \ArrayAccess)
 		{
+			$validContainer = true;
+			if ($container->offsetExists($key))
+				return $container->offsetGet($key);
+		}
+
+		if ($container instanceof ContainerInterface)
+		{
+			$validContainer = true;
+			if ($container->has($key))
+				return $container->get($key);
+		}
+
+		if ($container instanceof \Traversable)
+		{
+			$validContainer = true;
 			foreach ($container as $k => $value)
 			{
 				if ($key === $k)
 					return $value;
 			}
-
-			return $defaultValue;
 		}
-		elseif (\is_object($container) && \is_string($key))
+
+		if (\is_string($key) &&
+			(\property_exists($container, $key) ||
+			\method_exists($container, '__get')))
 		{
-			if (\property_exists($container, $key) ||
-				\method_exists($container, '__get'))
-				return $container->$key;
+			$validContainer = true;
 
-			return $defaultValue;
+			try
+			{
+				return $container->$key;
+			}
+			catch (\Exception $e)
+			{}
 		}
 
+		if ($validContainer)
+			return $defaultValue;
 		throw new InvalidContainerException($container, __METHOD__);
 	}
 

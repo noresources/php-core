@@ -131,6 +131,25 @@ class TraversableImpl implements \IteratorAggregate
 	private $array;
 }
 
+class ArrayObjectWithGetMethod extends \ArrayObject
+{
+
+	public function __get($key)
+	{
+		switch ($key)
+		{
+			case 'toto':
+				return 'titi';
+			case 'dynamicProperty':
+				return 'Dynamic';
+		}
+
+		throw new \InvalidArgumentException(
+			$key . ' is not a dynamic property key of ' .
+			TypeDescription::getLocalName($this));
+	}
+}
+
 final class ContainerTest extends \PHPUnit\Framework\TestCase
 {
 
@@ -179,6 +198,12 @@ final class ContainerTest extends \PHPUnit\Framework\TestCase
 		$aa = new ArrayAccessImpl($array);
 		$metavariable = new MetaVariable();
 
+		$arrayWithGetMethod = new ArrayObjectWithGetMethod(
+			[
+				'foo' => 'bar',
+				'key' => 'value'
+			]);
+
 		foreach ([
 			$array,
 			$ci,
@@ -191,6 +216,11 @@ final class ContainerTest extends \PHPUnit\Framework\TestCase
 				'keyValue of ' .
 				TypeDescription::getLocalName($container));
 		}
+
+		$this->assertEquals('default',
+			Container::keyValue($arrayWithGetMethod, 'undefined',
+				'default'),
+			'Catch exception when attempting to get object property');
 	}
 
 	public function testTreeValue()
