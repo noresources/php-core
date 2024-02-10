@@ -134,6 +134,8 @@ class TraversableImpl implements \IteratorAggregate
 class ArrayObjectWithGetMethod extends \ArrayObject
 {
 
+	public $hardCodedProperty = 'hard';
+
 	public function __get($key)
 	{
 		switch ($key)
@@ -221,6 +223,17 @@ final class ContainerTest extends \PHPUnit\Framework\TestCase
 			Container::keyValue($arrayWithGetMethod, 'undefined',
 				'default'),
 			'Catch exception when attempting to get object property');
+
+		$hardCodedProperty = Container::keyValue($arrayWithGetMethod,
+			'hardCodedProperty');
+		$this->assertEquals('hard', $hardCodedProperty,
+			'Initial arrayWithGetMethod::$hardCodedProperty');
+
+		$arrayWithGetMethod['hardCodedProperty'] = 'soft';
+		$hardCodedProperty = Container::keyValue($arrayWithGetMethod,
+			'hardCodedProperty');
+		$this->assertEquals('soft', $hardCodedProperty,
+			'After offsetSet arrayWithGetMethod::$hardCodedProperty');
 	}
 
 	public function testTreeValue()
@@ -516,6 +529,18 @@ final class ContainerTest extends \PHPUnit\Framework\TestCase
 
 		$this->assertInstanceOf(InvalidContainerException::class,
 			$exception);
+	}
+
+	public function testSetValueBothPropertyAndArrayAccess()
+	{
+		$o = new ArrayObjectWithGetMethod();
+		Container::setValue($o, 'hardCodedProperty', 'foo');
+		$this->assertEquals('foo', $o->hardCodedProperty,
+			'Property value after Container::setValue');
+		$this->assertArrayHasKey('hardCodedProperty', $o,
+			'ArrayAccess key set after Container::setValue');
+		$this->assertEquals('foo', $o['hardCodedProperty'],
+			'ArrayAccess[hardCodedProperty]');
 	}
 
 	public function testCountArray()

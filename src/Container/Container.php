@@ -10,7 +10,6 @@ namespace NoreSources\Container;
 use NoreSources\Reflection\ReflectionService;
 use NoreSources\Type\ArrayRepresentation;
 use NoreSources\Type\TypeConversion;
-use NoreSources\Type\TypeDescription;
 use Psr\Container\ContainerInterface;
 
 /**
@@ -884,22 +883,25 @@ class Container
 			}
 		}
 
-		if (\is_string($key) &&
+		$exception = null;
+		if (($validContainer = \is_string($key)) &&
 			(\property_exists($container, $key) ||
 			\method_exists($container, '__get')))
 		{
-			$validContainer = true;
-
 			try
 			{
 				return $container->$key;
 			}
 			catch (\Exception $e)
-			{}
+			{
+				$exception = $e;
+			}
 		}
 
 		if ($validContainer)
 			return $defaultValue;
+		if ($exception)
+			throw $exception;
 		throw new InvalidContainerException($container, __METHOD__);
 	}
 
@@ -946,6 +948,26 @@ class Container
 	 */
 	public static function setValue(&$container, $key, $value)
 	{
+		$validContainer = false;
+		$exception = null;
+		if (\is_object($container))
+		{
+			if (\is_string($key) &&
+				(\property_exists($container, $key) ||
+				\method_exists($container, '__set')))
+			{
+				try
+				{
+					$container->$key = $value;
+					$validContainer = true;
+				}
+				catch (\Exception $e)
+				{
+					$exception = $e;
+				}
+			}
+		}
+
 		if (\is_array($container))
 		{
 			$container[$key] = $value;
@@ -956,20 +978,11 @@ class Container
 			$container->offsetSet($key, $value);
 			return;
 		}
-		elseif (\is_object($container) && \is_string($key))
-		{
-			if (\property_exists($container, $key) ||
-				\method_exists($container, '__set'))
-			{
-				$container->$key = $value;
-				return;
-			}
 
-			throw new \InvalidArgumentException(
-				$key . ' is not a member of ' .
-				TypeDescription::getName($container));
-		}
-
+		if ($exception)
+			throw $exception;
+		if ($validContainer)
+			return;
 		throw new InvalidContainerException($container);
 	}
 
