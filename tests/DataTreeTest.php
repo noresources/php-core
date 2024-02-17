@@ -91,6 +91,11 @@ final class DataTreeTest extends TestCase
 		$this->assertEquals($a->getArrayCopy(), $cloned->getArrayCopy(),
 			'Clone has identical data');
 
+		$this->assertEquals($reference->tree, $cloned->tree,
+			'Subtree are equal');
+		$this->assertFalse($reference->tree === $cloned->tree,
+			'Subtree are not the same object');
+
 		$a->key = 'new value';
 
 		$this->assertEquals('new value', $reference->key,
@@ -102,7 +107,19 @@ final class DataTreeTest extends TestCase
 
 		$this->assertEquals(3, $reference->tree->three,
 			'Reference has changed (subtree)');
-		$this->assertEquals(null, $cloned->tree->three,
+		$expected = null;
+		$actual = null;
+		try
+		{
+			$actual = $cloned->tree->three;
+		}
+		catch (\InvalidArgumentException $e)
+		{}
+		catch (\Exception $e)
+		{
+			$actual = $e->getMessage();
+		}
+		$this->assertEquals($expected, $actual,
 			'Cloned tree did not change (subtree)');
 	}
 
@@ -124,15 +141,15 @@ final class DataTreeTest extends TestCase
 		$tree = new DataTree();
 		$tree->loadFile(__DIR__ . '/data/a.json');
 		$data = json_encode($tree, JSON_PRETTY_PRINT);
-		$this->assertDataEqualsReferenceFile($data, __METHOD__, 'file', 'json',
-			'json from file');
+		$this->assertDataEqualsReferenceFile($data, __METHOD__, 'file',
+			'json', 'json from file');
 
 		$tree = new DataTree();
 		$input = \file_get_contents(__DIR__ . '/data/a.json');
 		$tree->loadData($input, StructuredText::FORMAT_JSON);
 		$data = json_encode($tree, JSON_PRETTY_PRINT);
-		$this->assertDataEqualsReferenceFile($data, __METHOD__, 'string', 'json',
-			'json from string');
+		$this->assertDataEqualsReferenceFile($data, __METHOD__, 'string',
+			'json', 'json from string');
 	}
 
 	public function testLoadPhp()
@@ -140,7 +157,8 @@ final class DataTreeTest extends TestCase
 		$tree = new DataTree();
 		$tree->loadFile(__DIR__ . '/data/a.php');
 		$data = json_encode($tree, JSON_PRETTY_PRINT);
-		$this->assertDataEqualsReferenceFile($data, __METHOD__, null, 'json');
+		$this->assertDataEqualsReferenceFile($data, __METHOD__, null,
+			'json');
 	}
 
 	public function testLoadYaml()
@@ -154,7 +172,8 @@ final class DataTreeTest extends TestCase
 		$tree = new DataTree();
 		$tree->loadFile(__DIR__ . '/data/a.yaml');
 		$data = json_encode($tree, JSON_PRETTY_PRINT);
-		$this->assertDataEqualsReferenceFile($data, __METHOD__, null, 'json');
+		$this->assertDataEqualsReferenceFile($data, __METHOD__, null,
+			'json');
 	}
 
 	public function testLoadInvalidJson()
@@ -192,8 +211,9 @@ final class DataTreeTest extends TestCase
 				$tree->loadFile(__DIR__ . '/data/a.' . $extension);
 				$tree->loadFile(__DIR__ . '/data/b.' . $extension, $mode);
 				$data = json_encode($tree, JSON_PRETTY_PRINT);
-				$this->assertDataEqualsReferenceFile($data, __METHOD__, $modeName,
-					'json', 'Fusion (' . $modeName . ') ' . $extension);
+				$this->assertDataEqualsReferenceFile($data, __METHOD__,
+					$modeName, 'json',
+					'Fusion (' . $modeName . ') ' . $extension);
 			}
 		}
 	}

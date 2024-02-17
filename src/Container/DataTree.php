@@ -89,13 +89,17 @@ class DataTree implements \ArrayAccess, \Serializable,
 	}
 
 	/**
-	 * Equivalent of offsetGet
 	 *
 	 * @param string $key
-	 *        	Key
+	 *        	Arrat key
+	 * @throws \InvalidArgumentException
+	 * @return \NoreSources\Container\The
 	 */
 	public function __get($key)
 	{
+		if (!$this->offsetExists($key))
+			throw new \InvalidArgumentException(
+				'Undefined offset $' . $key);
 		return $this->offsetGet($key);
 	}
 
