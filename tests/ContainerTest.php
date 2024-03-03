@@ -543,6 +543,83 @@ final class ContainerTest extends \PHPUnit\Framework\TestCase
 			'ArrayAccess[hardCodedProperty]');
 	}
 
+	public function testAppendArray()
+	{
+		$a = [
+			1,
+			2,
+			3
+		];
+		Container::appendValue($a, 4);
+		$this->assertEquals([
+			1,
+			2,
+			3,
+			4
+		], $a, 'Append to array');
+	}
+
+	public function testAppendArrayObject()
+	{
+		$a = new \ArrayObject([
+			1,
+			2,
+			3
+		]);
+		Container::appendValue($a, 4);
+		$this->assertEquals([
+			1,
+			2,
+			3,
+			4
+		], $a->getArrayCopy(), 'Append to ArrayObject');
+	}
+
+	public function testAppendToDateTime()
+	{
+		$a = new \DateTime('now');
+		$this->expectException(InvalidContainerException::class);
+		Container::appendValue($a, 4);
+	}
+
+	public function testPrependArray()
+	{
+		$a = [
+			2,
+			3
+		];
+		Container::prependValue($a, 1);
+		$this->assertEquals([
+			1,
+			2,
+			3
+		], $a, 'Prepend to array');
+	}
+
+	public function testPrependArrayObject()
+	{
+		$a = new \ArrayObject([
+			2,
+			3
+		]);
+		Container::prependValue($a, 1);
+		$this->assertEquals([
+			1,
+			2,
+			3
+		], $a->getArrayCopy(), 'Prepend to ArrayObject');
+	}
+
+	public function testPrependArrayAccess()
+	{
+		$a = new ArrayAccessImpl([
+			2,
+			3
+		]);
+		$this->expectException(InvalidContainerException::class);
+		Container::prependValue($a, 1);
+	}
+
 	public function testCountArray()
 	{
 		$this->assertEquals(4, Container::count($this->indexedReference));

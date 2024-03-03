@@ -11,6 +11,7 @@ use NoreSources\Reflection\ReflectionService;
 use NoreSources\Type\ArrayRepresentation;
 use NoreSources\Type\TypeConversion;
 use Psr\Container\ContainerInterface;
+use ArrayAccess;
 
 /**
  * Container utility class
@@ -193,6 +194,7 @@ class Container
 	 * implements ArrayAccess interface (PHP 5)
 	 *
 	 * @param mixed $container
+	 *        	The container
 	 */
 	public static function isArray($container)
 	{
@@ -284,6 +286,7 @@ class Container
 	 * Remove an entry from the given container
 	 *
 	 * @param mixed $container
+	 *        	The container
 	 * @param mixed $key
 	 *        	Entry key to remove
 	 * @throws InvalidContainerException
@@ -361,6 +364,7 @@ class Container
 	 * Transform any type to a plain PHP array
 	 *
 	 * @param mixed $anything
+	 *        	The container
 	 * @param number $singleElementKey
 	 *        	Key used to create a single element array when is not something that could be
 	 *        	converted to an array
@@ -567,6 +571,7 @@ class Container
 	 * or rewind an Iterator
 	 *
 	 * @param array|\ArrayAccess $container
+	 *        	The container
 	 * @throws InvalidContainerException
 	 */
 	public static function reset(&$container)
@@ -587,6 +592,7 @@ class Container
 	 * Indicates if a key exists in an array or a ArrayAccess implementation
 	 *
 	 * @param array|\ArrayAccess|\Traversable $container
+	 *        	The container
 	 * @param mixed $key
 	 *        	Key to test
 	 * @throws InvalidContainerException
@@ -623,6 +629,7 @@ class Container
 	 * Indicates if the given value appears in the container elements
 	 *
 	 * @param array|\ArrayAccess|\Traversable $container
+	 *        	The container
 	 * @param mixed $value
 	 *        	Value to check in $container
 	 * @param boolean $strict
@@ -668,6 +675,7 @@ class Container
 	 * Get the first key and value of the given container.
 	 *
 	 * @param mixed $container
+	 *        	The container
 	 * @throws InvalidContainerException
 	 * @return array Array of two elements containing the first key and value of the given
 	 *         container. If the container is empty, both return values will be NULL.
@@ -711,6 +719,7 @@ class Container
 	 * Get the first key of the given container
 	 *
 	 * @param mixed $container
+	 *        	The container
 	 * @param mixed $key
 	 *        	Value to return if $container is empty
 	 * @return mixed
@@ -728,6 +737,7 @@ class Container
 	 * Get the first value of the container.
 	 *
 	 * @param mixed $container
+	 *        	The container
 	 * @param mixed $dflt
 	 *        	Value to return if $container is empty
 	 * @return mixed
@@ -807,6 +817,7 @@ class Container
 	 * Get the last key of the given container
 	 *
 	 * @param mixed $container
+	 *        	The container
 	 * @param mixed $key
 	 *        	Value to return if $container is empty
 	 * @return mixed
@@ -825,6 +836,7 @@ class Container
 	 * Get the last value of the container.
 	 *
 	 * @param mixed $container
+	 *        	The container
 	 * @param mixed $dflt
 	 *        	Value to return if $container is empty
 	 * @return mixed
@@ -842,8 +854,11 @@ class Container
 	 * Retrieve key value or a default value if key doesn't exists
 	 *
 	 * @param array $container
-	 * @param mixed $key
+	 *        	The container
+	 * @param integer|string $key
+	 *        	Container index or key
 	 * @param mixed $defaultValue
+	 *        	Value to return if $key does not exists in container.
 	 *
 	 * @throws InvalidContainerException
 	 *
@@ -908,6 +923,7 @@ class Container
 	/**
 	 *
 	 * @param array $container
+	 *        	The container
 	 * @param array|string|integer $keyTree
 	 *        	Container key or key path
 	 * @param mixed $defaultValue
@@ -940,8 +956,11 @@ class Container
 	/**
 	 *
 	 * @param array|\ArrayAccess|\Traversable $container
+	 *        	The container
 	 * @param mixed $key
+	 *        	Container index or key
 	 * @param mixed $value
+	 *        	Value to set.
 	 *
 	 * @throws \InvalidArgumentException
 	 * @throws InvalidContainerException
@@ -977,6 +996,130 @@ class Container
 		{
 			$container->offsetSet($key, $value);
 			return;
+		}
+
+		if ($exception)
+			throw $exception;
+		if ($validContainer)
+			return;
+		throw new InvalidContainerException($container);
+	}
+
+	/**
+	 * Add a value at the end of the container value list.
+	 *
+	 * @param array|ArrayAccess|object $container
+	 *        	The container
+	 * @param mixed $value
+	 *        	Value to append to the end of the container value list.
+	 * @throws InvalidContainerException
+	 * @throws \Exception
+	 */
+	public static function appendValue(&$container, $value)
+	{
+		if (\is_array($container))
+		{
+			$container[] = $value;
+			return;
+		}
+
+		if (!\is_object($container))
+			throw new InvalidContainerException($container);
+
+		$validContainer = false;
+		$exception = null;
+
+		if (\method_exists($container, 'append'))
+		{
+			$validContainer = true;
+			try
+			{
+				\call_user_func([
+					$container,
+					'append'
+				], $value);
+				return;
+			}
+			catch (\Exception $e)
+			{
+				$exception = $e;
+			}
+		}
+
+		if ($container instanceof \ArrayAccess)
+		{
+			$validContainer = true;
+			try
+			{
+				$container[] = $value;
+				return;
+			}
+			catch (\Exception $e)
+			{
+				$exception = $e;
+			}
+		}
+
+		if ($exception)
+			throw $exception;
+		throw new InvalidContainerException($container);
+	}
+
+	/**
+	 * Add a value at the beginning of the container value list.
+	 *
+	 * @param array|\ArrayObject|object $container
+	 *        	The container
+	 * @param mixed $value
+	 *        	Value to add at the beginning of the container value list.
+	 * @throws InvalidContainerException
+	 * @throws \Exception
+	 */
+	public static function prependValue(&$container, $value)
+	{
+		if (\is_array($container))
+		{
+			\array_unshift($container, $value);
+			return;
+		}
+
+		if (!\is_object($container))
+			throw new InvalidContainerException($container);
+
+		$validContainer = false;
+		$exception = null;
+
+		if (\method_exists($container, 'prepend'))
+		{
+			$validContainer = true;
+			try
+			{
+				\call_user_func([
+					$container,
+					'prepend'
+				], $value);
+				return;
+			}
+			catch (\Exception $e)
+			{
+				$exception = $e;
+			}
+		}
+
+		if ($container instanceof \ArrayObject)
+		{
+			$validContainer = true;
+			try
+			{
+				$a = $container->getArrayCopy();
+				\array_unshift($a, $value);
+				$container->exchangeArray($a);
+				return;
+			}
+			catch (\Exception $e)
+			{
+				$exception = $e;
+			}
 		}
 
 		if ($exception)
@@ -1124,7 +1267,10 @@ class Container
 	 * @param string $glue
 	 *        	Glue
 	 * @param callable $callable
+	 *        	Function to apply to all entries. Function receive key and value as first
+	 *        	arguments.
 	 * @param string $callableArguments
+	 *        	Additional arguments passed to $callable
 	 *
 	 * @return string
 	 */
@@ -1163,6 +1309,7 @@ class Container
 	/**
 	 *
 	 * @param array|\Traversable $container
+	 *        	The container
 	 * @param callable $callable
 	 *        	Filter callable invoked for each element o.f $container.
 	 *        	The prototype must be function ($key, $value) : boolean
@@ -1359,7 +1506,9 @@ class Container
 	 * Sort array values and maintain index association
 	 *
 	 * @param array|\ArrayObject $container
+	 *        	The container
 	 * @param integer $flags
+	 *        	asort function flags
 	 * @throws InvalidContainerException
 	 * @return boolean
 	 *
@@ -1378,7 +1527,9 @@ class Container
 	 * Sort an array by keys
 	 *
 	 * @param array|\ArrayObject $container
+	 *        	The container
 	 * @param integer $flags
+	 *        	ksort flags
 	 * @throws InvalidContainerException
 	 * @return boolean
 	 *
@@ -1397,6 +1548,7 @@ class Container
 	 * Sort an array using a "natural order" algorithm
 	 *
 	 * @param array|\ArrayObject $container
+	 *        	The container
 	 * @throws InvalidContainerException
 	 * @return boolean
 	 *
@@ -1415,6 +1567,7 @@ class Container
 	 * Sort an array using a case insensitive "natural order" algorithm
 	 *
 	 * @param array|\ArrayObject $container
+	 *        	The container
 	 * @throws InvalidContainerException
 	 * @return boolean
 	 *
@@ -1433,7 +1586,9 @@ class Container
 	 * Sort an array with a user-defined comparison function and maintain index associatio
 	 *
 	 * @param array|\ArrayObject $container
+	 *        	The container
 	 * @param callable $callable
+	 *        	Sort function
 	 *        	Value comparison function
 	 * @throws InvalidContainerException
 	 * @return boolean
@@ -1453,7 +1608,9 @@ class Container
 	 * Sort an array by keys using a user-defined comparison function
 	 *
 	 * @param array|\ArrayObject $container
+	 *        	The container
 	 * @param callable $callable
+	 *        	Sort function
 	 *        	Key comparison function
 	 * @throws InvalidContainerException
 	 * @return boolean
