@@ -362,6 +362,15 @@ final class ContainerTest extends \PHPUnit\Framework\TestCase
 					Container::RANDOM_ACCESS
 				]
 			],
+			'IteratorAggregate' => [
+				'container' => new TraversableImpl([
+					'foo',
+					'bar'
+				]),
+				'expected' => [
+					Container::TRAVERSABLE
+				]
+			],
 			'MetaVariable object' => [
 				'container' => new MetaVariable(),
 				'expected' => [

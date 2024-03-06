@@ -155,17 +155,22 @@ class Container
 			$container instanceof ContainerPropertyInterface)
 			return $container->getContainerProperties();
 
-		$properties = 0;
 		if (\is_array($container))
-			$properties |= self::TRAVERSABLE | self::EXTENDABLE |
+			return self::TRAVERSABLE | self::EXTENDABLE |
 				self::SHRINKABLE | self::COUNTABLE | self::OFFSET_ACCESS;
+
+		$properties = 0;
+
 		if ($container instanceof \ArrayAccess)
 			$properties |= self::EXTENDABLE | self::SHRINKABLE |
 				self::OFFSET_ACCESS;
+
 		if ($container instanceof ContainerInterface)
 			$properties |= self::RANDOM_ACCESS;
+
 		if ($container instanceof \Traversable)
 			$properties |= self::TRAVERSABLE;
+
 		if ($container instanceof \Countable)
 			$properties |= self::COUNTABLE;
 
