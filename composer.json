@@ -30,7 +30,8 @@
 	}, 
 	"suggest": {
 		"ext-yaml": "Needed to load DataTree content from YAML encoded file", 
-		"ext-calendar": "Needed to test DateTime::toJulianDay against PHP calendar functions"
+		"ext-calendar": "Needed to test DateTime::toJulianDay against PHP calendar functions", 
+		"ext-mbstring": "For unicode support in text tokenification"
 	}, 
 	"scripts": {
 		"test": "@php  ./vendor/bin/phpunit --color=never --strict-coverage --bootstrap vendor/autoload.php tests"
