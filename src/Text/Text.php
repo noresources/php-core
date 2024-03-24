@@ -335,6 +335,26 @@ class Text
 			]);
 	}
 
+	/**
+	 * Transform to to "A Ttile Case"
+	 *
+	 * @param string $text
+	 *        	Text to transform
+	 * @param $capitalizationOptions Additional
+	 *        	apitalization options.
+	 * @return string Transformed text
+	 */
+	public static function toTitleCase($text, $capitalizationOptions = 0)
+	{
+		$capitalizationOptions &= self::CODE_CASE_PRESERVE_CAPITAL_WORDS;
+		return self::toCodeCase($text,
+			[
+				self::CODE_CASE_SEPARATOR => ' ',
+				self::CODE_CASE_CAPITALIZE => ($capitalizationOptions |
+				self::CODE_CASE_CAPITALIZE_INITIALS)
+			]);
+	}
+
 	public static function toTrainCase($text, $capitalizationOptions = 0)
 	{
 		$capitalizationOptions &= self::CODE_CASE_PRESERVE_CAPITAL_WORDS;

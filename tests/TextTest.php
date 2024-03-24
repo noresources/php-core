@@ -124,6 +124,7 @@ final class TextTest extends \PHPUnit\Framework\TestCase
 				'Macro' => 'HELLO_WORLD',
 				'Pascal' => 'HelloWorld',
 				'Snake' => 'hello_world',
+				'Title' => 'Hello World',
 				'Train' => 'hello_World'
 			],
 			'helloWorld' => [
@@ -142,6 +143,7 @@ final class TextTest extends \PHPUnit\Framework\TestCase
 				'Macro' => 'HELLO_WORLD',
 				'Pascal' => 'HelloWorld',
 				'Snake' => 'hello_world',
+				'Title' => 'Hello World',
 				'Train' => 'hello_World'
 			],
 			'M_id' => [
@@ -151,6 +153,7 @@ final class TextTest extends \PHPUnit\Framework\TestCase
 				'Macro' => 'M_ID',
 				'Pascal' => 'MId',
 				'Snake' => 'm_id',
+				'Title' => 'M Id',
 				'Train' => 'm_Id'
 			],
 			'PascalThePhilosopher' => [
@@ -160,6 +163,7 @@ final class TextTest extends \PHPUnit\Framework\TestCase
 				'Macro' => 'PASCAL_THE_PHILOSOPHER',
 				'Pascal' => 'PascalThePhilosopher',
 				'Snake' => 'pascal_the_philosopher',
+				'Title' => 'Pascal The Philosopher',
 				'Train' => 'pascal_The_Philosopher'
 			],
 			'ACME' => [
@@ -169,6 +173,7 @@ final class TextTest extends \PHPUnit\Framework\TestCase
 				'Macro' => 'ACME',
 				'Pascal' => 'Acme',
 				'Snake' => 'acme',
+				'Title' => 'Acme',
 				'Train' => 'acme'
 			],
 			'UBER ACME' => [
@@ -187,6 +192,10 @@ final class TextTest extends \PHPUnit\Framework\TestCase
 					Text::CODE_CASE_PRESERVE_CAPITAL_WORDS => 'UBERACME'
 				],
 				'Snake' => 'uber_acme',
+				'Title' => [
+					0 => 'Uber Acme',
+					Text::CODE_CASE_PRESERVE_CAPITAL_WORDS => 'UBER ACME'
+				],
 				'Train' => [
 					0 => 'uber_Acme',
 					Text::CODE_CASE_PRESERVE_CAPITAL_WORDS => 'uber_ACME'
