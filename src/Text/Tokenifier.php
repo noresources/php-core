@@ -15,7 +15,18 @@ class Tokenifier
 {
 
 	/**
-	 * White space character list
+	 * Escape character.
+	 *
+	 * A character that indicates the next character has no particular meaning.
+	 *
+	 * @var string
+	 */
+	public $escape = '\\';
+
+	/**
+	 * White space character list.
+	 *
+	 * An unescaped space mark the end of the current token. Any following spae is ignored.
 	 *
 	 * @var string[]
 	 */
@@ -27,11 +38,14 @@ class Tokenifier
 	];
 
 	/**
-	 * List of additional escapable characters
+	 * List of additional escapable characters.
+	 *
+	 * A list of characters that can be escaped using the escape character
+	 * in addition to spaces, escape character and quoting pairs.
 	 *
 	 * @var string[]
 	 */
-	public $escapable = [];
+	public $escapables = [];
 
 	/**
 	 * Add new quoting pair
@@ -180,7 +194,7 @@ class Tokenifier
 		if (!empty($this->escape))
 			$list[] = $this->escape;
 		return \array_unique(
-			\array_merge($list, $this->escapable, $this->whitespaces));
+			\array_merge($list, $this->escapables, $this->whitespaces));
 	}
 
 	protected function findStartingQuute(&$offset, $character)
@@ -197,8 +211,6 @@ class Tokenifier
 		}
 		return false;
 	}
-
-	private $escape = '\\';
 
 	/**
 	 * Quoting pairs
