@@ -22,20 +22,22 @@ trait SingletonTrait
 	 */
 	public static function getInstance()
 	{
-		if (!isset(self::$singletonInstance))
+		if (!isset(self::$singletonInstances))
+			self::$singletonInstances = [];
+		if (!isset(self::$singletonInstances[static::class]))
 		{
-			$cls = new \ReflectionClass(static::class);
-			self::$singletonInstance = $cls->newInstanceArgs(
+			$reflectionClass = new \ReflectionClass(static::class);
+			self::$singletonInstances[static::class] = $reflectionClass->newInstanceArgs(
 				func_get_args());
 		}
 
-		return self::$singletonInstance;
+		return self::$singletonInstances[static::class];
 	}
 
 	/**
-	 * The class singleton instance
+	 * Per class type instance
 	 *
-	 * @var object
+	 * @var object[]
 	 */
-	private static $singletonInstance;
+	private static $singletonInstances;
 }

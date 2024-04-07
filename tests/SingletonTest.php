@@ -14,12 +14,18 @@ class SingletonTestImplementation
 
 	public $firstCallArgument;
 
+	public $name;
+
 	public function __construct($argument = null)
 	{
 		$this->firstCallArgument = $argument;
 	}
 
 	use SingletonTrait;
+}
+
+class DerivedSingletonTestImplementation extends SingletonTestImplementation
+{
 }
 
 final class SingletonTest extends \PHPUnit\Framework\TestCase
@@ -34,5 +40,17 @@ final class SingletonTest extends \PHPUnit\Framework\TestCase
 
 		$instance = SingletonTestImplementation::getInstance('Baaar');
 		$this->assertEquals('Fooo', $instance->firstCallArgument);
+	}
+
+	final function testDerived()
+	{
+		$parent = SingletonTestImplementation::getInstance();
+		$derived = DerivedSingletonTestImplementation::getInstance();
+		$this->assertNotEquals($parent, $derived,
+			'Singleton of derived is a different instance');
+		$parent->name = 'parent';
+		$derived->name = 'Derived';
+		$this->assertNotEquals($parent->name, $derived->name,
+			'Name property');
 	}
 }
