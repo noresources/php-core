@@ -18,40 +18,136 @@ class TypeConversion
 {
 
 	/**
+	 * Conversion fallback value or function.
 	 *
+	 * if fallback is callable, it will be invoked with the
+	 * following arguments
+	 * 1. mixed $value - The target value
+	 * 2. mixed $options - Conversion options
+	 *
+	 * @var string
+	 */
+	const OPTION_FALLBACK = 'fallback';
+
+	/**
+	 * Option flags
+	 *
+	 * @var string
+	 */
+	const OPTION_FLAGS = 'flags';
+
+	/**
+	 * Attempt to find and invoke the Class::createFrom<Type> factory function
+	 *
+	 * @var number
+	 */
+	const OPTION_FLAG_OBJECT_FACTORY = 0x01;
+
+	/**
+	 * Attempt to construct object by value
+	 *
+	 * @var number
+	 */
+	const OPTION_FLAG_OBJECT_CONSTRUCTOR = 0x02;
+
+	/**
+	 * Time zone option (for toDateTime)
+	 *
+	 * @var string
+	 */
+	const OPTION_TIMEZONE = 'timezone';
+
+	/**
+	 * Target type name.
+	 * Automatically passed to fallback function
+	 */
+	const OPTION_TYPE = 'type';
+
+	/**
+	 *
+	 * @param string $type
+	 *        	Target type name
 	 * @param mixed $value
 	 *        	Value to convert
-	 * @param string $type
-	 *        	Target type.
-	 * @param callable $fallback
-	 *        	A cacallback to invoke if the method is nuable to convert the value e
+	 * @param array $options
+	 *        	Conversion options
+	 * @throws TypeConversionException
 	 * @throws \BadMethodCallException
+	 * @return $type Value of type $type
 	 */
-	public static function to($value, $type, $fallback)
+	public static function to($type, $value, $options = array())
 	{
+		$valueType = TypeDescription::getLocalName($value);
+		if ($valueType == $type)
+			return $value;
+
 		$methodName = 'to' . $type;
 		if (\method_exists(self::class, $methodName))
 			return call_user_func([
 				self::class,
 				$methodName
-			], $value, $fallback);
+			], $value,
+				\array_merge($options, [
+					self::OPTION_TYPE => $type
+				]));
 
-		throw new \BadMethodCallException(
-			'Mo method to convert to ' . $type . ' (' . $methodName .
-			' not found)');
+		if (\class_exists($type))
+		{
+			$flags = Container::keyValue($options, self::OPTION_FLAGS, 0);
+
+			if (($flags & self::OPTION_FLAG_OBJECT_FACTORY) ==
+				self::OPTION_FLAG_OBJECT_FACTORY)
+			{
+				$method = 'createFrom' . $valueType;
+				if (\method_exists($type, $method))
+				{
+					try
+					{
+						return \call_user_func([
+							$type,
+							$method
+						], $value);
+					}
+					catch (\Exception $e)
+					{
+						throw new TypeConversionException($value,
+							$type . '::' . $method);
+					}
+				}
+			}
+
+			if (($flags & self::OPTION_FLAG_OBJECT_CONSTRUCTOR) ==
+				self::OPTION_FLAG_OBJECT_CONSTRUCTOR)
+			{
+				try
+				{
+					return new $type($value);
+				}
+				catch (\Exception $e)
+				{
+					throw new TypeConversionException($value,
+						$type . '::__construct()');
+				}
+			}
+		}
+
+		return self::fallbackOrThrowException($value,
+			\array_merge($options, [
+				self::OPTION_TYPE => $type
+			]));
 	}
 
 	/**
-	 * Convert value to POD array
+	 * Convert value to array
 	 *
 	 * @param mixed $value
 	 *        	Value to convert
-	 * @param callable $fallback
-	 *        	A cacallback to invoke if the method is nuable to convert the value e
+	 * @param array $options
+	 *        	Conversion options
 	 * @throws TypeConversionException
 	 * @return array
 	 */
-	public static function toArray($value, $fallback = null)
+	public static function toArray($value, $options = array())
 	{
 		try
 		{
@@ -65,34 +161,25 @@ class TypeConversion
 		if (\is_array($v))
 			return $v;
 
-		if (\is_callable($fallback))
-			return call_user_func($fallback, $value);
-
-		throw new TypeConversionException($value, __METHOD__);
+		return self::fallbackOrThrowException($value,
+			\array_merge($options, [
+				self::OPTION_TYPE => 'array'
+			]));
 	}
 
 	/**
-	 * Convert value to DateTime
 	 *
 	 * @param mixed $value
 	 *        	Value to convert
-	 * @param \DateTimeZone $timezone
-	 *        	Time zone of constructed DateTime.
-	 * @param callable $fallback
-	 *        	A cacallback to invoke if the method is nuable to convert the value e
+	 * @param array $options
+	 *        	Conversion options
 	 * @throws TypeConversionException
-	 * @return \DateTimeInterface A DateTime with the given time zone.
+	 * @return \DateTimeInterface
 	 */
-	public static function toDateTime($value, $timezone = null,
-		$fallback = null)
+	public static function toDateTime($value, $options = array())
 	{
-		// Backward compatibility
-		if (\is_callable($timezone) && !\is_callable($fallback))
-		{
-			$fallback = $timezone;
-			$timezone = null;
-		}
-
+		$timezone = Container::keyValue($options, self::OPTION_TIMEZONE,
+			null);
 		if ($timezone && !($timezone instanceof \DateTimeZone))
 			$timezone = new \DateTimeZone($timezone);
 
@@ -139,10 +226,11 @@ class TypeConversion
 			return $d;
 		}
 
-		if (\is_callable($fallback))
-			return \call_user_func($fallback, $value, $timezone);
-
-		throw new TypeConversionException($value, __METHOD__, $message);
+		return self::fallbackOrThrowException($value,
+			\array_merge($options,
+				[
+					self::OPTION_TYPE => \DateTime::class
+				]));
 	}
 
 	/**
@@ -150,12 +238,12 @@ class TypeConversion
 	 *
 	 * @param mixed $value
 	 *        	Value to convert
-	 * @param callable $fallback
-	 *        	A cacallback to invoke if the method is nuable to convert the value e
+	 * @param array $options
+	 *        	Conversion options
 	 * @throws TypeConversionException
 	 * @return integer
 	 */
-	public static function toInteger($value, $fallback = null)
+	public static function toInteger($value, $options = array())
 	{
 		if ($value instanceof IntegerRepresentation)
 			return $value->getIntegerValue();
@@ -177,10 +265,10 @@ class TypeConversion
 				return $i;
 		}
 
-		if (\is_callable($fallback))
-			return call_user_func($fallback, $value);
-
-		throw new TypeConversionException($value, __METHOD__);
+		return self::fallbackOrThrowException($value,
+			\array_merge($options, [
+				self::OPTION_TYPE => 'integer'
+			]));
 	}
 
 	/**
@@ -188,12 +276,12 @@ class TypeConversion
 	 *
 	 * @param mixed $value
 	 *        	Value to convert
-	 * @param callable $fallback
-	 *        	A cacallback to invoke if the method is nuable to convert the value e
+	 * @param array $options
+	 *        	Conversion options
 	 * @throws TypeConversionException
 	 * @return float
 	 */
-	public static function toFloat($value, $fallback = null)
+	public static function toFloat($value, $options = array())
 	{
 		if ($value instanceof FloatRepresentation)
 			return $value->getFloatValue();
@@ -216,25 +304,24 @@ class TypeConversion
 				return $f;
 		}
 
-		if (\is_callable($fallback))
-			return call_user_func($fallback, $value);
-
-		throw new TypeConversionException($value, __METHOD__);
+		return self::fallbackOrThrowException($value,
+			\array_merge($options,
+				[
+					TypeConversion::OPTION_TYPE => 'float'
+				]));
 	}
 
 	/**
 	 * Convert value to string
 	 *
 	 * @param mixed $value
-	 *        	Value to convert to string
-	 * @param callable $fallback
-	 *        	This callable will be invoked if there is no straigntforward conversion.
-	 *        	The callable must accept one argument (the value) and return a string or
-	 *        	FALSE if it is unable to convert the value to string.
+	 *        	Value to convert
+	 * @param array $options
+	 *        	Conversion options
 	 * @throws TypeConversionException
 	 * @return string
 	 */
-	public static function toString($value, $fallback = null)
+	public static function toString($value, $options = array())
 	{
 		if (\is_string($value))
 			return $value;
@@ -257,28 +344,30 @@ class TypeConversion
 				\function_exists('\json_encode'))
 				return \json_encode($value->jsonSerialize());
 
-			if (\is_callable($fallback))
-				return \call_user_func($fallback, $value);
-			throw new TypeConversionException($value, __METHOD__);
+			return self::fallbackOrThrowException($value,
+				\array_merge($options,
+					[
+						TypeConversion::OPTION_TYPE => 'string'
+					]));
 		}
 		elseif (\is_array($value))
 		{
-			if (\is_callable($fallback))
-				return \call_user_func($fallback, $value);
-			throw new TypeConversionException($value, __METHOD__);
+			return self::fallbackOrThrowException($value,
+				\array_merge($options,
+					[
+						TypeConversion::OPTION_TYPE => 'string'
+					]));
 		}
 
 		$s = @\strval($value);
 		if ($s !== false)
 			return $s;
 
-		if (\is_callable($fallback))
-			$s = \call_user_func($fallback, $value);
-
-		if ($s !== false)
-			return $s;
-
-		throw new TypeConversionException($value, __METHOD__);
+		return self::fallbackOrThrowException($value,
+			\array_merge($options,
+				[
+					TypeConversion::OPTION_TYPE => 'string'
+				]));
 	}
 
 	/**
@@ -286,24 +375,62 @@ class TypeConversion
 	 *
 	 * @param mixed $value
 	 *        	Value to convert
+	 * @param array $options
+	 *        	Conversion options
+	 * @throws TypeConversionException
 	 * @return boolean
 	 */
-	public static function toBoolean($value)
+	public static function toBoolean($value, $options = array())
 	{
 		if ($value instanceof BooleanRepresentation)
 			return $value->getBooleanValue();
-		return @boolval($value);
+		$v = @boolval($value);
+		if (\is_bool($v))
+			return $v;
+		return self::fallbackOrThrowException($value,
+			\array_merge($options,
+				[
+					TypeConversion::OPTION_TYPE => 'boolean'
+				]));
 	}
 
 	/**
 	 * Convert any value to NULL
 	 *
+	 * This method is defined for implementation details purpose.
+	 *
 	 * @param mixed $value
-	 *        	Value to convert
+	 *        	Value to convert (ununsed)
+	 * @param $options Conversion
+	 *        	options.
 	 * @return NULL, obviously...
 	 */
-	private static function toNull($value)
+	private static function toNull($value, $options = array())
 	{
 		return null;
+	}
+
+	/**
+	 *
+	 * @param mixed $value
+	 *        	Value to convert
+	 * @param array $options
+	 *        	Conversion array
+	 * @throws TypeConversionException
+	 * @return mixed
+	 */
+	private static function fallbackOrThrowException($value, $options)
+	{
+		$type = $options[self::OPTION_TYPE];
+		if (!Container::keyExists($options, self::OPTION_FALLBACK))
+			throw new TypeConversionException($value, $type,
+				'No fallback strategy defined.');
+
+		$fallback = $options[self::OPTION_FALLBACK];
+		unset($options[self::OPTION_FALLBACK]);
+
+		if (\is_callable($fallback))
+			return \call_user_func($fallback, $value, $options);
+		return $fallback;
 	}
 }

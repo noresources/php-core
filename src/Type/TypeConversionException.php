@@ -23,16 +23,18 @@ class TypeConversionException extends \Exception
 	 *
 	 * @param mixed $value
 	 *        	Value was not converted
-	 * @param string $method
+	 * @param string $methodNameOrType
 	 *        	Failing method name
 	 * @param string $message
 	 *        	Failure description
 	 */
-	public function __construct($value, $method, $message = null)
+	public function __construct($value, $methodNameOrType,
+		$message = null)
 	{
 		parent::__construct(
 			'Failed to convert ' . TypeDescription::getName($value) .
-			' to ' . preg_replace(',.*::to(.*),', '\1', $method) .
+			' to ' .
+			preg_replace(',.*::to(.*),', '\1', $methodNameOrType) .
 			($message ? (' : ' . $message) : ''));
 
 		$this->value = $value;

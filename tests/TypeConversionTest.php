@@ -11,6 +11,7 @@ use NoreSources\DateTime;
 use NoreSources\Container\Container;
 use NoreSources\Container\DataTree;
 use NoreSources\Type\TypeConversion;
+use NoreSources\Type\TypeConversionException;
 use NoreSources\Type\TypeDescription;
 
 class TypeConversionTestClassWithoutToString
@@ -19,8 +20,74 @@ class TypeConversionTestClassWithoutToString
 	public $value = 5;
 }
 
+class TypeConversionTestInteger
+{
+
+	/**
+	 *
+	 * @var integer
+	 */
+	public $value = 0;
+
+	public static function createFromInteger($value)
+	{
+		$o = new TypeConversionTestInteger();
+		$o->value = $value;
+		return $o;
+	}
+}
+
 final class TypeConversionTest extends \PHPUnit\Framework\TestCase
 {
+
+	public function testToObject()
+	{
+		$tests = [
+			'From integer to object' => [
+				'value' => 42,
+				'type' => TypeConversionTestInteger::class,
+				'flags' => (TypeConversion::OPTION_FLAG_OBJECT_CONSTRUCTOR |
+				TypeConversion::OPTION_FLAG_OBJECT_FACTORY)
+			],
+			'From float to object' => [
+				'value' => 3.14159,
+				'type' => TypeConversionTestInteger::class,
+				'flags' => (TypeConversion::OPTION_FLAG_OBJECT_CONSTRUCTOR |
+				TypeConversion::OPTION_FLAG_OBJECT_FACTORY),
+				'expected' => 0
+			],
+			'From float to object (no constructor)' => [
+				'value' => 3.14159,
+				'type' => TypeConversionTestInteger::class,
+				'flags' => (TypeConversion::OPTION_FLAG_OBJECT_FACTORY),
+				'expected' => TypeConversionException::class
+			]
+		];
+
+		foreach ($tests as $label => $test)
+		{
+			$value = $test['value'];
+			$type = $test['type'];
+			$flags = Container::keyValue($test, 'flags', 0);
+			$expected = Container::keyValue($test, 'expected', $value);
+			$actual = null;
+			try
+			{
+				$actual = TypeConversion::to($type, $value,
+					[
+						TypeConversion::OPTION_FLAGS => $flags
+					]);
+
+				$actual = $actual->value;
+			}
+			catch (\Exception $e)
+			{
+				$actual = \get_class($e);
+			}
+
+			$this->assertEquals($expected, $actual, $label);
+		}
+	}
 
 	public function testInvalidArray()
 	{
@@ -32,9 +99,11 @@ final class TypeConversionTest extends \PHPUnit\Framework\TestCase
 		foreach ($input as $value)
 		{
 			$dt = TypeConversion::toArray($value,
-				function ($value) {
-					return 'fallback';
-				});
+				[
+					TypeConversion::OPTION_FALLBACK => function ($value) {
+						return 'fallback';
+					}
+				]);
 			$this->assertEquals('fallback', $dt,
 				var_export($value, true));
 		}
@@ -55,9 +124,11 @@ final class TypeConversionTest extends \PHPUnit\Framework\TestCase
 		foreach ($input as $value)
 		{
 			$actual = TypeConversion::toInteger($value,
-				function ($value) {
-					return 'fallback';
-				});
+				[
+					TypeConversion::OPTION_FALLBACK => function ($value) {
+						return 'fallback';
+					}
+				]);
 			$this->assertEquals('fallback', $actual,
 				var_export($value, true));
 		}
@@ -98,9 +169,11 @@ final class TypeConversionTest extends \PHPUnit\Framework\TestCase
 		foreach ($input as $value)
 		{
 			$actual = TypeConversion::toString($value,
-				function ($value) {
-					return 'fallback';
-				});
+				[
+					TypeConversion::OPTION_FALLBACK => function ($value) {
+						return 'fallback';
+					}
+				]);
 			$this->assertEquals('fallback', $actual,
 				var_export($value, true));
 		}
@@ -146,9 +219,12 @@ final class TypeConversionTest extends \PHPUnit\Framework\TestCase
 			try
 			{
 				$dt = TypeConversion::toDateTime($value,
-					function ($value) {
-						return 'fallback';
-					});
+					[
+						TypeCOnversion::OPTION_FALLBACK => function (
+							$value) {
+							return 'fallback';
+						}
+					]);
 			}
 			catch (\Exception $e)
 			{
@@ -204,7 +280,9 @@ final class TypeConversionTest extends \PHPUnit\Framework\TestCase
 		{
 			$value = $test['value'];
 			$actual = TypeConversion::toDateTime($value,
-				DateTime::getUTCTimezone());
+				[
+					TypeConversion::OPTION_TIMEZONE => DateTime::getUTCTimezone()
+				]);
 
 			if (($expected = Container::keyValue($test, 'expected')))
 			{
@@ -248,7 +326,10 @@ final class TypeConversionTest extends \PHPUnit\Framework\TestCase
 		{
 			$input = Container::keyValue($test, 'input');
 			$timezone = Container::keyValue($test, 'timezone', $system);
-			$value = TypeConversion::toDateTime($input, $timezone);
+			$value = TypeConversion::toDateTime($input,
+				[
+					TypeConversion::OPTION_TIMEZONE => $timezone
+				]);
 
 			if (($expected = Container::keyValue($test, 'expected')))
 			{
@@ -345,13 +426,19 @@ final class TypeConversionTest extends \PHPUnit\Framework\TestCase
 		{
 			$value = Container::keyValue($test, 0);
 			$type = Container::keyValue($test, 1);
+			$flags = Container::keyValue($test, 'flags', 0);
 			$expected = Container::keyValue($test, 2);
 			$f = Container::keyValue($test, 3, null);
 			$actual = null;
 			$message = 'success';
+			$options = [
+				TypeConversion::OPTION_FLAGS => $flags
+			];
+			if ($f !== null)
+				$options[TypeConversion::OPTION_FALLBACK] = $f;
 			try
 			{
-				$actual = TypeConversion::to($value, $type, $f);
+				$actual = TypeConversion::to($type, $value, $options);
 			}
 			catch (\Exception $e)
 			{
