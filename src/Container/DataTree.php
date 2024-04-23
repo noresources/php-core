@@ -318,19 +318,31 @@ class DataTree implements \ArrayAccess, \Serializable,
 		return \json_encode($this->jsonSerialize());
 	}
 
+	#[\ReturnTypeWillChange]
+	public function __serialize()
+	{
+		return \json_encode($this->jsonSerialize());
+	}
+
 	/**
 	 * Load element table from JSON
 	 *
 	 * @param string $serialized
 	 *        	A JSON string
 	 */
-	public function unserialize($serialized)
+	#[\ReturnTypeWillChange]
+	public function __unserialize($serialized)
 	{
 		$this->elements->exchangeArray(
 			StructuredText::parseText($serialized,
 				StructuredText::FORMAT_JSON));
 
 		$this->setContent($data, self::REPLACE);
+	}
+
+	public function unserialize($serialized)
+	{
+		$this->__unserialize($serialized);
 	}
 
 	/**

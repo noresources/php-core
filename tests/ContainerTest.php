@@ -1489,6 +1489,22 @@ final class ContainerTest extends \PHPUnit\Framework\TestCase
 		$this->assertEquals($expected, $actual,
 			'Default recursive merge mimics array_merge_recursive');
 	}
+
+	private $sparseIndexedReference;
+
+	private $indexedReference;
+
+	private $hashReferenceImpl;
+
+	private $hashReference;
+
+	private $hashReferenceObject;
+
+	private $indexedReferenceObject;
+
+	private $nullValue;
+
+	private $sparseIndexedReferenceObject;
 }
 
 
