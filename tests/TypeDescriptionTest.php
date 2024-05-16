@@ -154,12 +154,64 @@ final class TypeDescriptionTest extends \PHPUnit\Framework\TestCase
 
 		foreach ($tests as $label => $test)
 		{
-			$this->assertEquals($test[1],
-				TypeDescription::hasStringRepresentation($test[0], true),
+			$element = $test[0];
+			$expected = $test[1];
+			$actual = TypeDescription::hasStringRepresentation($element,
+				true);
+			$this->assertEquals($expected, $actual,
 				$label . ' strict conversion');
-			$this->assertEquals($test[2],
-				TypeDescription::hasStringRepresentation($test[0], false),
+
+			$actual = TypeDescription::hasRepresentation('string',
+				$element);
+			$this->assertEquals($expected, $actual,
+				$label . ' - hasRepresentation("string", ... )');
+
+			$expected = $test[2];
+			$this->assertEquals($expected,
+				TypeDescription::hasStringRepresentation($element, false),
 				$label . ' non strict conversion');
 		}
+	}
+
+	public function testHasRepresentation()
+	{
+		$className = \NoreSources\DateTime::class;
+		$object = new $className();
+		foreach ([
+			'array' => true,
+			'boolean' => false,
+			'integer' => true,
+			'float' => true,
+			'string' => true
+		] as $typeName => $expected)
+		{
+			$label = $className . ' object ' .
+				($expected ? ' has ' : ' does not have') . $typeName .
+				' representation';
+			$actual = TypeDescription::hasRepresentation($typeName,
+				$object);
+
+			$this->assertEquals($expected, $actual, $label);
+
+			$actual = TypeDescription::hasRepresentation($typeName,
+				$className, true);
+			$label = $className . ' class ' .
+				($expected ? ' has ' : ' does not have') . $typeName .
+				' representation';
+			$this->assertEquals($expected, $actual, $label);
+		}
+	}
+
+	public function hasFactory()
+	{
+		foreach ([
+			'array',
+			'integer',
+			'string'
+		] as $typeName)
+			$this->assertTrue(
+				TypeDescription::hasFactoryFrom($typeName,
+					\NoreSources\DateTime::class),
+				$typeName . ' factory');
 	}
 }

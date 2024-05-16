@@ -368,6 +368,8 @@ class Container
 	/**
 	 * Transform any type to a plain PHP array
 	 *
+	 * @deprecated TypeConversion::toArray () should be preferred in most cases
+	 *
 	 * @param mixed $anything
 	 *        	The container
 	 * @param number $singleElementKey

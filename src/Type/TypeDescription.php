@@ -7,6 +7,8 @@
  */
 namespace NoreSources\Type;
 
+use NoreSources\Container\Container;
+
 /**
  * Universal type description utility class
  */
@@ -22,17 +24,18 @@ class TypeDescription
 
 	/**
 	 *
-	 * @param mixed $element
-	 * @return string $element Full class name or data type name
+	 * @param mixed $variable
+	 *        	Object or primitive
+	 * @return string $variable Full class name or data type name
 	 *
 	 *         This method use get_class () or gettype() depending on argument type.
 	 */
-	public static function getName($element)
+	public static function getName($variable)
 	{
-		if (\is_object($element))
-			return get_class($element);
+		if (\is_object($variable))
+			return get_class($variable);
 
-		return gettype($element);
+		return gettype($variable);
 	}
 
 	/**
@@ -41,23 +44,23 @@ class TypeDescription
 	 * This function is equivalent to ReflectionClass::getShourName() for classes
 	 * and gettype() for other data types
 	 *
-	 * @param object|string $element
-	 *        	Class instance or class name
-	 * @param boolean $elementIsClassName
+	 * @param object|string $variable
+	 *        	Object or class name
+	 * @param boolean $variableIsClassName
 	 *        	Consider the first argument as a class name
 	 *
 	 * @return Local name of class
 	 */
-	public static function getLocalName($element,
-		$elementIsClassName = false)
+	public static function getLocalName($variable,
+		$variableIsClassName = false)
 	{
 		$className = null;
-		if (\is_object($element))
-			$className = self::getName($element);
-		elseif (\is_string($element) && $elementIsClassName)
-			$className = $element;
+		if (\is_object($variable))
+			$className = self::getName($variable);
+		elseif (\is_string($variable) && $variableIsClassName)
+			$className = $variable;
 		else
-			return self::getName($element);
+			return self::getName($variable);
 
 		$p = \strrpos($className, '\\');
 		if ($p === false)
@@ -69,21 +72,21 @@ class TypeDescription
 	/**
 	 * Get the list of namespace where the class live.
 	 *
-	 * @param mixed $element
-	 *        	Class instance or class name
-	 * @param boolean $elementIsClassName
+	 * @param mixed $variable
+	 *        	Object or class name
+	 * @param boolean $variableIsClassName
 	 *        	Consider the first argument as a class name
 	 *
 	 * @return array List of namespaces
 	 */
-	public static function getNamespaces($element,
-		$elementIsClassName = false)
+	public static function getNamespaces($variable,
+		$variableIsClassName = false)
 	{
 		$className = null;
-		if (\is_object($element))
-			$className = self::getName($element);
-		elseif (\is_string($element) && $elementIsClassName)
-			$className = $element;
+		if (\is_object($variable))
+			$className = self::getName($variable);
+		elseif (\is_string($variable) && $variableIsClassName)
+			$className = $variable;
 		else
 			return [];
 
@@ -97,26 +100,26 @@ class TypeDescription
 	 *
 	 * This method is equivalent to is_subclass_of
 	 *
-	 * @param mixed $element
-	 *        	Class name or Class instance
+	 * @param mixed $variable
+	 *        	Class name or Object
 	 * @param string $parent
 	 *        	Class name
 	 *
-	 * @return boolean @true if $element is a subclass of $parent
+	 * @return boolean @true if $variable is a subclass of $parent
 	 */
-	public static function isA($element, $parent,
-		$elementIsClassName = false)
+	public static function isA($variable, $parent,
+		$variableIsClassName = false)
 	{
 		$isClassName = false;
-		if (!\is_object($element))
+		if (!\is_object($variable))
 		{
-			if (\is_string($element) && $elementIsClassName)
+			if (\is_string($variable) && $variableIsClassName)
 				$isClassName = true;
 			else
 				return false;
 		}
 
-		return \is_a($element, $parent, $isClassName);
+		return \is_a($variable, $parent, $isClassName);
 	}
 
 	/**
@@ -205,63 +208,234 @@ class TypeDescription
 	 *
 	 * This method is equivalent to is_subclass_of
 	 *
-	 * @param mixed $element
-	 *        	Class name or Class instance
+	 * @param mixed $variable
+	 *        	Class name or Object
 	 * @param string $parent
 	 *        	Class name
 	 *
-	 * @return boolean @true if $element is a subclass of $parent
+	 * @return boolean @true if $variable is a subclass of $parent
 	 */
-	public static function isSubclassOf($element, $parent,
-		$elementIsClassName = false)
+	public static function isSubclassOf($variable, $parent,
+		$variableIsClassName = false)
 	{
 		$isClassName = false;
-		if (!\is_object($element))
+		if (!\is_object($variable))
 		{
-			if (\is_string($element) && $elementIsClassName)
+			if (\is_string($variable) && $variableIsClassName)
 				$isClassName = true;
 			else
 				return false;
 		}
 
-		return \is_subclass_of($element, $parent, $isClassName);
+		return \is_subclass_of($variable, $parent, $isClassName);
+	}
+
+	/**
+	 *
+	 * @param string $typeName
+	 *        	Target type name
+	 * @param mixed $variable
+	 *        	Class name or object
+	 * @param array $options
+	 *        	Unused.
+	 * @return boolean TRUE if class has a factory function for the given input type
+	 */
+	public static function hasFactoryFrom($typeName, $variable,
+		$options = [])
+	{
+		$className = $variable;
+		if (\is_object($variable))
+			$className = \get_class($variable);
+
+		return \is_callable([
+			$className,
+			'createFrom' . $typeName
+		]);
+	}
+
+	/**
+	 * Input value is a class name (instead of object)
+	 *
+	 * @var string
+	 */
+	const REPRESENTATION_IS_CLASS_NAME = 'is-class-name';
+
+	/**
+	 * String representation.
+	 *
+	 * Expected value type: boolean
+	 *
+	 * @used-by hasStringRepresentation
+	 *
+	 * @var string
+	 */
+	const REPRESENTATION_STRICT = 'string';
+
+	/**
+	 *
+	 * @param string $typeName
+	 *        	Type name
+	 * @param mixed $variable
+	 *        	Object or primitive
+	 * @param array $options
+	 *        	Options
+	 * @return boolean TRUE if $variable has a representation or conversion to $typeName.
+	 */
+	public static function hasRepresentation($typeName, $variable,
+		$options = array())
+	{
+		$specialized = 'has' . $typeName . 'Representation';
+		$callable = [
+			static::class,
+			$specialized
+		];
+
+		if (\is_callable($callable))
+		{
+			$arguments = func_get_args();
+			\array_shift($arguments);
+			return \call_user_func_array($callable, $arguments);
+		}
+
+		if (\is_bool($options))
+			$options = [
+				self::REPRESENTATION_IS_CLASS_NAME => $options
+			];
+		$isClassName = Container::keyValue($options,
+			self::REPRESENTATION_IS_CLASS_NAME, false);
+
+		if ($isClassName)
+		{
+			if (!\class_exists($variable))
+				return false;
+		}
+		elseif (!\is_object($variable))
+			return false;
+
+		$methods = [
+			'get' . $typeName . 'Value',
+			'to' . $typeName
+		];
+
+		foreach ($methods as $name)
+			if (\method_exists($variable, $name))
+				return true;
+
+		return false;
 	}
 
 	/**
 	 * Indicates if the given variable can be converted to string using TypeConversion utility
 	 *
-	 * @param mixed $element
+	 * @param mixed $variable
 	 *        	Any type
-	 * @param boolean $strict
-	 *        	The function will return true only if $element can be converted to string using
+	 * @param array|boolean $options
+	 *        	If $options is a boolean, assumes $options = ['string' => $options].
+	 *        	If string, the function will return true only if $variable can be converted to
+	 *        	string using
 	 *        	the \strval() function. Otherwise, any type supported by TypeConversion::toString
 	 *        	() will return true
 	 * @return boolean
 	 */
-	public static function hasStringRepresentation($element,
-		$strict = true)
+	public static function hasStringRepresentation($variable,
+		$options = array())
 
 	{
+		if (\is_bool($options))
+			$options = [
+				self::REPRESENTATION_STRICT => $options
+			];
+		$strict = Container::keyValue($options,
+			self::REPRESENTATION_STRICT, true);
 		// PHP 8
-		if ($element instanceof \Stringable)
+		$isClassName = Container::keyValue($options,
+			self::REPRESENTATION_IS_CLASS_NAME, false);
+		if (\is_a($variable, \stringable::class, $isClassName))
 			return true;
 
 		if (!$strict)
 		{
-			if ($element instanceof \DateTimeInterface) // format ()
+			if ($variable instanceof \DateTimeInterface) // format ()
 				return true;
-			if ($element instanceof \DateTimeZone)
+			if ($variable instanceof \DateTimeZone)
 				return true;
-			elseif ($element instanceof \Serializable) // szerialize()
+			elseif ($variable instanceof \Serializable) // szerialize()
 				return true;
-			elseif ($element instanceof \JsonSerializable) // encode (jsonSerialize)
+			elseif ($variable instanceof \JsonSerializable) // encode (jsonSerialize)
 				return true;
 		}
 
-		if (\is_object($element))
-			return \method_exists($element, '__toString');
-		return (\is_string($element) || \is_integer($element) ||
-			\is_float($element) || \is_bool($element) ||
-			\is_null($element));
+		if (\is_object($variable) || $isClassName)
+			return \method_exists($variable, '__toString');
+
+		return (\is_string($variable) || \is_integer($variable) ||
+			\is_float($variable) || \is_bool($variable) ||
+			\is_null($variable));
+	}
+
+	/**
+	 *
+	 * @param mixed $variable
+	 *        	Object or primitive
+	 * @param array $options
+	 *        	Options
+	 * @return boolean
+	 */
+	public static function hasArrayRepresentation($variable,
+		$options = array())
+	{
+		if (\is_bool($options))
+			$options = [
+				self::REPRESENTATION_IS_CLASS_NAME => $options
+			];
+		$isClassName = Container::keyValue($options,
+			self::REPRESENTATION_IS_CLASS_NAME, false);
+
+		if (!$isClassName)
+		{
+			if ($variable instanceof ArrayRepresentation)
+				return true;
+			if (Container::isArray($variable))
+				return true;
+			if (Container::isTraversable($variable))
+				return true;
+		}
+
+		if (!($isClassName || \is_object($variable)))
+			return false;
+
+		$methods = [
+			'getArrayCopy',
+			'getArrayValue',
+			'toArray'
+		];
+
+		return self::hasTypeConversionMethods($variable, $methods,
+			$options);
+	}
+
+	private static function hasStandardTypeConversionMethods($variable,
+		$typeName, $options = [])
+	{
+		return self::hasTypeConversionMethods($variable,
+			[
+				'get' . $typeName . 'Value',
+				'to' . $typeName
+			]);
+	}
+
+	private static function hasTypeConversionMethods($variable, $methods,
+		$options = [])
+	{
+		$isClassName = Container::keyValue($options,
+			self::REPRESENTATION_IS_CLASS_NAME, false);
+		if (!($isClassName || \is_object($variable)))
+			return false;
+		foreach ($methods as $method)
+		{
+			if (\method_exists($variable, $method))
+				return true;
+		}
+		return false;
 	}
 }

@@ -9,7 +9,6 @@ namespace NoreSources\Type;
 
 use NoreSources\DateTime;
 use NoreSources\Container\Container;
-use NoreSources\Container\InvalidContainerException;
 
 /**
  * Type conversion utility class
@@ -37,18 +36,33 @@ class TypeConversion
 	const OPTION_FLAGS = 'flags';
 
 	/**
+	 * Invoke object type conversion method if available.
+	 *
+	 * @var number
+	 */
+	const OPTION_FLAG_OBJECT_TYPE_CONVERSION_METHODS = 0x01;
+
+	/**
 	 * Attempt to find and invoke the Class::createFrom<Type> factory function
 	 *
 	 * @var number
 	 */
-	const OPTION_FLAG_OBJECT_FACTORY = 0x01;
+	const OPTION_FLAG_OBJECT_FACTORY = 0x02;
 
 	/**
 	 * Attempt to construct object by value
 	 *
 	 * @var number
 	 */
-	const OPTION_FLAG_OBJECT_CONSTRUCTOR = 0x02;
+	const OPTION_FLAG_OBJECT_CONSTRUCTOR = 0x04;
+
+	/**
+	 * Strings comparison are case sensitive
+	 *
+	 *  @used-by toBoolean
+	 * @var number
+	 */
+	const OPTION_FLAG_CASE_SENSITIVE = 0x10;
 
 	/**
 	 * Time zone option (for toDateTime)
@@ -62,6 +76,13 @@ class TypeConversion
 	 * Automatically passed to fallback function
 	 */
 	const OPTION_TYPE = 'type';
+
+	/**
+	 * List of additional string literals considered as FALSE
+	 *
+	 * @var string
+	 */
+	const OPTION_FALSE_STRINGS = 'false';
 
 	/**
 	 *
@@ -81,20 +102,34 @@ class TypeConversion
 		if ($valueType == $type)
 			return $value;
 
-		$methodName = 'to' . $type;
-		if (\method_exists(self::class, $methodName))
-			return call_user_func([
-				self::class,
-				$methodName
-			], $value,
+		$specialization = 'to' . $type;
+		$callable = [
+			self::class,
+			$specialization
+		];
+		if (\is_callable($callable))
+			return call_user_func($callable, $value,
 				\array_merge($options, [
 					self::OPTION_TYPE => $type
 				]));
 
+		$flags = Container::keyValue($options, self::OPTION_FLAGS, 0);
+
+		if (\is_object($value))
+		{
+			if (($flags &
+				self::OPTION_FLAG_OBJECT_TYPE_CONVERSION_METHODS) ==
+				self::OPTION_FLAG_OBJECT_TYPE_CONVERSION_METHODS)
+			{
+
+				if (self::invokeStandardTypeConversionMethods($value,
+					$type))
+					return $value;
+			}
+		}
+
 		if (\class_exists($type))
 		{
-			$flags = Container::keyValue($options, self::OPTION_FLAGS, 0);
-
 			if (($flags & self::OPTION_FLAG_OBJECT_FACTORY) ==
 				self::OPTION_FLAG_OBJECT_FACTORY)
 			{
@@ -111,7 +146,7 @@ class TypeConversion
 					catch (\Exception $e)
 					{
 						throw new TypeConversionException($value,
-							$type . '::' . $method);
+							$type . '::' . $method, $e->getMessage());
 					}
 				}
 			}
@@ -126,7 +161,7 @@ class TypeConversion
 				catch (\Exception $e)
 				{
 					throw new TypeConversionException($value,
-						$type . '::__construct()');
+						$type . '::__construct()', $e->getMessage());
 				}
 			}
 		}
@@ -149,17 +184,44 @@ class TypeConversion
 	 */
 	public static function toArray($value, $options = array())
 	{
-		try
+		if (\is_array($value))
+			return $value;
+
+		if (!\is_object($value))
+			return self::fallbackOrThrowException($value,
+				\array_merge($options, [
+					self::OPTION_TYPE => 'array'
+				]));
+
+		if ($value instanceof ArrayRepresentation)
+			return $value->getArrayCopy();
+
+		$methods = [
+
+			'getArrayCopy',
+			'getArrayValue',
+			'toArray'
+		];
+
+		if (self::invokeTypeConversionMethods($value, $methods))
+			return $value;
+
+		if ($value instanceof \JsonSerializable)
 		{
-			$v = Container::createArray($value, null);
-		}
-		catch (InvalidContainerException $e)
-		{
-			$v = null;
+			$json = $value->jsonSerialize();
+			if (\is_array($json))
+				return $json;
 		}
 
-		if (\is_array($v))
-			return $v;
+		if (Container::isTraversable($value))
+		{
+			$array = [];
+			foreach ($value as $k => $v)
+			{
+				$array[$k] = $v;
+			}
+			return $array;
+		}
 
 		return self::fallbackOrThrowException($value,
 			\array_merge($options, [
@@ -191,6 +253,9 @@ class TypeConversion
 			if ($timezone && ($timezone !== $value->getTimezone()))
 				$d = clone $value;
 		}
+		elseif (\is_object($value) &&
+			self::invokeStandardTypeConversionMethods($value, 'datetime'))
+			return $value;
 		elseif (\is_float($value) || \is_integer($value))
 			$d = new DateTime($value, $timezone);
 		elseif (\is_string($value))
@@ -248,6 +313,10 @@ class TypeConversion
 		if ($value instanceof IntegerRepresentation)
 			return $value->getIntegerValue();
 
+		if (\is_object($value) &&
+			self::invokeStandardTypeConversionMethods($value, 'integer'))
+			return $value;
+
 		if ($value instanceof \DateTimeInterface)
 			return $value->getTimestamp();
 		elseif ($value instanceof \DateTimeZone)
@@ -285,6 +354,10 @@ class TypeConversion
 	{
 		if ($value instanceof FloatRepresentation)
 			return $value->getFloatValue();
+
+		if (\is_object($value) &&
+			self::invokeStandardTypeConversionMethods($value, 'float'))
+			return $value;
 
 		if ($value instanceof \DateTimeInterface)
 			return DateTime::toJulianDay($value);
@@ -384,14 +457,39 @@ class TypeConversion
 	{
 		if ($value instanceof BooleanRepresentation)
 			return $value->getBooleanValue();
+		if (\is_object($value) &&
+			self::invokeStandardTypeConversionMethods($value, 'boolean'))
+			return $value;
+
 		$v = @boolval($value);
-		if (\is_bool($v))
+		if (!\is_bool($v))
+			return self::fallbackOrThrowException($value,
+				\array_merge($options,
+					[
+						TypeConversion::OPTION_TYPE => 'boolean'
+					]));
+		if ($v === false)
 			return $v;
-		return self::fallbackOrThrowException($value,
-			\array_merge($options,
-				[
-					TypeConversion::OPTION_TYPE => 'boolean'
-				]));
+		if (!\is_string($value))
+			return $v;
+
+		$falses = Container::keyValue($options,
+			self::OPTION_FALSE_STRINGS, []);
+		if (empty($falses))
+			return $v;
+
+		$flags = Container::keyValue($options, self::OPTION_FLAGS, 0);
+		$f = '\strcasecmp';
+		if (($flags & self::OPTION_FLAG_CASE_SENSITIVE) ==
+			self::OPTION_FLAG_CASE_SENSITIVE)
+			$f = '\strcmp';
+		foreach ($falses as $s)
+		{
+			if ($f($value, $s) === 0)
+				return FALSE;
+		}
+
+		return $v;
 	}
 
 	/**
@@ -408,6 +506,33 @@ class TypeConversion
 	private static function toNull($value, $options = array())
 	{
 		return null;
+	}
+
+	private static function invokeStandardTypeConversionMethods(&$value,
+		$typeName)
+	{
+		return self::invokeTypeConversionMethods($value,
+			[
+				'get' . $typeName . 'Value',
+				'to' . $typeName
+			]);
+	}
+
+	private static function invokeTypeConversionMethods(&$value,
+		$methods)
+	{
+		foreach ($methods as $name)
+		{
+			if (\method_exists($value, $name))
+			{
+				$value = \call_user_func([
+					$value,
+					$methods
+				]);
+				return true;
+			}
+		}
+		return false;
 	}
 
 	/**

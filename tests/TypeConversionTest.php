@@ -346,6 +346,51 @@ final class TypeConversionTest extends \PHPUnit\Framework\TestCase
 		}
 	}
 
+	public function testToBoolean()
+	{
+		$tests = [
+			[
+				'input' => 0,
+				'expected' => false
+			],
+			[
+				'input' => '',
+				'expected' => false
+			],
+			[
+				'input' => [],
+				'expected' => false
+			],
+			[
+				'input' => 'false',
+				'expected' => true
+			],
+			[
+				'input' => 'False',
+				'expected' => false,
+				'options' => [
+					TypeConversion::OPTION_FALSE_STRINGS => [
+						'off',
+						'false'
+					]
+				]
+			]
+		];
+
+		foreach ($tests as $test)
+		{
+			$input = Container::keyValue($test, 'input');
+			$expected = Container::keyValue($test, 'expected');
+			$options = Container::keyValue($test, 'options', []);
+
+			$label = TypeDescription::getName($input) . ' ' .
+				@\strval($input);
+
+			$actual = TypeConversion::toBoolean($input, $options);
+			$this->assertEquals($expected, $actual, $label);
+		}
+	}
+
 	public function testShorthand()
 	{
 		$fallback = function ($value) {
