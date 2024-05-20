@@ -153,9 +153,14 @@ final class DateTimeTest extends \PHPUnit\Framework\TestCase
 			}
 
 			$dt = new DateTime($test->int);
+			$fdt = DateTime::createFromInteger($test->int);
 			$dt->setTimezone($tz);
+			$fdt->setTimezone($tz);
 			$this->assertEquals($test->text,
-				$dt->format(\DateTime::ISO8601), $label);
+				$dt->format(\DateTime::ISO8601),
+				$label . ' (constructor)');
+			$this->assertEquals($test->text,
+				$fdt->format(\DateTime::ISO8601), $label . ' (factory)');
 		}
 	}
 

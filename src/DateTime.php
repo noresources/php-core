@@ -433,6 +433,30 @@ class DateTime extends \DateTime implements IntegerRepresentation,
 	}
 
 	/**
+	 *
+	 * @param integer $secondsFromEpoch
+	 *        	Number of seconds from UNIX epoch
+	 * @return $this
+	 */
+	public static function createFromInteger($secondsFromEpoch)
+	{
+		$className = self::class;
+		return new $className('@' . $secondsFromEpoch);
+	}
+
+	/**
+	 *
+	 * @param string $iso601
+	 *        	ISO 8601 date time
+	 * @return $this
+	 */
+	public static function createFromString($iso601)
+	{
+		$className = self::class;
+		return new $className($iso8601);
+	}
+
+	/**
 	 * Create a DateTime from a DateTime description array
 	 *
 	 * @param array $array
