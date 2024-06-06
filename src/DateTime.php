@@ -446,11 +446,11 @@ class DateTime extends \DateTime implements IntegerRepresentation,
 
 	/**
 	 *
-	 * @param string $iso601
+	 * @param string $iso8601
 	 *        	ISO 8601 date time
 	 * @return $this
 	 */
-	public static function createFromString($iso601)
+	public static function createFromString($iso8601)
 	{
 		$className = self::class;
 		return new $className($iso8601);
