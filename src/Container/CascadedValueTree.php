@@ -7,14 +7,12 @@
  */
 namespace NoreSources\Container;
 
-use NoreSources\Type\ArrayRepresentation;
-
 /**
  * Represents a tree of values
  * where undefined tree path will take their value
  * from the nearest valid ancestor value.
  */
-class CascadedValueTree implements \ArrayAccess, ArrayRepresentation
+class CascadedValueTree extends \ArrayObject
 {
 
 	/**
@@ -30,29 +28,17 @@ class CascadedValueTree implements \ArrayAccess, ArrayRepresentation
 	 */
 	public function query($query, $dflt = null)
 	{
-		$value = $dflt;
-
-		$this->walk($query,
-			function ($node, $leafKey) use (&$value) {
-				$value = $this->keyValue($node, $leafKey, $value);
-				return true;
-			},
-			function ($node, $key, $leafKey) {
-				return $this->hasNode($node, $key);
-			},
-			function ($node, $key, $leafKey) use (&$value) {
-				$node = $node[self::NODES][$key];
-				$value = $this->keyValue($node, $leafKey, $value);
-				return true;
-			});
-
-		return $value;
-	}
-
-	#[\ReturnTypeWillChange]
-	public function getArrayCopy()
-	{
-		return $this->valueTree->getArrayCopy();
+		$keyTree = Container::normalizeKeyTree($query,
+			$this->keySeparator);
+		if (Container::count($keyTree) == 1)
+		{
+			$key = Container::shift($keyTree);
+			if (!parent::offsetExists($key))
+				return $dflt;
+			return parent::offsetGet($key);
+		}
+		return Container::treeValue($this, $query, $dflt,
+			$this->keySeparator);
 	}
 
 	/**
@@ -79,11 +65,17 @@ class CascadedValueTree implements \ArrayAccess, ArrayRepresentation
 	#[\ReturnTypeWillChange]
 	public function offsetSet($query, $value)
 	{
-		return $this->walk($query, null, null, null,
-			function ($node, $valid) use ($value) {
-				Container::setValue($node, self::VALUE, $value);
-				return true;
-			});
+		$keyTree = Container::normalizeKeyTree($query,
+			$this->keySeparator);
+		if (Container::count($keyTree) == 1)
+		{
+			$offset = Container::shift($keyTree);
+			parent::offsetSet($offset, $value);
+			return;
+		}
+		$a = $this->getArrayCopy();
+		Container::treeSet($a, $keyTree, $value, $this->keySeparator);
+		$this->exchangeArray($a);
 	}
 
 	/**
@@ -96,13 +88,15 @@ class CascadedValueTree implements \ArrayAccess, ArrayRepresentation
 	#[\ReturnTypeWillChange]
 	public function offsetExists($query)
 	{
-		return $this->walk($query, null,
-			function ($node, $key, $leafKey) {
-				return $this->hasNode($node, $key);
-			}, null,
-			function ($node, $valid) {
-				return $valid && Container::keyExists($node, self::VALUE);
-			});
+		$keyTree = Container::normalizeKeyTree($query,
+			$this->keySeparator);
+		if (Container::count($keyTree) == 1)
+		{
+			$offset = Container::shift($keyTree);
+			return parent::offsetExists($offset);
+		}
+		return Container::treeExists($this, $keyTree,
+			$this->keySeparator);
 	}
 
 	/**
@@ -115,21 +109,40 @@ class CascadedValueTree implements \ArrayAccess, ArrayRepresentation
 	#[\ReturnTypeWillChange]
 	public function offsetUnset($query)
 	{
-		return $this->walk($query, null,
-			function ($node, $key) {
-				$valid = $node->offsetExists(self::NODES) &&
-				$node[self::NODES]->offsetExists($key);
+		$keyTree = Container::normalizeKeyTree($query,
+			$this->keySeparator);
+		if (Container::count($keyTree) == 1)
+		{
+			$key = Container::shift($keyTree);
+			parent::offsetUnset($key);
+			return;
+		}
+		$a = $this->getArrayCopy();
+		Container::treeRemoveKey($a, $keyTree, $this->keySeparator);
+		$this->exchangeArray($a);
+	}
 
-				return $valid;
-			}, null,
-			function ($node, $valid) {
-				if (!$valid)
-					return $valid;
-				if (!$node->offsetExists(self::VALUE))
-					return false;
-				$node->offsetUnset(self::VALUE);
-				return true;
-			});
+	/**
+	 * Merge given array(s) with the current content
+	 *
+	 * @return \NoreSources\Container\CascadedValueTree
+	 */
+	public function merge(  /* ...$arrays [, $options] */ )
+	{
+		$options = Container::MERGE_RECURSE |
+			Container::MERGE_LIST_REPLACE;
+		$args = \func_get_args();
+		$last = \array_pop($args);
+		if (\is_integer($last))
+			$options = $last;
+		\array_unshift($args, $this->getArrayCopy());
+		$args[] = $options;
+		$array = \call_user_func_array([
+			Container::class,
+			'merge'
+		], $args);
+		$this->exchangeArray($array);
+		return $this;
 	}
 
 	/**
@@ -155,76 +168,16 @@ class CascadedValueTree implements \ArrayAccess, ArrayRepresentation
 		$this->keySeparator = $separator;
 	}
 
-	public function __construct()
+	public function __construct($array = array())
 	{
+		parent::__construct($array);
 		$this->setKeySeparator('.');
-		$this->valueTree = new \ArrayObject();
 	}
 
-	private function hasNode(\ArrayObject $node, $key)
-	{
-		return $node->offsetExists(self::NODES) &&
-			$node[self::NODES]->offsetExists($key);
-	}
-
-	private function keyValue(\ArrayObject $node, $key, $dflt = null)
-	{
-		if ($node->offsetExists(self::NODES) &&
-			$node[self::NODES]->offsetExists($key))
-			return Container::keyValue($node[self::NODES][$key],
-				self::VALUE, $dflt);
-		return $dflt;
-	}
-
-	private function walk($query, $init = null, $nodePreprocess = null,
-		$nodeProcess = null, $completion = null)
-	{
-		if (!\is_array($query))
-			$query = \explode($this->keySeparator, $query);
-
-		$node = $this->valueTree;
-		$c = \count($query);
-		$valid = true;
-		$leafKey = ($c ? $query[$c - 1] : null);
-
-		if (\is_callable($init))
-			$valid = \call_user_func($init, $node, $leafKey);
-
-		if ($valid)
-			foreach ($query as $key)
-			{
-				if (\is_callable($nodePreprocess))
-					$valid = \call_user_func($nodePreprocess, $node,
-						$key, $leafKey);
-
-				if (!$valid)
-					break;
-
-				if (!$node->offsetExists(self::NODES))
-					$node[self::NODES] = new \ArrayObject();
-				if (!$node[self::NODES]->offsetExists($key))
-					$node[self::NODES][$key] = new \ArrayObject();
-
-				if (\is_callable($nodeProcess))
-					if (!($valid = \call_user_func($nodeProcess, $node,
-						$key, $leafKey)))
-						break;
-
-				$node = $node[self::NODES][$key];
-			}
-
-		if (\is_callable($completion))
-			$valid = \call_user_func($completion, $node, $valid);
-
-		return $valid;
-	}
-
-	const NODES = 'nodes';
-
-	const VALUE = 'value';
-
+	/**
+	 *
+	 * @var string
+	 */
 	private $keySeparator;
-
-	private $valueTree;
 }
 
