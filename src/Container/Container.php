@@ -324,6 +324,31 @@ class Container
 	}
 
 	/**
+	 *
+	 * @param mixed $container
+	 *        	Input container
+	 * @param array|string|integer $keyTree
+	 *        	List of keys
+	 * @param string $keySeparator
+	 *        	Key separater if $keyTree is a string
+	 * @return boolean
+	 */
+	public static function treeRemoveKey(&$container, $keyTree,
+		$keySeparator = '.')
+	{
+		$keyTree = self::normalizeKeyTree($keyTree, $keySeparator);
+		if (!self::treeExists($container, $keyTree, $keySeparator))
+			return false;
+
+		$key = self::shift($keyTree);
+		if (self::count($keyTree) == 0)
+			return self::removeKey($container, $key);
+
+		return self::_treeRemoveKey($container[$key], $keyTree,
+			$keySeparator);
+	}
+
+	/**
 	 * Remove first entry from container and return its value.
 	 *
 	 * @param mixed $container
@@ -633,6 +658,43 @@ class Container
 	}
 
 	/**
+	 * Indicates if the container has a tree of keys
+	 *
+	 * @param mixed $container
+	 *        	The container
+	 * @param array|string|integer $keyTree
+	 *        	List of keys
+	 * @param string $keySeparator
+	 *        	Key separater if $keyTree is a string
+	 * @return boolean true if $container has the given key tree.
+	 */
+	public static function treeExists($container, $keyTree,
+		$keySeparator = '.')
+	{
+		$keyTree = self::normalizeKeyTree($keyTree, $keySeparator);
+		while (self::count($keyTree))
+		{
+			$key = self::shift($keyTree);
+
+			try
+			{
+				if (!self::keyExists($container, $key))
+					return false;
+				$container = self::keyValue($container, $key);
+			}
+			catch (InvalidContainerException $e)
+			{
+				return false;
+			}
+			catch (EmptyContainerException $e)
+			{
+				return false;
+			}
+		}
+		return true;
+	}
+
+	/**
 	 * Indicates if the given value appears in the container elements
 	 *
 	 * @param array|\ArrayAccess|\Traversable $container
@@ -930,11 +992,13 @@ class Container
 	/**
 	 *
 	 * @param array $container
-	 *        	The container
+	 *        	Input container
 	 * @param array|string|integer $keyTree
 	 *        	Container key or key path
 	 * @param mixed $defaultValue
 	 *        	Value to return if $keyTree does not exists in $container
+	 * @param string $keySeparator
+	 *        	Key separater if $keyTtrtee is a string
 	 *
 	 * @throws InvalidContainerException
 	 *
@@ -949,7 +1013,7 @@ class Container
 		if (!\is_array($keyTree))
 			return self::keyValue($container, $keyTree, $dflt);
 		$key = self::shift($keyTree);
-		if (!Container::keyExists($container, $key))
+		if (!self::keyExists($container, $key))
 			return $dflt;
 		$container = self::keyValue($container, $key);
 
@@ -1010,6 +1074,46 @@ class Container
 		if ($validContainer)
 			return;
 		throw new InvalidContainerException($container);
+	}
+
+	/**
+	 *
+	 * @param mixed $container
+	 * @param array|string|integer $keyTree
+	 * @param mixed $value
+	 *        	New leaf value
+	 * @param string $keySeparator
+	 * @throws \InvalidArgumentException
+	 */
+	public static function treeSet(&$container, $keyTree, $value,
+		$keySeparator = '.')
+	{
+		$keyTree = self::normalizeKeyTree($keyTree, $keySeparator);
+
+		$c = self::count($keyTree);
+		if ($c == 0)
+			throw new \InvalidArgumentException(
+				'Key tree cannot be empty.');
+
+		$key = self::shift($keyTree);
+
+		if ($c == 1)
+		{
+			if (!self::isArray($container))
+			{
+				$container = [
+					$key => $value
+				];
+				return;
+			}
+
+			self::setValue($container, $key, $value);
+			return;
+		}
+
+		if (!self::keyExists($container, $key))
+			self::setValue($container, $key, []);
+		self::treeSet($container[$key], $keyTree, $value, $keySeparator);
 	}
 
 	/**
@@ -1636,9 +1740,9 @@ class Container
 	/**
 	 * Removes duplicate values from an container
 	 *
-	 * @param unknown $container
+	 * @param mixed $container
 	 *        	Input container
-	 * @param unknown $comparer
+	 * @param callable $comparer
 	 *        	User-defined comparision function.
 	 *        	The callback will receive in arguments the current candidate to insertion, one of
 	 *        	the already inserted element and any additional argument given to the uniqueValues
@@ -1795,6 +1899,37 @@ class Container
 	{
 		return TypeConversion::toString($a) ==
 			TypeConversion::toString($b);
+	}
+
+	/**
+	 *
+	 * @internal
+	 * @param array|string|integer $keyTree
+	 *        	Key tree
+	 * @param unknown $keySeparator
+	 *        	Key separater if $keyTree is a string
+	 * @return array
+	 */
+	public static function normalizeKeyTree($keyTree, $keySeparator)
+	{
+		if (self::isArray($keyTree))
+			return $keyTree;
+		if (empty($keySeparator) || !\is_string($keyTree))
+			return [
+				$keyTree
+			];
+		return \explode($keySeparator, $keyTree);
+	}
+
+	private static function _treeRemoveKey(&$container, $keyTree,
+		$keySeparator = '.')
+	{
+		$key = self::shift($keyTree);
+		if (self::count($keyTree) == 0)
+			return self::removeKey($container, $key);
+
+		return self::_treeRemoveKey($container[$key], $keyTree,
+			$keySeparator);
 	}
 
 	private static function implodeParts($parts, $b, $i, $p, $a)

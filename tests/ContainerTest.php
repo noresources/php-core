@@ -236,6 +236,108 @@ final class ContainerTest extends \PHPUnit\Framework\TestCase
 			'After offsetSet arrayWithGetMethod::$hardCodedProperty');
 	}
 
+	public function testTreeExistsOrSet()
+	{
+		$tests = [
+			[
+				'container' => [],
+				'keyTree' => [],
+				'expected' => \InvalidArgumentException::class
+			],
+			[
+				'container' => [],
+				'keyTree' => [
+					'key'
+				],
+				'expected' => false
+			],
+			[
+				'container' => [
+					'key' => 'value'
+				],
+				'keyTree' => [
+					'key'
+				],
+				'expected' => true
+			],
+			[
+				'container' => [
+					'key' => 'value'
+				],
+				'keyTree' => [
+					'key',
+					'sub-key'
+				],
+				'expected' => false,
+				'value' => 'set'
+			],
+			[
+				'container' => [
+					'key' => [
+						'sub-key' => 'value'
+					]
+				],
+				'keyTree' => [
+					'key',
+					'sub-key'
+				],
+				'expected' => true
+			],
+			[
+				'container' => [
+					'what' => 42,
+					'key' => new \ArrayObject(
+						[
+							'sub-key' => [
+								'in-array-object' => 'yes'
+							]
+						])
+				],
+				'keyTree' => [
+					'key',
+					'sub-key',
+					'in-array-object'
+				],
+				'expected' => true
+			]
+		];
+
+		foreach ($tests as $label => $test)
+		{
+
+			$actual = null;
+			$keyTree = $test['keyTree'];
+			$container = $test['container'];
+			$expected = $test['expected'];
+
+			$label .= ' - [' .
+				Container::implodeValues($test['keyTree'], ', ') . '] = ' .
+				($expected ? 'exists' : 'does not exists');
+
+			try
+			{
+				$actual = Container::treeExists($container, $keyTree);
+			}
+			catch (\Exception $e)
+			{
+				$label .= ' - ' . $e->getMessage();
+				$actual = TypeDescription::getName($e);
+			}
+			$this->assertEquals($expected, $actual, $label);
+
+			if (!Container::keyExists($test, 'value'))
+				continue;
+			$value = $test['value'];
+
+			Container::treeSet($container, $keyTree, $value);
+
+			$actual = Container::treeExists($container, $keyTree);
+			$expected = true;
+			$this->assertEquals($expected, $actual,
+				$label . PHP_EOL . 'After set');
+		}
+	}
+
 	public function testTreeValue()
 	{
 		$tests = [
