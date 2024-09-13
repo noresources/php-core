@@ -94,12 +94,12 @@ class ContainerImpl implements ContainerInterface
 		$this->table = $a;
 	}
 
-	public function has($id)
+	public function has(string $id): bool
 	{
 		return \array_key_exists($id, $this->table);
 	}
 
-	public function get($id)
+	public function get(string $id)
 	{
 		if (\array_key_exists($id, $this->table))
 			return $this->table[$id];
