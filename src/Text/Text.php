@@ -371,16 +371,6 @@ class Text
 	const CODE_CASE_SEPARATOR = 'separator';
 
 	/**
-	 * Non-initial word letter case option
-	 *
-	 * Expected value is a boolean.
-	 * The default value is FALSE.
-	 *
-	 * @deprecated Replaced by CODE_CASE_CAPITALIZE_WORDS
-	 */
-	const CODE_CASE_UPPER = 'uppercase';
-
-	/**
 	 * Initial word letter case option
 	 */
 	const CODE_CASE_CAPITALIZE = 'capitalize';
@@ -391,32 +381,14 @@ class Text
 	const CODE_CASE_CAPITALIZE_FIRST_INITIAL = 0x01;
 
 	/**
-	 *
-	 * @deprecated
-	 */
-	const CODE_CASE_CAPITALIZE_FIRST = self::CODE_CASE_CAPITALIZE_FIRST_INITIAL;
-
-	/**
 	 * Capitalize first letter of other words
 	 */
 	const CODE_CASE_CAPITALIZE_FOLLOWING_INITIALS = 0x02;
 
 	/**
-	 *
-	 * @deprecated
-	 */
-	const CODE_CASE_CAPITALIZE_OTHER = self::CODE_CASE_CAPITALIZE_FOLLOWING_INITIALS;
-
-	/**
 	 * Capitalize first letter of all words
 	 */
 	const CODE_CASE_CAPITALIZE_INITIALS = 0x03;
-
-	/**
-	 *
-	 * @deprecated
-	 */
-	const CODE_CASE_CAPITALIZE_ALL = self::CODE_CASE_CAPITALIZE_INITIALS;
 
 	const CODE_CASE_CAPITALIZE_WORDS = 0x07;
 
@@ -439,13 +411,8 @@ class Text
 			[
 				self::CODE_CASE_SEPARATOR => '',
 				self::CODE_CASE_CAPITALIZE => self::CODE_CASE_CAPITALIZE_INITIALS,
-				self::CODE_CASE_UPPER => false,
 				self::CODE_CASE_WORD_OPTIONS => 0
 			], $options);
-
-		// Legacy
-		if ($options[self::CODE_CASE_UPPER])
-			$options[self::CODE_CASE_CAPITALIZE] |= self::CODE_CASE_CAPITALIZE_WORDS;
 
 		$words = self::explodeCodeWords($text,
 			$options[self::CODE_CASE_WORD_OPTIONS]);

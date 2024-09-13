@@ -21,7 +21,7 @@ abstract class AbstractTcpLogger implements LoggerInterface
 	 *
 	 * @param string $level
 	 *        	Log level identifier
-	 * @param unknown $message
+	 * @param string $message
 	 *        	Log message
 	 * @param array $context
 	 *        	Context

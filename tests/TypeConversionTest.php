@@ -9,7 +9,6 @@ namespace NoreSources\Test;
 
 use NoreSources\DateTime;
 use NoreSources\Container\Container;
-use NoreSources\Container\DataTree;
 use NoreSources\Type\TypeConversion;
 use NoreSources\Type\TypeConversionException;
 use NoreSources\Type\TypeDescription;
@@ -185,9 +184,7 @@ final class TypeConversionTest extends \PHPUnit\Framework\TestCase
 			'2014-05-04',
 			4096,
 			1.2,
-			new DataTree([
-				'key' => "value"
-			]),
+
 			new \DateTime('now'),
 			new \DateTimeZone('Europe/Berlin')
 		];
@@ -203,7 +200,6 @@ final class TypeConversionTest extends \PHPUnit\Framework\TestCase
 	public function testInvalidDateTime()
 	{
 		$input = [
-			new DataTree(),
 			'2017 04 08 @ 15:22',
 			false,
 			[

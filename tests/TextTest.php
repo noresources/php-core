@@ -8,9 +8,7 @@
 namespace NoreSources\Test;
 
 use NoreSources\Container\Container;
-use NoreSources\Text\StructuredText;
 use NoreSources\Text\Text;
-use NoreSources\Type\TypeConversionException;
 
 /**
  * Text and structured text tests
@@ -274,73 +272,5 @@ final class TextTest extends \PHPUnit\Framework\TestCase
 				}
 			}
 		}
-	}
-
-	final function testStructuredTextUrlEncoded()
-	{
-		$tests = [
-			'simple value' => [
-				'input' => \urlencode('Simple value'),
-				'expected' => 'Simple value'
-			],
-			'key value' => [
-				'input' => \http_build_query([
-					'key' => 'value'
-				]),
-				'expected' => [
-					'key' => 'value'
-				]
-			],
-			'text with a "&"' => [
-				'input' => \urlencode('text with a "&"'),
-				'expected' => 'text with a "&"'
-			],
-			'multiple key value' => [
-				'input' => \http_build_query(
-					[
-						'key' => 'value',
-						'empty' => '',
-						'foo' => 'bar'
-					]),
-				'expected' => [
-					'key' => 'value',
-					'empty' => '',
-					'foo' => 'bar'
-				]
-			]
-		];
-
-		foreach ($tests as $label => $test)
-		{
-			$actual = StructuredText::parseText($test['input'],
-				StructuredText::FORMAT_URL_ENCODED);
-
-			$this->assertEquals($test['expected'], $actual, $label);
-		}
-	}
-
-	final function testStructuredTextJson()
-	{
-		$json = [
-			'a',
-			'int',
-			'float',
-			'null',
-			'boolean'
-		];
-
-		foreach ($json as $name)
-		{
-			$filename = __DIR__ . '/data/' . $name . '.json';
-			$expected = \json_decode(\file_get_contents($filename), true);
-			$actual = StructuredText::parseFile($filename);
-			$this->assertEquals($expected, $actual, 'JSON ' . $name);
-		}
-	}
-
-	final function testStructureTextFromTextFailure()
-	{
-		$this->expectException(TypeConversionException::class);
-		$data = StructuredText::parseFile(__DIR__ . '/data/sample.xml');
 	}
 }

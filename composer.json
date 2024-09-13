@@ -1,5 +1,5 @@
 {
-	"name": "noresources/ns-php-core", 
+	"name": "noresources/core", 
 	"description": "Utility class library for PHP", 
 	"type": "library", 
 	"keywords": [
@@ -14,7 +14,7 @@
 		}
 	], 
 	"support": {
-		"issues": "https://github.com/noresources/ns-php-core/issues"
+		"issues": "https://github.com/noresources/php-core/issues"
 	}, 
 	"autoload": {
 		"psr-4": {
@@ -23,15 +23,12 @@
 		}
 	}, 
 	"require": {
-		"php": ">= 5.6", 
-		"ext-json": "*", 
-		"psr/container": "^1.0", 
-		"psr/log": "^1.1"
+		"php": ">= 7.1", 
+		"psr/container": "^1.0 || ^2.0", 
+		"psr/log": "^1.1 || ^2.0"
 	}, 
 	"suggest": {
-		"ext-yaml": "Needed to load DataTree content from YAML encoded file", 
-		"ext-calendar": "Needed to test DateTime::toJulianDay against PHP calendar functions", 
-		"ext-mbstring": "For unicode support in text tokenification"
+		"ext-json": "Object to string conversion"
 	}, 
 	"scripts": {
 		"test": "@php  ./vendor/bin/phpunit --color=never --strict-coverage --bootstrap vendor/autoload.php tests"
@@ -51,7 +48,13 @@
 			"dev-2.6.x": "2.6.x-dev", 
 			"dev-2.7.x": "2.7.x-dev", 
 			"dev-2.8.x": "2.8.x-dev", 
-			"dev-master": "2.11.x-dev"
+			"dev-2.10.x": "2.10.x-dev", 
+			"dev-2.11.x": "2.11.x-dev", 
+			"dev-2.12.x": "2.12.x-dev", 
+			"dev-main": "3.0.x-dev"
 		}
+	}, 
+	"replace": {
+		"noresources/ns-php-core": "3.0.0"
 	}
 }

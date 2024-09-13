@@ -23,7 +23,7 @@ trait ArrayAccessContainerInterfaceTrait
 	 * @return boolean
 	 */
 	#[\ReturnTypeWillChange]
-	public function has($key)
+	public function has(string $key): bool
 	{
 		return $this->offsetExists($key);
 	}
@@ -36,7 +36,7 @@ trait ArrayAccessContainerInterfaceTrait
 	 * @throws KeyNotFoundException
 	 */
 	#[\ReturnTypeWillChange]
-	public function get($key)
+	public function get(string $key)
 	{
 		if (!$this->has($key))
 		{

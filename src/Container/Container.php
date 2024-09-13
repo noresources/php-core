@@ -7,7 +7,6 @@
  */
 namespace NoreSources\Container;
 
-use NoreSources\Reflection\ReflectionService;
 use NoreSources\Type\ArrayRepresentation;
 use NoreSources\Type\TypeConversion;
 use Psr\Container\ContainerInterface;
@@ -178,8 +177,7 @@ class Container
 		{
 			if (($properties & self::TRAVERSABLE) != self::TRAVERSABLE)
 			{
-				$reflection = ReflectionService::getInstance();
-				$class = $reflection->getReflectionClass($container);
+				$class = new \ReflectionClass(\get_class($container));
 				foreach ($class->getProperties() as $property)
 				{
 					if ($property->IsPublic())
@@ -388,51 +386,6 @@ class Container
 		list ($key, $value) = self::last($container);
 		self::removeKey($container, $key);
 		return $value;
-	}
-
-	/**
-	 * Transform any type to a plain PHP array
-	 *
-	 * @deprecated TypeConversion::toArray () should be preferred in most cases
-	 *
-	 * @param mixed $anything
-	 *        	The container
-	 * @param number $singleElementKey
-	 *        	Key used to create a single element array when is not something that could be
-	 *        	converted to an array
-	 * @return array or null if $anything cannont be converted to array and $singleElementKey is
-	 *         null
-	 */
-	public static function createArray($anything,
-		$singleElementKey = null)
-	{
-		if (\is_array($anything))
-			return $anything;
-		elseif ($anything instanceof \ArrayObject ||
-			$anything instanceof ArrayRepresentation)
-			return $anything->getArrayCopy();
-
-		if ($anything instanceof \JsonSerializable)
-		{
-			$j = $anything->jsonSerialize();
-			if (\is_array($j))
-				return $j;
-		}
-
-		if (self::isTraversable($anything))
-		{
-			$a = [];
-			foreach ($anything as $k => $v)
-				$a[$k] = $v;
-			return $a;
-		}
-
-		if ($singleElementKey !== null)
-			return [
-				$singleElementKey => $anything
-			];
-
-		throw new InvalidContainerException($anything);
 	}
 
 	/**
@@ -1906,7 +1859,7 @@ class Container
 	 * @internal
 	 * @param array|string|integer $keyTree
 	 *        	Key tree
-	 * @param unknown $keySeparator
+	 * @param string $keySeparator
 	 *        	Key separater if $keyTree is a string
 	 * @return array
 	 */

@@ -94,12 +94,12 @@ class ContainerImpl implements ContainerInterface
 		$this->table = $a;
 	}
 
-	public function has($id)
+	public function has(string $id): bool
 	{
 		return \array_key_exists($id, $this->table);
 	}
 
-	public function get($id)
+	public function get(string $id)
 	{
 		if (\array_key_exists($id, $this->table))
 			return $this->table[$id];
@@ -1230,38 +1230,6 @@ final class ContainerTest extends \PHPUnit\Framework\TestCase
 			$this->assertEquals($current, $iterator->current(),
 				'Unchanged iterator');
 		}
-	}
-
-	public function testCreateArrayException()
-	{
-		$this->expectException(InvalidContainerException::class);
-		$o = new OpaqueClass();
-		$a = Container::createArray($o);
-	}
-
-	public function testCreateArrayException2()
-	{
-		$this->expectException(InvalidContainerException::class);
-		$a = Container::createArray(5);
-	}
-
-	public function testCreateArray()
-	{
-		$value = 5;
-		$this->assertEquals([
-			'value' => $value
-		], Container::createArray($value, 'value'), 'Literal value');
-
-		$object = new MetaVariable();
-		$this->assertEquals([
-			'foo' => 'bar'
-		], Container::createArray($object), 'Traversable object');
-
-		$a = [
-			'one' => 1,
-			2 => 'two'
-		];
-		$this->assertEquals($a, Container::createArray($a), 'Array');
 	}
 
 	public function testMap()

@@ -7,6 +7,8 @@
  */
 namespace NoreSources\Container;
 
+use NoreSources\Type\TypeConversion;
+
 /**
  * Case-insensitive key value map.
  *
@@ -108,7 +110,7 @@ trait CaseInsensitiveKeyMapTrait
 			if (!isset($this->caseSensitiveMap))
 				$this->caseSensitiveMap = new \ArrayObject();
 			$this->caseSensitiveMap->exchangeArray(
-				Container::createArray($array));
+				TypeConversion::toArray($array));
 		}
 
 		$this->keys = [];
