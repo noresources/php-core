@@ -9,29 +9,25 @@ use NoreSources\Test\DerivedFileTestTrait;
  */
 class DerivedFileTestTraitTest extends \PHPUnit\Framework\TestCase
 {
-	use DerivedFileTestTrait;
+    use DerivedFileTestTrait;
 
-	public function __construct($name = null, array $data = [],
-		$dataName = '')
-	{
-		parent::__construct($name, $data, $dataName);
-		$this->setUpDerivedFileTestTrait(__DIR__);
-	}
+    public function setUp(): void
+    {
+        $this->setUpDerivedFileTestTrait(__DIR__);
+    }
 
-	public function testAssertAnyEqualsReferenceFile()
-	{
-		$content = "Foo\nBar\nHello world!";
-		$this->assertDataEqualsReferenceFile($content, __METHOD__, null,
-			'txt', 'assertDataEqualsReferenceFile');
+    public function testAssertAnyEqualsReferenceFile()
+    {
+        $content = "Foo\nBar\nHello world!";
+        $this->assertDataEqualsReferenceFile($content, __METHOD__, null, 'txt', 'assertDataEqualsReferenceFile');
 
-		$stream = \fopen('php://memory', "rw");
-		\fwrite($stream, $content);
-		$this->assertStreamEqualsReferenceFile($stream, __METHOD__, null,
-			'txt');
-	}
+        $stream = \fopen('php://memory', "rw");
+        \fwrite($stream, $content);
+        $this->assertStreamEqualsReferenceFile($stream, __METHOD__, null, 'txt');
+    }
 
-	public function __destruct()
-	{
-		$this->tearDownDerivedFileTestTrait();
-	}
+    public function __destruct()
+    {
+        $this->tearDownDerivedFileTestTrait();
+    }
 }
