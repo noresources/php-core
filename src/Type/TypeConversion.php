@@ -197,7 +197,6 @@ class TypeConversion
 			return $value->getArrayCopy();
 
 		$methods = [
-
 			'getArrayCopy',
 			'getArrayValue',
 			'toArray'
@@ -527,7 +526,7 @@ class TypeConversion
 			{
 				$value = \call_user_func([
 					$value,
-					$methods
+					$name
 				]);
 				return true;
 			}

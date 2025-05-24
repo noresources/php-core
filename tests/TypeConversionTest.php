@@ -88,11 +88,28 @@ final class TypeConversionTest extends \PHPUnit\Framework\TestCase
 		}
 	}
 
+	public function testArrayObectToArray()
+	{
+		$a = new \ArrayObject([
+			'foo',
+			'bar'
+		]);
+		$expected = [
+			'foo',
+			'bar'
+		];
+		$actual = TypeConversion::toArray($a);
+		$this->assertEquals($expected, $actual, 'ArrayObject to array');
+	}
+
 	public function testInvalidArray()
 	{
 		$input = [
 			false,
-			'A string'
+			'A string',
+			null,
+			42,
+			3.14159
 		];
 
 		foreach ($input as $value)
