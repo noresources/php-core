@@ -34,6 +34,7 @@
 		"test": "@php  ./vendor/bin/phpunit --color=never --strict-coverage --bootstrap vendor/autoload.php tests"
 	}, 
 	"require-dev": {
+		"ext-mbstring": "*",
 		"phpunit/phpunit": ">= 5.0"
 	}, 
 	"autoload-dev": {

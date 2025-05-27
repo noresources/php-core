@@ -45,7 +45,7 @@ trait ChainElementTrait
 	 * @param ChainElementInterface $previousElement
 	 */
 	public function setPreviousElement(
-		ChainElementInterface $previousElement = null)
+		?ChainElementInterface $previousElement)
 	{
 		if ($this->previousChainElement == $previousElement)
 			return;
@@ -67,7 +67,7 @@ trait ChainElementTrait
 	 * @param ChainElementInterface $nextElement
 	 */
 	public function setNextElement(
-		ChainElementInterface $nextElement = null)
+		?ChainElementInterface $nextElement)
 	{
 		if ($this->nextChainElement == $nextElement)
 			return;

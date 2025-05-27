@@ -261,7 +261,7 @@ class DateTime extends \DateTime implements IntegerRepresentation,
 	 *        	Use this time zone ONLY if the $time does not provide time zone information
 	 */
 	public function __construct($time = null,
-		\DateTimeZone $timezone = null)
+		?\DateTimeZone $timezone = null)
 	{
 		if (\is_integer($time))
 			parent::__construct('@' . $time);
