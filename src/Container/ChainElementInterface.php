@@ -44,7 +44,7 @@ interface ChainElementInterface
 	 *        	The new chain link which will be before the instance.
 	 */
 	function setPreviousElement(
-		ChainElementInterface $previousElement = null);
+		?ChainElementInterface $previousElement);
 
 	/**
 	 * Change the link to the element after the instance.
@@ -54,7 +54,7 @@ interface ChainElementInterface
 	 * @param ChainElementInterface $nextElement
 	 *        	The new chain link which will be after the instance.
 	 */
-	function setNextElement(ChainElementInterface $nextElement = null);
+	function setNextElement(?ChainElementInterface $nextElement);
 
 	/**
 	 *
