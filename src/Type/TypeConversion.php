@@ -263,6 +263,10 @@ class TypeConversion
 			{
 				$d = new DateTime($value, $timezone);
 			}
+			catch (\DateMalformedStringException $e)
+			{
+				$message = $e->getMessage();
+			}
 			catch (\Exception $e)
 			{
 				$message = $e->getMessage();
